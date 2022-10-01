@@ -1,0 +1,75 @@
+::-webkit-scrollbar {
+  width: 0.3rem;
+  height: 0.3rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #333;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #555;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--red);
+}
+
+:root {
+  --yellow: #fcc14a;
+  --blue: #327b9f;
+  --red: #ff3863;
+  --purple: #80558c;
+  --green: #59ce8f;
+  --body-color: #111;
+  --font-color: #eee;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Lato";
+  outline: 0px dotted red;
+}
+
+body,
+html {
+  height: 100%;
+}
+
+body {
+  background-color: #050505;
+  color: #eee;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+}
+
+main {
+  flex: 1;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+  color: unset;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.route-enter-from,
+.route-leave-to {
+  opacity: 0;
+}
+
+.route-enter-active,
+.route-leave-active {
+  transition: all 150ms ease-in;
+}
+
+@media (min-width: 35rem) {
+  #foot {
+    display: none;
+  }
+}
