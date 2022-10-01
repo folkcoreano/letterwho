@@ -29,3 +29,4 @@ coverage
 
 #dev
 .env.local
+.vercel
