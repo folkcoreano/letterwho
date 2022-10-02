@@ -25,16 +25,20 @@ async function getRanges() {
 
 getRanges();
 </script>
-
 <template>
-	<div>
-		<div v-if="load">
+	<template v-if="load">
+		<div class="ranges">
 			<div
+				class="range"
 				v-for="({title, range, type}, i) in data"
 				:key="i"
 			>
-				<RouterLink :to="{name: 'range', params: {type: type, range: range}}">
+				<RouterLink
+					class="item"
+					:to="{name: 'range', params: {type: type, range: range}}"
+				>
 					<img
+						class="cover"
 						:src="folder(`${type}/${range}/${range}`, '200')"
 						alt=""
 					/>
@@ -42,8 +46,26 @@ getRanges();
 				</RouterLink>
 			</div>
 		</div>
-		<div v-else>
-			<LoadingState />
-		</div>
-	</div>
+	</template>
+	<template v-else>
+		<LoadingState />
+	</template>
 </template>
+
+<style scoped>
+.ranges {
+	display: flex;
+	gap: 1rem;
+}
+
+.item {
+	align-items: center;
+	gap: 1rem;
+	display: flex;
+	flex-flow: column;
+}
+
+.cover {
+	max-width: 10rem;
+}
+</style>

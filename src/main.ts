@@ -1,6 +1,5 @@
 import {createApp} from "vue";
 import {createPinia} from "pinia";
-import {createHead} from "@vueuse/head";
 import {initializeApp} from "firebase/app";
 import App from "@/App.vue";
 import router from "@/router";
@@ -12,7 +11,6 @@ import TheFooter from "@/components/layout/TheFooter.vue";
 import TheHeader from "@/components/layout/TheHeader.vue";
 
 const app = createApp(App);
-const head = createHead();
 
 const firebase = {
 	apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -32,8 +30,6 @@ app
 	.component("MainState", MainState)
 	.component("TheHeader", TheHeader)
 	.component("TheFooter", TheFooter);
-
-app.use(head);
 
 app.use(createPinia());
 app.use(router);

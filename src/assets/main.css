@@ -21,8 +21,6 @@
   --red: #ff3863;
   --purple: #80558c;
   --green: #59ce8f;
-  --body-color: #111;
-  --font-color: #eee;
 }
 
 * {
@@ -47,6 +45,8 @@ body {
 }
 
 main {
+  padding: 0.5rem;
+  overflow: auto;
   flex: 1;
 }
 

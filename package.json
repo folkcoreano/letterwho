@@ -11,7 +11,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^1.35.7",
     "@vueuse/core": "^9.3.0",
-    "@vueuse/head": "^0.8.0",
+    "dayjs": "^1.11.5",
     "firebase": "^9.10.0",
     "imagekit-javascript": "^1.5.4",
     "pinia": "^2.0.21",

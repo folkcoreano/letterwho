@@ -17,7 +17,7 @@ function handleRoute(rota: string) {
 		>
 			<iconify-icon
 				class="footerIcon"
-				icon="ri:home-2-fill"
+				:icon="'ri:home-2-' + (route.name === 'home' ? 'fill' : 'line')"
 			/>
 		</RouterLink>
 		<RouterLink
@@ -27,7 +27,7 @@ function handleRoute(rota: string) {
 		>
 			<iconify-icon
 				class="footerIcon"
-				icon="ri:headphone-fill"
+				:icon="'ri:headphone-' + (handleRoute('audios') ? 'fill' : 'line')"
 			/>
 		</RouterLink>
 		<RouterLink
@@ -37,7 +37,7 @@ function handleRoute(rota: string) {
 		>
 			<iconify-icon
 				class="footerIcon"
-				icon="ri:file-list-3-fill"
+				:icon="'ri:file-list-3-' + (handleRoute('books') ? 'fill' : 'line')"
 			/>
 		</RouterLink>
 		<RouterLink
@@ -46,7 +46,7 @@ function handleRoute(rota: string) {
 		>
 			<iconify-icon
 				class="footerIcon"
-				icon="ri:book-mark-fill"
+				:icon="'ri:book-mark-' + (handleRoute('comics') ? 'fill' : 'line')"
 			/>
 		</RouterLink>
 		<RouterLink
@@ -55,7 +55,7 @@ function handleRoute(rota: string) {
 		>
 			<iconify-icon
 				class="footerIcon"
-				icon="ri:tv-fill"
+				:icon="'ri:tv-' + (handleRoute('tv') ? 'fill' : 'line')"
 			/>
 		</RouterLink>
 	</section>
@@ -80,13 +80,13 @@ section {
 }
 
 .footerLink:hover {
-	translate: 0 -0.15rem;
+	translate: 0 -0.25rem;
 	transition: all 150ms ease;
 	color: var(--yellow);
 }
 
 .active {
-	translate: 0 -0.15rem;
+	translate: 0 -0.25rem;
 	transition: all 150ms ease;
 	color: var(--yellow);
 }

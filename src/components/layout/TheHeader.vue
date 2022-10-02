@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import UserHead from "../user/UserHead.vue";
+import {useUser} from "@/stores/user";
 import {useRoute} from "vue-router";
 
+const {lang, logged} = useUser();
+
 const route = useRoute();
+
 function handleRoute(rota: string) {
 	return route.path.includes(rota);
 }
@@ -10,7 +15,6 @@ function handleRoute(rota: string) {
 <template>
 	<header>
 		<RouterLink
-			tabindex="0"
 			class="logoArea"
 			to="/"
 		>
@@ -21,35 +25,35 @@ function handleRoute(rota: string) {
 			/>
 		</RouterLink>
 		<div class="navArea">
+			<UserHead v-if="logged" />
 			<RouterLink
-				tabindex="0"
 				:class="handleRoute('audios') ? 'navLink active' : 'navLink'"
 				to="/audios"
-				>AUDIOS</RouterLink
-			>
+				v-text="lang === 'pt-br' ? 'ÁUDIOS' : 'AUDIOS'"
+			/>
 			<RouterLink
 				:class="handleRoute('books') ? 'navLink active' : 'navLink'"
 				to="/books"
-				>BOOKS</RouterLink
-			>
+				v-text="lang === 'pt-br' ? 'LIVROS' : 'BOOKS'"
+			/>
 			<RouterLink
 				:class="handleRoute('comics') ? 'navLink active' : 'navLink'"
 				to="/comics"
-				>COMICS</RouterLink
-			>
+				v-text="lang === 'pt-br' ? 'QUADRINHOS' : 'COMICS'"
+			/>
 			<RouterLink
 				:class="handleRoute('tv') ? 'navLink active' : 'navLink'"
 				to="/tv"
-				>TV</RouterLink
-			>
+				v-text="'TV'"
+			/>
 		</div>
 	</header>
 </template>
 
 <style scoped>
-/* * {
-	outline: 1px dotted deeppink;
-} */
+* {
+	outline: 0px dotted deeppink;
+}
 
 .navArea {
 	display: none;
@@ -64,9 +68,9 @@ function handleRoute(rota: string) {
 	transition: all 150ms linear;
 	border-bottom: 3px solid transparent;
 	color: #9f9f9f;
-	translate: 0 0.1rem;
 }
 .navLink:hover {
+	translate: 0 0.1rem;
 	transition: all 150ms linear;
 	color: #fff;
 	text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.8);
@@ -75,13 +79,13 @@ function handleRoute(rota: string) {
 	border-bottom: 3px solid #eee;
 	transition: all 150ms linear;
 	color: #eee;
-	translate: 0 0;
+	translate: 0 -0.1rem;
 }
 
 header {
 	display: flex;
 	justify-content: space-between;
-	padding: 0.5rem;
+	padding: 0.65rem;
 }
 
 .logoArea {
