@@ -48,6 +48,12 @@ watchEffect(async () => {
 
 			init.value = true;
 		} else {
+			user.info = {
+				name: "nobody",
+				created: "sla",
+				lang: "en",
+				picture: "aa",
+			};
 			console.log(":p");
 			init.value = true;
 		}

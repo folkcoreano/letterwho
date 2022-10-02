@@ -3,8 +3,8 @@ import supabase from "@/supabase";
 import {ref} from "vue";
 import {useRoute} from "vue-router";
 import {useUser} from "@/stores/user";
-import AudiosStyle from "../templates/AudiosStyle.vue";
-import TVStyle from "../templates/TVStyle.vue";
+import AudiosStyle from "@/components/templates/AudiosStyle.vue";
+import TVStyle from "@/components/templates/TVStyle.vue";
 import setTitle from "@/stores/title";
 
 const {
