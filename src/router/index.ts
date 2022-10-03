@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
 import HomeView from "@/views/HomeView.vue";
+import {getAuth} from "@firebase/auth";
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,9 @@ const router = createRouter({
 		{
 			path: "/comics",
 			name: "comics",
+			meta: {
+				auth: false,
+			},
 			component: () => import("@/views/ComicsView.vue"),
 		},
 		{
@@ -55,6 +59,21 @@ const router = createRouter({
 			component: () => import("@/components/dynamic/ReviewView.vue"),
 		},
 	],
+	scrollBehavior() {
+		return {top: 0};
+	},
+});
+
+router.beforeEach((to, from, next) => {
+	if (to.matched.some(record => record.meta.auth)) {
+		if (getAuth().currentUser) {
+			next();
+		} else {
+			next("/"); //login
+		}
+	} else {
+		next();
+	}
 });
 
 export default router;

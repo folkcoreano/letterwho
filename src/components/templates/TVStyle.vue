@@ -1,5 +1,5 @@
 <script setup>
-import {url} from "@/stores/images";
+import {folder, url} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
 
@@ -8,7 +8,20 @@ const props = defineProps({
 });
 const {lang} = useUser();
 
-const {title, crew, cover, length, frames, released, rating, rated, watched, liked} = props.data;
+const {
+	title,
+	crew,
+	length,
+	frames,
+	range_id: {range},
+	type,
+	story,
+	released,
+	rating,
+	rated,
+	watched,
+	liked,
+} = props.data;
 
 const frame = frames[0];
 
@@ -17,6 +30,8 @@ const writer = (lang === "pt-br" ? "Escrito por " : "Written by") + crew[0].name
 const sortedQuote = props.data.quotes[Math.floor(Math.random() * props.data.quotes.length)];
 
 const quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
+
+const cover = `${type}/${range}/${story}`;
 
 const resume = lang === "pt-br" ? props.data.resume.pt : props.data.resume.en;
 
@@ -35,7 +50,7 @@ const time = useTime(lang, released);
 						draggable="false"
 						:alt="title"
 						class="coverPicture"
-						:src="url(cover, 250)"
+						:src="folder(cover, 250)"
 					/>
 
 					<div class="coverStatus">
