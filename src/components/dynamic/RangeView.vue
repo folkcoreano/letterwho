@@ -15,8 +15,8 @@ const load = ref(false);
 async function getRange() {
 	supabase
 		.from("ranges")
-		.select("*, range_id(title,type,range_id,url,story)")
-		.match({range: range, type: type})
+		.select("*, range_id(title,type,range_id,url,story_id)")
+		.match({range: range})
 		.limit(1)
 		.single()
 		.then(res => {
@@ -32,11 +32,9 @@ getRange();
 <template>
 	<template v-if="load">
 		<div>
-			{{ type }}/{{ range }}
-			<br />
 			<div
 				class="range"
-				v-for="({title, story, type, range_id, url}, i) in data.range_id"
+				v-for="({title, story_id, type, range_id, url}, i) in data.range_id"
 				:key="i"
 			>
 				<RouterLink
@@ -44,7 +42,7 @@ getRange();
 					:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
 				>
 					<img
-						:src="folder(`${type}/${range_id}/${story}`, '150')"
+						:src="folder(`${type}/${range_id}/${story_id}`, '150')"
 						:alt="title"
 					/>
 					{{ title }}

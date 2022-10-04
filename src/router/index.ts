@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
 import HomeView from "@/views/HomeView.vue";
-import {getAuth} from "@firebase/auth";
+import {getAuth} from "firebase/auth";
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +42,21 @@ const router = createRouter({
 			path: "/:type/:range",
 			name: "range",
 			component: () => import("@/components/dynamic/RangeView.vue"),
+		},
+		{
+			path: "/character/:id",
+			name: "character",
+			component: () => import("@/components/dynamic/CharacterView.vue"),
+		},
+		{
+			path: "/person/:id",
+			name: "person",
+			component: () => import("@/components/dynamic/PersonView.vue"),
+		},
+		{
+			path: "/user/:id",
+			name: "user",
+			component: () => import("@/components/dynamic/UserView.vue"),
 		},
 		{
 			path: "/:type/:range/:story",

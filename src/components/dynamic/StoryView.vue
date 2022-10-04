@@ -20,7 +20,9 @@ const {lang} = useUser();
 async function getStory() {
 	supabase
 		.from("story")
-		.select("*,range_id(range)")
+		.select(
+			"*,range_id(range),story_id(type,role,crew_id(crew_id,name),character_id(character_id,name,type))"
+		)
 		.limit(1)
 		.match({type: type, range_id: range, url: story})
 		.single()

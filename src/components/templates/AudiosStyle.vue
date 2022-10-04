@@ -11,16 +11,22 @@ const props = defineProps({
 const {lang} = useUser();
 
 const {
-	story,
+	code,
 	type,
 	title,
 	length,
 	released,
 	range_id: {range},
-	crew,
+	story_id,
 } = props.data;
 
-const writer = (lang === "pt-br" ? "Escrito por " : "Written by") + props.data.crew[0].name;
+const crew = story_id.filter(e => e.type === "CREW");
+
+const characters = story_id.filter(e => e.type === "CHARACTER");
+
+const writer =
+	(lang === "pt-br" ? "Escrito por " : "Written by") +
+	crew.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
 
 const sortedQuote = props.data.quotes[Math.floor(Math.random() * props.data.quotes.length)];
 
@@ -30,7 +36,7 @@ const resume = lang === "pt-br" ? props.data.resume.pt : props.data.resume.en;
 
 const time = useTime(lang, released);
 
-const cover = `${type}/${range}/${story}`;
+const cover = `${type}/${range}/${code}`;
 
 const isPC = ref(window.matchMedia("(min-width: 35rem)").matches);
 
@@ -120,12 +126,103 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 		<div class="reviewSlot">
 			<slot />
 		</div>
+		<div class="cast">
+			<div class="chars">
+				<div
+					class="char"
+					v-for="({crew_id, type, character_id}, i) in characters"
+					:key="i"
+				>
+					<RouterLink
+						class="charLink"
+						:to="{name: 'character', params: {id: character_id.character_id}}"
+					>
+						<img
+							class="charPic"
+							:src="folder('p/' + character_id.character_id, '100')"
+							:alt="character_id.name"
+						/>
+						{{ character_id.name }}
+					</RouterLink>
+				</div>
+			</div>
+			<div class="chars">
+				<div
+					class="char"
+					v-for="({role, crew_id}, i) in crew"
+					:key="i"
+				>
+					<RouterLink
+						class="charLink"
+						:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					>
+						<iconify-icon
+							class="icon"
+							icon="ri:account-circle-fill"
+						/>
+						<div>{{ role }}</div>
+						<div>{{ crew_id.name }}</div>
+					</RouterLink>
+				</div>
+			</div>
+			<br />
+			<div class="cast">
+				<div
+					class="items"
+					v-for="({role, crew_id, character_id}, i) in story_id"
+					:key="i"
+				>
+					<RouterLink
+						v-if="!role"
+						:to="{name: 'character', params: {id: character_id.character_id}}"
+					>
+						{{ character_id.name + ":" }}
+					</RouterLink>
+					<span v-else>{{ role + ":" }}</span>
+					<RouterLink :to="{name: 'person', params: {id: crew_id.crew_id}}">
+						{{ crew_id.name }}
+					</RouterLink>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
 <style scoped>
 * {
 	outline: 0px dotted deeppink;
+}
+
+.items {
+	display: flex;
+	text-align: center;
+	gap: 1rem;
+}
+
+.icon {
+	font-size: 3.25rem;
+}
+
+.charPic {
+	border-radius: 50%;
+	max-width: 3.25rem;
+}
+
+.charLink {
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+}
+
+.char {
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	padding: 0.15rem;
+}
+
+.chars {
+	display: flex;
 }
 
 .quote {
@@ -226,6 +323,11 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 	}
 
 	.dataResume {
+		grid-column: 2;
+		grid-row: 2;
+	}
+
+	.cast {
 		grid-column: 2;
 		grid-row: 2;
 	}
