@@ -18,6 +18,13 @@ export function folder(path: string, width?: string) {
 	}
 }
 
+export function char(path: string, size: string) {
+	return imgkit.url({
+		path: path + ".jpg",
+		transformation: [{width: size, height: size, focus: "auto"}],
+	});
+}
+
 export function url(url: string, width?: string) {
 	if (width) {
 		return imgkit.url({

@@ -46,6 +46,12 @@ getData();
 					<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
 				</RouterLink>
 			</div>
+			<div>
+				<img
+					:src="folder('p/' + id, '500')"
+					alt=""
+				/>
+			</div>
 		</div>
 	</template>
 	<template v-else>
@@ -55,8 +61,8 @@ getData();
 
 <style scoped>
 .items {
-	display: flex;
-	gap: 0.5rem;
+	display: grid;
+	grid-template-columns: 1fr auto;
 }
 .item {
 	display: flex;

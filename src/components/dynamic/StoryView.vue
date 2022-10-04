@@ -6,6 +6,7 @@ import {useUser} from "@/stores/user";
 import AudiosStyle from "@/components/templates/AudiosStyle.vue";
 import TVStyle from "@/components/templates/TVStyle.vue";
 import setTitle from "@/stores/title";
+import CastAndCrew from "../templates/CastAndCrew.vue";
 
 const {
 	params: {type, range, story},
@@ -41,11 +42,19 @@ getStory();
 			<AudiosStyle
 				v-if="type === 'audios'"
 				:data="data"
-			/>
+			>
+				<template #cast>
+					<CastAndCrew :data="data.story_id" />
+				</template>
+			</AudiosStyle>
 			<TVStyle
 				v-if="type === 'tv'"
 				:data="data"
-			/>
+			>
+				<template #cast>
+					<CastAndCrew :data="data.story_id" />
+				</template>
+			</TVStyle>
 		</div>
 	</template>
 	<template v-else>

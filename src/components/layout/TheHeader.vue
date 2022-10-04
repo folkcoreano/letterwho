@@ -86,6 +86,8 @@ header {
 	display: flex;
 	justify-content: space-between;
 	padding: 0.65rem;
+
+	overflow: auto;
 }
 
 .logoArea {

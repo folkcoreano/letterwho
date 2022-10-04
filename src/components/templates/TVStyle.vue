@@ -27,13 +27,9 @@ const {
 
 const frame = frames[0];
 
-const crew = story_id.filter(e => e.type === "CREW");
-
-const characters = story_id.filter(e => e.type === "CHARACTER");
-
 const writer =
 	(lang === "pt-br" ? "Escrito por " : "Written by") +
-	crew.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
+	story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
 
 const sortedQuote = props.data.quotes[Math.floor(Math.random() * props.data.quotes.length)];
 
@@ -144,62 +140,7 @@ const time = useTime(lang, released);
 				<slot />
 			</div>
 			<div class="cast">
-				<div class="chars">
-					<div
-						class="char"
-						v-for="({crew_id, type, character_id}, i) in characters"
-						:key="i"
-					>
-						<RouterLink
-							class="charLink"
-							:to="{name: 'character', params: {id: character_id.character_id}}"
-						>
-							<iconify-icon
-								class="icon"
-								icon="ri:account-circle-fill"
-							/>
-							{{ character_id.name }}
-						</RouterLink>
-					</div>
-				</div>
-				<div class="chars">
-					<div
-						class="char"
-						v-for="({role, crew_id}, i) in crew"
-						:key="i"
-					>
-						<RouterLink
-							class="charLink"
-							:to="{name: 'person', params: {id: crew_id.crew_id}}"
-						>
-							<iconify-icon
-								class="icon"
-								icon="ri:account-circle-fill"
-							/>
-							<div>{{ role }}</div>
-							<div>{{ crew_id.name }}</div>
-						</RouterLink>
-					</div>
-				</div>
-				<br />
-				<div class="cast">
-					<div
-						class="items"
-						v-for="({role, crew_id, character_id}, i) in story_id"
-						:key="i"
-					>
-						<RouterLink
-							v-if="!role"
-							:to="{name: 'character', params: {id: character_id.character_id}}"
-						>
-							{{ character_id.name + ":" }}
-						</RouterLink>
-						<span v-else>{{ role + ":" }}</span>
-						<RouterLink :to="{name: 'person', params: {id: crew_id.crew_id}}">
-							{{ crew_id.name }}
-						</RouterLink>
-					</div>
-				</div>
+				<slot name="cast" />
 			</div>
 		</div>
 	</div>
@@ -208,38 +149,6 @@ const time = useTime(lang, released);
 <style scoped>
 * {
 	outline: 0px solid rgba(255, 0, 135, 0);
-}
-
-.items {
-	display: flex;
-	text-align: center;
-	gap: 1rem;
-}
-
-.icon {
-	font-size: 3.25rem;
-}
-
-.charPic {
-	border-radius: 50%;
-	max-width: 3.25rem;
-}
-
-.charLink {
-	display: flex;
-	flex-flow: column;
-	align-items: center;
-}
-
-.char {
-	display: flex;
-	flex-flow: column;
-	align-items: center;
-	padding: 0.15rem;
-}
-
-.chars {
-	display: flex;
 }
 
 .cast {
@@ -472,7 +381,6 @@ const time = useTime(lang, released);
 	}
 	.cast {
 		grid-column: 2;
-		grid-row: 2;
 	}
 }
 </style>
