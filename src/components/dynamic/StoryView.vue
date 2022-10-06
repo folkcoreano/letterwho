@@ -29,8 +29,18 @@ async function getStory() {
 		.single()
 		.then(res => {
 			data.value = res.data;
+
 			setTitle(res.data.title);
+
 			load.value = true;
+
+			// let file = [];
+
+			// for (const {type} of res.data.story_id.filter(e => e.type === "DOCTOR")) {
+			// 	file.push(type);
+			// }
+
+			// console.log(file);
 		});
 }
 getStory();

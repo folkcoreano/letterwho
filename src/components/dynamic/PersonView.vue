@@ -11,6 +11,7 @@ const {
 
 const data = ref();
 const tabs = ref();
+const actTab = ref();
 const load = ref(false);
 
 const filtered = ref();
@@ -23,13 +24,19 @@ supabase
 	.single()
 	.then(res => {
 		data.value = res.data;
+
 		tabs.value = res.data.crew_id.flatMap(e => e.role);
+
+		select(tabs.value[0]);
+		actTab.value = tabs.value[0];
 		setTitle(res.data.name);
+
 		load.value = true;
 	});
 
-function select(tab) {
-	filtered.value = data.value.crew_id.filter(e => e.role === tab);
+function select(tabs) {
+	actTab.value = tabs;
+	filtered.value = data.value.crew_id.filter(e => e.role === tabs);
 }
 
 function size(tab) {
@@ -45,6 +52,7 @@ function size(tab) {
 					@click="select(tab)"
 					class="tab"
 					v-for="tab in tabs"
+					:style="tab === actTab ? 'background-color: #444' : ''"
 				>
 					{{ tab }}: {{ size(tab) }}
 				</div>
@@ -56,6 +64,7 @@ function size(tab) {
 						{role, character_id, story_id: {title, code, range_id, type, url, released}}, i
 					) in filtered"
 				>
+					{{ role }}
 					<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
 						<img
 							:src="folder(`${type}/${range_id}/${code}`, '200')"
@@ -66,6 +75,7 @@ function size(tab) {
 					</RouterLink>
 				</div>
 			</div>
+			<br />
 		</div>
 	</template>
 	<template v-else>
@@ -77,13 +87,15 @@ function size(tab) {
 .tabs {
 	display: flex;
 	flex-flow: column;
+	transition: all 150ms linear;
 	gap: 0.35rem;
 }
 .tab {
 	padding: 0.35rem;
-	background-color: #333;
+	background-color: #222;
 	border-radius: 0.15rem;
 	cursor: pointer;
+	transition: all 150ms linear;
 }
 .items {
 	display: flex;
