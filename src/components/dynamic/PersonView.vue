@@ -10,46 +10,61 @@ const {
 } = useRoute();
 
 const data = ref();
+const tabs = ref();
 const load = ref(false);
 
-const getData = () => {
-	supabase
-		.from("crew")
-		.select(
-			"*,name,crew_id(character_id(name),role,story_id(title,released,code,range_id,type,url))"
-		)
-		.match({crew_id: id})
-		.limit(1)
-		.single()
-		.then(res => {
-			data.value = res.data;
-			setTitle(res.data.name);
-			load.value = true;
-		});
-};
+const filtered = ref();
 
-getData();
+supabase
+	.from("crew")
+	.select("*,name,crew_id(character_id(name),role,story_id(title,released,code,range_id,type,url))")
+	.match({crew_id: id})
+	.limit(1)
+	.single()
+	.then(res => {
+		data.value = res.data;
+		tabs.value = res.data.crew_id.flatMap(e => e.role);
+		setTitle(res.data.name);
+		load.value = true;
+	});
+
+function select(tab) {
+	filtered.value = data.value.crew_id.filter(e => e.role === tab);
+}
+
+function size(tab) {
+	return data.value.crew_id.filter(e => e.role === tab).length;
+}
 </script>
 
 <template>
 	<template v-if="load">
 		<div class="items">
-			<div
-				class="item"
-				v-for="(
-					{role, character_id, story_id: {title, code, released, range_id, type, url}}, i
-				) in data.crew_id"
-				:key="i"
-			>
-				<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
-					<img
-						class="img"
-						:src="folder(`${type}/${range_id}/${code}`, '250')"
-						alt=""
-					/>
-					<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
-					<div>{{ role ? role : character_id.name }}</div>
-				</RouterLink>
+			<div class="tabs">
+				<div
+					@click="select(tab)"
+					class="tab"
+					v-for="tab in tabs"
+				>
+					{{ tab }}: {{ size(tab) }}
+				</div>
+			</div>
+
+			<div>
+				<div
+					v-for="(
+						{role, character_id, story_id: {title, code, range_id, type, url, released}}, i
+					) in filtered"
+				>
+					<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
+						<img
+							:src="folder(`${type}/${range_id}/${code}`, '200')"
+							:alt="title"
+						/>
+						<div>{{ title }}:{{ role }}</div>
+						<div v-if="character_id">{{ character_id.name }}</div>
+					</RouterLink>
+				</div>
 			</div>
 		</div>
 	</template>
@@ -59,6 +74,17 @@ getData();
 </template>
 
 <style scoped>
+.tabs {
+	display: flex;
+	flex-flow: column;
+	gap: 0.35rem;
+}
+.tab {
+	padding: 0.35rem;
+	background-color: #333;
+	border-radius: 0.15rem;
+	cursor: pointer;
+}
 .items {
 	display: flex;
 	gap: 0.5rem;

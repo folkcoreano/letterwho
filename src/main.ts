@@ -9,7 +9,7 @@ import LoadingState from "@/components/layout/LoadingState.vue";
 import MainState from "@/components/layout/MainState.vue";
 import TheFooter from "@/components/layout/TheFooter.vue";
 import TheHeader from "@/components/layout/TheHeader.vue";
-
+import {autoAnimatePlugin} from "@formkit/auto-animate/vue";
 const app = createApp(App);
 
 const firebase = {
@@ -31,6 +31,7 @@ app
 	.component("TheHeader", TheHeader)
 	.component("TheFooter", TheFooter);
 
+app.use(autoAnimatePlugin);
 app.use(createPinia());
 app.use(router);
 
