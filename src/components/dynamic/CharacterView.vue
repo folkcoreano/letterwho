@@ -15,7 +15,7 @@ const load = ref(false);
 const getData = () => {
 	supabase
 		.from("characters")
-		.select("name,character_id(story_id(title,released,code,range_id,type,url))")
+		.select("character_id(story_id(title,released,code,range_id,type,url)),name")
 		.match({character_id: id})
 		.limit(1)
 		.single()

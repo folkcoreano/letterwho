@@ -106,12 +106,12 @@ const crew = props.data.filter(e => e.type === "CREW");
 		<div class="crewList">
 			<div
 				:key="i"
-				v-for="({crew_id, character_id}, i) in doctor"
+				v-for="({crew_id, character_id, role}, i) in doctor"
 				class="crewItem"
 			>
 				<RouterLink
 					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 					v-text="crew_id.name + ': '"
 				/>
 				<RouterLink
@@ -122,12 +122,12 @@ const crew = props.data.filter(e => e.type === "CREW");
 			</div>
 			<div
 				:key="i"
-				v-for="({crew_id, character_id}, i) in companion"
+				v-for="({crew_id, character_id, role}, i) in companion"
 				class="crewItem"
 			>
 				<RouterLink
 					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 					v-text="crew_id.name + ': '"
 				/>
 				<RouterLink
@@ -138,12 +138,12 @@ const crew = props.data.filter(e => e.type === "CREW");
 			</div>
 			<div
 				:key="i"
-				v-for="({crew_id, character_id}, i) in character"
+				v-for="({crew_id, character_id, role}, i) in character"
 				class="crewItem"
 			>
 				<RouterLink
 					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 					v-text="crew_id.name + ': '"
 				/>
 				<RouterLink
@@ -154,12 +154,12 @@ const crew = props.data.filter(e => e.type === "CREW");
 			</div>
 			<div
 				:key="i"
-				v-for="({crew_id, character_id}, i) in featuring"
+				v-for="({crew_id, character_id, role}, i) in featuring"
 				class="crewItem"
 			>
 				<RouterLink
 					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 					v-text="crew_id.name + ': '"
 				/>
 				<RouterLink
@@ -168,14 +168,15 @@ const crew = props.data.filter(e => e.type === "CREW");
 					v-text="character_id.name"
 				/>
 			</div>
+
 			<div
 				:key="i"
-				v-for="({crew_id, character_id}, i) in enemy"
+				v-for="({crew_id, character_id, role}, i) in enemy"
 				class="crewItem"
 			>
 				<RouterLink
 					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 					v-text="crew_id.name + ': '"
 				/>
 				<RouterLink
@@ -184,6 +185,7 @@ const crew = props.data.filter(e => e.type === "CREW");
 					v-text="character_id.name"
 				/>
 			</div>
+
 			<div
 				:key="i"
 				v-for="({crew_id, role}, i) in crew"
@@ -191,7 +193,7 @@ const crew = props.data.filter(e => e.type === "CREW");
 			>
 				<RouterLink
 					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}}"
+					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 					v-text="crew_id.name + ': '"
 				/>
 				<span

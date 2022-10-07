@@ -7,6 +7,7 @@ import {useRoute} from "vue-router";
 
 const {
 	params: {id},
+	query: {tab},
 } = useRoute();
 
 const data = ref();
@@ -27,8 +28,13 @@ supabase
 
 		tabs.value = res.data.crew_id.flatMap(e => e.role);
 
-		select(tabs.value[0]);
-		actTab.value = tabs.value[0];
+		if (tab) {
+			select(tab);
+		} else {
+			select(tabs.value[0]);
+			// actTab.value = tabs.value[0];
+		}
+
 		setTitle(res.data.name);
 
 		load.value = true;

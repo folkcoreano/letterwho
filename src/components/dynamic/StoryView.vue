@@ -1,7 +1,7 @@
 <script setup>
 import supabase from "@/supabase";
 import {ref} from "vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useUser} from "@/stores/user";
 import AudiosStyle from "@/components/templates/AudiosStyle.vue";
 import TVStyle from "@/components/templates/TVStyle.vue";
@@ -18,21 +18,25 @@ const load = ref(false);
 
 const {lang} = useUser();
 
-async function getStory() {
+const {push} = useRouter();
+
+try {
 	supabase
 		.from("story")
 		.select(
-			"*,range_id(range),story_id(type,role,crew_id(crew_id,name),character_id(character_id,name,type))"
+			"*,range_id(range),story_id(role,type,crew_id(name,crew_id),character_id(type,name,character_id))"
 		)
 		.limit(1)
 		.match({type: type, range_id: range, url: story})
 		.single()
 		.then(res => {
-			data.value = res.data;
-
-			setTitle(res.data.title);
-
-			load.value = true;
+			if (res.data) {
+				data.value = res.data;
+				setTitle(res.data.title);
+				load.value = true;
+			} else {
+				push({name: "home"});
+			}
 
 			// let file = [];
 
@@ -42,8 +46,9 @@ async function getStory() {
 
 			// console.log(file);
 		});
+} catch (err) {
+	console.log(err);
 }
-getStory();
 </script>
 
 <template>
