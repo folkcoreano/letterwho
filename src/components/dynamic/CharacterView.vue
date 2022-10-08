@@ -13,17 +13,25 @@ const data = ref();
 const load = ref(false);
 
 const getData = () => {
-	supabase
-		.from("characters")
-		.select("character_id(story_id(title,released,code,range_id,type,url)),name")
-		.match({character_id: id})
-		.limit(1)
-		.single()
-		.then(res => {
-			data.value = res.data;
-			setTitle(res.data.name);
-			load.value = true;
-		});
+	try {
+		supabase
+			.from("characters")
+			.select(
+				`*,
+			character_id(story_id(title,code,released,range_id,type,url)),
+			quotes(en,pt,story_id(url,title))`
+			)
+			.match({character_id: id})
+			.limit(1)
+			.single()
+			.then(res => {
+				data.value = res.data;
+				setTitle(res.data.name);
+				load.value = true;
+			});
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 getData();
@@ -32,19 +40,21 @@ getData();
 <template>
 	<template v-if="load">
 		<div class="items">
-			<div
-				class="item"
-				v-for="({story_id: {title, code, released, range_id, type, url}}, i) in data.character_id"
-				:key="i"
-			>
-				<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
-					<img
-						class="img"
-						:src="folder(`${type}/${range_id}/${code}`, '250')"
-						alt=""
-					/>
-					<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
-				</RouterLink>
+			<div>
+				<div
+					class="item"
+					v-for="({story_id: {title, code, released, range_id, type, url}}, i) in data.character_id"
+					:key="i"
+				>
+					<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
+						<img
+							class="img"
+							:src="folder(`${type}/${range_id}/${code}`, '250')"
+							alt=""
+						/>
+						<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
+					</RouterLink>
+				</div>
 			</div>
 			<div>
 				<img

@@ -7,6 +7,7 @@ import AudiosStyle from "@/components/templates/AudiosStyle.vue";
 import TVStyle from "@/components/templates/TVStyle.vue";
 import setTitle from "@/stores/title";
 import CastAndCrew from "../templates/CastAndCrew.vue";
+import BookStyle from "../templates/BookStyle.vue";
 
 const {
 	params: {type, range, story},
@@ -24,7 +25,13 @@ try {
 	supabase
 		.from("story")
 		.select(
-			"*,range_id(range),story_id(role,type,crew_id(name,crew_id),character_id(type,name,character_id))"
+			`
+		*,
+		quote(en,pt,character_id(name,character_id)),
+		range_id(range),
+		story_id(role,type,
+		crew_id(name,crew_id),
+					character_id(name,type,character_id))`
 		)
 		.limit(1)
 		.match({type: type, range_id: range, url: story})
@@ -62,6 +69,14 @@ try {
 					<CastAndCrew :data="data.story_id" />
 				</template>
 			</AudiosStyle>
+			<BookStyle
+				v-if="type === 'books'"
+				:data="data"
+			>
+				<template #cast>
+					<CastAndCrew :data="data.story_id" />
+				</template>
+			</BookStyle>
 			<TVStyle
 				v-if="type === 'tv'"
 				:data="data"

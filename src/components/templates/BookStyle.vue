@@ -28,7 +28,7 @@ const writer =
 	(lang === "pt-br" ? "Escrito por " : "Written by") +
 	crew.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
 
-const sortedQuote = props.data.quotes[Math.floor(Math.random() * props.data.quotes.length)];
+const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
 
 const quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
 
@@ -108,9 +108,9 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 				<div class="detail">
 					<iconify-icon
 						class="detailIcon"
-						icon="ri:timer-2-fill"
+						icon="ri:pages-fill"
 					/>
-					<span> {{ length }}MIN </span>
+					<span> {{ length }} </span>
 				</div>
 				<div class="detail">
 					<iconify-icon

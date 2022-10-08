@@ -5,5 +5,8 @@ setTitle("Books");
 </script>
 
 <template>
-	<div>Books</div>
+	<div>
+		Books
+		<CategoryView />
+	</div>
 </template>

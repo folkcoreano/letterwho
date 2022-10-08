@@ -2,6 +2,7 @@
 import {folder, url} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
+import {ref} from "vue";
 
 const props = defineProps({
 	data: Object,
@@ -27,9 +28,9 @@ const {
 
 const frame = frames[0];
 
-const writer =
-	(lang === "pt-br" ? "Escrito por " : "Written by") +
-	story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
+const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
+
+const writerID = story_id.filter(e => e.role === "Writer")[0].crew_id.crew_id;
 
 const sortedQuote = props.data.quotes[Math.floor(Math.random() * props.data.quotes.length)];
 
@@ -40,6 +41,12 @@ const cover = `${type}/${range}/${code}`;
 const resume = lang === "pt-br" ? props.data.resume.pt : props.data.resume.en;
 
 const time = useTime(lang, released);
+
+const isPC = ref(window.matchMedia("(min-width: 35rem)").matches);
+
+window.matchMedia("(min-width: 35rem)").onchange = e => {
+	isPC.value = e.matches;
+};
 </script>
 
 <template>
@@ -57,7 +64,10 @@ const time = useTime(lang, released);
 						:src="folder(cover, 250)"
 					/>
 
-					<div class="coverStatus">
+					<div
+						v-if="false"
+						class="coverStatus"
+					>
 						<div class="coverStatusItem">
 							<iconify-icon
 								style="color: var(--yellow)"
@@ -89,24 +99,87 @@ const time = useTime(lang, released);
 				</div>
 			</div>
 
-			<div class="pageData">
+			<div class="pageData mobileHeader">
 				<div class="pageHeader">
 					<div class="pageTitle">
 						{{ title }}
 					</div>
 
-					<div class="pageWriter">{{ writer }}</div>
+					<div class="pageWriter">
+						{{ lang === "pt-br" ? "Escrito por " : "Written by" }}
+
+						<RouterLink :to="{name: 'person', params: {id: writerID}, query: {tab: 'Writer'}}">
+							{{ writer }}
+						</RouterLink>
+					</div>
 				</div>
 
 				<span class="pageQuote">
 					{{ quote }}
 				</span>
 
-				<div class="pageResume">
+				<div
+					v-if="isPC"
+					class="pageResume"
+				>
 					{{ resume }}
 				</div>
 
-				<div class="pageDetails">
+				<div
+					v-if="isPC"
+					class="pageDetails"
+				>
+					<div class="pageDetailsItem">
+						<iconify-icon
+							class="pageDetailsItemIcon"
+							icon="ri:cake-2-fill"
+						/>
+						<span>
+							{{ time }}
+						</span>
+					</div>
+
+					<div class="pageDetailsItem">
+						<iconify-icon
+							class="pageDetailsItemIcon"
+							icon="ri:timer-2-fill"
+						/>
+						<span> {{ length }}MIN </span>
+					</div>
+
+					<div class="pageDetailsItem">
+						<iconify-icon
+							class="pageDetailsItemIcon"
+							icon="ri:calendar-fill"
+						/>
+						<span>
+							{{ new Date(released).toLocaleDateString() }}
+						</span>
+					</div>
+				</div>
+				<div
+					v-if="isPC"
+					class="cast"
+				>
+					<slot name="cast" />
+				</div>
+			</div>
+
+			<div
+				v-if="!isPC"
+				class="pageData mobile"
+			>
+				<div
+					v-if="!isPC"
+					class="pageResume"
+				>
+					{{ resume }}
+				</div>
+
+				<div
+					v-if="!isPC"
+					class="pageDetails"
+				>
 					<div class="pageDetailsItem">
 						<iconify-icon
 							class="pageDetailsItemIcon"
@@ -136,10 +209,10 @@ const time = useTime(lang, released);
 					</div>
 				</div>
 			</div>
-			<div class="reviewSide">
-				<slot />
-			</div>
-			<div class="cast">
+			<div
+				v-if="!isPC"
+				class="cast"
+			>
 				<slot name="cast" />
 			</div>
 		</div>
@@ -148,7 +221,7 @@ const time = useTime(lang, released);
 
 <style scoped>
 * {
-	outline: 0px solid rgba(255, 0, 135, 0);
+	outline: 0px solid rgba(255, 0, 135, 0.5);
 }
 
 .cast {
@@ -239,7 +312,7 @@ const time = useTime(lang, released);
 	display: grid;
 	grid-template-columns: auto 1fr;
 	grid-template-rows: repeat(3, auto);
-	gap: 1.55rem 0.5rem;
+	gap: 1rem 0.35rem;
 	margin: auto;
 }
 .coverStatus {
@@ -283,13 +356,13 @@ const time = useTime(lang, released);
 	gap: 0.5rem;
 }
 .pageDetailsItem {
+	font-size: 0.85rem;
 	display: flex;
 	flex-flow: row wrap;
-	gap: 0.3rem;
+	gap: 0.35rem;
 	align-items: center;
-	color: #ddd;
+	color: #ccc;
 	font-weight: bold;
-	font-size: 0.85rem;
 }
 .pageDetailsItemIcon {
 	font-size: 1rem;
@@ -324,6 +397,16 @@ const time = useTime(lang, released);
 	color: #eaeaea;
 	line-height: 1.2;
 }
+
+.mobile {
+	grid-column: 1 /3;
+	grid-row: 2;
+}
+
+.mobileHeader {
+	justify-content: center;
+}
+
 @media (min-width: 35rem) {
 	.pageMain {
 		margin: auto;
