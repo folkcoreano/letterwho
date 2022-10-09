@@ -7,9 +7,13 @@ setTitle("Home");
 <template>
 	<div>
 		Home!
-		<!-- <br />
+		<br />
 		<RouterLink :to="{name: 'persons'}">Pessoas</RouterLink>
 		<br />
-		<RouterLink :to="{name: 'characters'}">Personagens</RouterLink> -->
+		<RouterLink :to="{name: 'characters'}">Personagens</RouterLink>
+		<br />
+		<RouterLink :to="{name: 'quotes'}">Citações</RouterLink>
+		<br />
+		<RouterLink :to="{name: 'search'}">Busca</RouterLink>
 	</div>
 </template>

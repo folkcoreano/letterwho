@@ -20,13 +20,9 @@ const {
 	story_id,
 } = props.data;
 
-const crew = story_id.filter(e => e.type === "CREW");
+const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
 
-const characters = story_id.filter(e => e.type === "CHARACTER");
-
-const writer =
-	(lang === "pt-br" ? "Escrito por " : "Written by") +
-	crew.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
+const issues = length + (lang ? " edições" : " issues");
 
 // const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
 
@@ -70,7 +66,15 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 				<div class="title">
 					{{ title }}
 				</div>
-				<div class="writter">{{ writer }}</div>
+				<div class="writter">
+					{{ lang === "pt-br" ? "Escrito por " : "Written by " }}
+					<RouterLink
+						class="writerLink"
+						:to="{name: 'person', params: {id: writer.crew_id}}"
+					>
+						{{ writer.name }}
+					</RouterLink>
+				</div>
 			</div>
 			<div class="quote">
 				{{ quote }}
@@ -84,7 +88,15 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 				<div class="title">
 					{{ title }}
 				</div>
-				<div class="writter">{{ writer }}</div>
+				<div class="writter">
+					{{ lang === "pt-br" ? "Escrito por " : "Written by " }}
+					<RouterLink
+						class="writerLink"
+						:to="{name: 'person', params: {id: writer.crew_id}}"
+					>
+						{{ writer.name }}
+					</RouterLink>
+				</div>
 			</div>
 			<div
 				v-if="isPC"
@@ -111,7 +123,7 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 						class="detailIcon"
 						icon="ri:pages-fill"
 					/>
-					<span> {{ length }} </span>
+					<span>{{ issues }}</span>
 				</div>
 				<div class="detail">
 					<iconify-icon

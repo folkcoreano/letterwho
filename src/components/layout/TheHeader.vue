@@ -25,7 +25,7 @@ function handleRoute(rota: string) {
 			/>
 		</RouterLink>
 		<div class="navArea">
-			<UserHead v-if="logged" />
+			<!-- <UserHead v-if="logged" /> -->
 			<RouterLink
 				:class="handleRoute('audios') ? 'navLink active' : 'navLink'"
 				to="/audios"

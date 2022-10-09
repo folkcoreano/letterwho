@@ -28,11 +28,9 @@ const {
 
 const frame = frames[0];
 
-const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id.name)[0];
+const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
 
-const writerID = story_id.filter(e => e.role === "Writer")[0].crew_id.crew_id;
-
-const sortedQuote = props.data.quotes[Math.floor(Math.random() * props.data.quotes.length)];
+const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
 
 const quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
 
@@ -106,10 +104,12 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 					</div>
 
 					<div class="pageWriter">
-						{{ lang === "pt-br" ? "Escrito por " : "Written by" }}
-
-						<RouterLink :to="{name: 'person', params: {id: writerID}, query: {tab: 'Writer'}}">
-							{{ writer }}
+						{{ lang === "pt-br" ? "Escrito por " : "Written by " }}
+						<RouterLink
+							class="writerLink"
+							:to="{name: 'person', params: {id: writer.crew_id}}"
+						>
+							{{ writer.name }}
 						</RouterLink>
 					</div>
 				</div>

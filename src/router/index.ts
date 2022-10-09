@@ -59,9 +59,19 @@ const router = createRouter({
 			component: () => import("@/components/dynamic/PersonView.vue"),
 		},
 		{
-			path: "/persons/",
+			path: "/persons",
 			name: "persons",
 			component: () => import("@/views/PersonsView.vue"),
+		},
+		{
+			path: "/quotes",
+			name: "quotes",
+			component: () => import("@/views/QuotesView.vue"),
+		},
+		{
+			path: "/search",
+			name: "search",
+			component: () => import("@/views/SearchView.vue"),
 		},
 		{
 			path: "/user/:id",

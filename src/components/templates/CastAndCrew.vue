@@ -1,5 +1,6 @@
 <script setup>
 import {char} from "@/stores/images";
+import {useUser} from "@/stores/user";
 import {ref} from "vue";
 import {useRoute} from "vue-router";
 
@@ -10,6 +11,8 @@ const props = defineProps({
 const {
 	params: {type},
 } = useRoute();
+
+const {lang} = useUser();
 
 const doctor = props.data.filter(e => e.type === "DOCTOR");
 
@@ -23,13 +26,13 @@ const enemy = props.data.filter(e => e.type === "ENEMY");
 
 const crew = props.data.filter(e => e.type === "CREW");
 
-const tabs = ref(["Characters", "Cast & Crew"]);
+const tabs = ref([lang ? "Personagens" : "Characters", lang ? "Elenco e Equipe" : "Cast & Crew"]);
 
-if (type === "books") {
-	tabs.value = ["Characters", "Crew"];
+if (type === "books" || type === "comics") {
+	tabs.value = [lang ? "Personagens" : "Characters", lang ? "Equipe" : "Crew"];
 }
 
-const actTab = ref("Characters");
+const actTab = ref(tabs.value[0]);
 </script>
 
 <template>
@@ -65,6 +68,7 @@ const actTab = ref("Characters");
 					{{ character_id.name }}
 				</span>
 			</RouterLink>
+
 			<RouterLink
 				:to="{name: 'character', params: {id: character_id.character_id}}"
 				v-for="({character_id}, i) in companion"
@@ -81,6 +85,7 @@ const actTab = ref("Characters");
 					{{ character_id.name }}
 				</span>
 			</RouterLink>
+
 			<RouterLink
 				:to="{name: 'character', params: {id: character_id.character_id}}"
 				v-for="({character_id}, i) in character"
@@ -97,6 +102,7 @@ const actTab = ref("Characters");
 					{{ character_id.name }}
 				</span>
 			</RouterLink>
+
 			<RouterLink
 				:to="{name: 'character', params: {id: character_id.character_id}}"
 				v-for="({character_id}, i) in featuring"
@@ -113,6 +119,7 @@ const actTab = ref("Characters");
 					{{ character_id.name }}
 				</span>
 			</RouterLink>
+
 			<RouterLink
 				:to="{name: 'character', params: {id: character_id.character_id}}"
 				v-for="({character_id}, i) in enemy"
@@ -135,7 +142,10 @@ const actTab = ref("Characters");
 			v-show="actTab === tabs[1]"
 			class="crewList"
 		>
-			<div v-if="type != 'books' && type != 'comics'">
+			<div
+				class="listgap"
+				v-if="type != 'books' && type != 'comics'"
+			>
 				<div
 					:key="i"
 					v-for="({crew_id, character_id, role}, i) in doctor"
@@ -221,21 +231,22 @@ const actTab = ref("Characters");
 					/>
 				</div>
 			</div>
-
-			<div
-				:key="i"
-				v-for="({crew_id, role}, i) in crew"
-				class="crewItem"
-			>
-				<RouterLink
-					class="crewName"
-					:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
-					v-text="crew_id.name + ': '"
-				/>
-				<span
-					class="crewRole"
-					v-text="role"
-				/>
+			<div class="listgap">
+				<div
+					:key="i"
+					v-for="({crew_id, role}, i) in crew"
+					class="crewItem"
+				>
+					<RouterLink
+						class="crewName"
+						:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
+						v-text="crew_id.name + ': '"
+					/>
+					<span
+						class="crewRole"
+						v-text="role"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -293,10 +304,18 @@ const actTab = ref("Characters");
 	font-size: 0.85rem;
 }
 .crewList {
+	--space: 0.35rem;
 	display: flex;
 	flex-flow: column;
-	gap: 0.5rem;
+	gap: var(--space);
 }
+
+.listgap {
+	display: flex;
+	flex-flow: column;
+	gap: var(--space);
+}
+
 .charItem {
 	display: flex;
 	flex-flow: column;

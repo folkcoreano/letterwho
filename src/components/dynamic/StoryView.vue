@@ -155,6 +155,7 @@ function addRelation() {
 						<option value="FEATURING">FEATURING</option>
 						<option value="ENEMY">ENEMY</option>
 						<option value="DOCTOR">DOCTOR</option>
+						<option value="COMPANION">COMPANION</option>
 					</select>
 				</p>
 				<p>
