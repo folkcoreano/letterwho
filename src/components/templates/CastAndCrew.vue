@@ -135,7 +135,7 @@ const actTab = ref("Characters");
 			v-show="actTab === tabs[1]"
 			class="crewList"
 		>
-			<div v-if="type != 'books'">
+			<div v-if="type != 'books' && type != 'comics'">
 				<div
 					:key="i"
 					v-for="({crew_id, character_id, role}, i) in doctor"

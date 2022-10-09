@@ -44,14 +44,24 @@ const router = createRouter({
 			component: () => import("@/components/dynamic/RangeView.vue"),
 		},
 		{
-			path: "/character/:id",
+			path: "/characters/:id",
 			name: "character",
 			component: () => import("@/components/dynamic/CharacterView.vue"),
 		},
 		{
-			path: "/person/:id",
+			path: "/characters/",
+			name: "characters",
+			component: () => import("@/views/CharactersView.vue"),
+		},
+		{
+			path: "/persons/:id",
 			name: "person",
 			component: () => import("@/components/dynamic/PersonView.vue"),
+		},
+		{
+			path: "/persons/",
+			name: "persons",
+			component: () => import("@/views/PersonsView.vue"),
 		},
 		{
 			path: "/user/:id",

@@ -70,7 +70,9 @@ watchEffect(async () => {
 					name="route"
 					mode="out-in"
 				>
-					<component :is="Component" />
+					<Suspense>
+						<component :is="Component" />
+					</Suspense>
 				</transition>
 			</RouterView>
 		</main>

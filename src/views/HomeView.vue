@@ -5,5 +5,11 @@ setTitle("Home");
 </script>
 
 <template>
-	<div>Home!</div>
+	<div>
+		Home!
+		<!-- <br />
+		<RouterLink :to="{name: 'persons'}">Pessoas</RouterLink>
+		<br />
+		<RouterLink :to="{name: 'characters'}">Personagens</RouterLink> -->
+	</div>
 </template>

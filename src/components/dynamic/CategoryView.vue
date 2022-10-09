@@ -39,6 +39,7 @@ getRanges();
 				>
 					<img
 						class="cover"
+						onerror="this.src='https://i.ibb.co/Kqbh5YK/imagem-2022-06-17-132705588-1-1.png'"
 						:src="folder(`${type}/${range}/${range}`, '200')"
 						alt=""
 					/>
