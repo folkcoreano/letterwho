@@ -30,9 +30,14 @@ const frame = frames[0];
 
 const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
 
-const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
+let quote;
 
-const quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
+if (props.data.quote.length > 0) {
+	const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
+	quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
+} else {
+	quote = null;
+}
 
 const cover = `${type}/${range}/${code}`;
 

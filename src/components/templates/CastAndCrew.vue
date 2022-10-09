@@ -26,10 +26,16 @@ const enemy = props.data.filter(e => e.type === "ENEMY");
 
 const crew = props.data.filter(e => e.type === "CREW");
 
-const tabs = ref([lang ? "Personagens" : "Characters", lang ? "Elenco e Equipe" : "Cast & Crew"]);
+const tabs = ref([
+	lang === "pt-br" ? "Personagens" : "Characters",
+	lang === "pt-br" ? "Elenco e Equipe" : "Cast & Crew",
+]);
 
 if (type === "books" || type === "comics") {
-	tabs.value = [lang ? "Personagens" : "Characters", lang ? "Equipe" : "Crew"];
+	tabs.value = [
+		lang === "pt-br" ? "Personagens" : "Characters",
+		lang === "pt-br" ? "Equipe" : "Crew",
+	];
 }
 
 const actTab = ref(tabs.value[0]);

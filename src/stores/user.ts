@@ -17,13 +17,13 @@ export const useUser = defineStore({
 	id: "user",
 	state: () => ({
 		logged: useStorage("logged", false),
+		lang: "pt-br",
 		id: useStorage("uid", ""),
 		info: useStorage("info", <User>{}),
 		data: useStorage("user", <Data>{}),
 	}),
 	getters: {
 		email: state => state.data.email,
-		lang: state => state.info.lang,
 		name: state => state.info.name,
 		picture: state => state.info.picture,
 		created: state => state.info.created,
