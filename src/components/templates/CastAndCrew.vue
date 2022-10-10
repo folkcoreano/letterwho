@@ -274,7 +274,7 @@ const actTab = ref(tabs.value[0]);
 
 .tab {
 	cursor: pointer;
-	padding: 0.15rem;
+	padding: 0.25rem;
 	font-weight: bold;
 	border-bottom: 2px solid #333;
 	color: #aaa;

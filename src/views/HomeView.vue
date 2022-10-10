@@ -14,6 +14,6 @@ setTitle("Home");
 		<br />
 		<RouterLink :to="{name: 'quotes'}">Citações</RouterLink>
 		<br />
-		<RouterLink :to="{name: 'search'}">Busca</RouterLink>
+		<!-- <RouterLink :to="{name: 'search'}">Busca</RouterLink> -->
 	</div>
 </template>

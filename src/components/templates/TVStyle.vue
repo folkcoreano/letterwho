@@ -220,6 +220,9 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 			>
 				<slot name="cast" />
 			</div>
+			<div class="parts">
+				<slot name="parts" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -228,7 +231,9 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 * {
 	outline: 0px solid rgba(255, 0, 135, 0.5);
 }
-
+.parts {
+	grid-column: 2;
+}
 .cast {
 	grid-column: 1/3;
 }

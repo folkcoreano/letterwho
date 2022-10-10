@@ -7,15 +7,26 @@ const resultsChar = ref([]);
 const query = ref("");
 const queryChar = ref("");
 
-const search = () => {
+const searchQuery = ref("");
+const storyQuery = ref(["story", "url,title,type,range_id,released", "url"]);
+const characterQuery = ref(["characters", "character_id,name"]);
+const dataQuery = ref([]);
+
+const search = type => {
+	let qFrom = [];
+
+	if (type === "story") {
+		qFrom = storyQuery.value;
+	}
 	supabase
-		.from("story")
-		.select("url,title,type,range_id")
-		.textSearch("url", query.value.toLowerCase().replaceAll(" ", "-"), {
+		.from(qFrom[0])
+		.select(qFrom[1])
+		.textSearch(qFrom[2], searchQuery.value.toLowerCase().replaceAll(" ", "-"), {
 			type: "websearch",
 		})
 		.then(res => {
-			results.value = res.data;
+			console.log(res.data);
+			// dataQuery.value = res.data;
 		});
 };
 
@@ -41,17 +52,17 @@ const searchChar = () => {
 				type="text"
 				name="search"
 				id="search"
-				@input="search"
-				v-model.trim="query"
+				@input="search('story')"
+				v-model.trim="searchQuery"
 				autocomplete="off"
 			/>
-			<button @click="search">search</button>
+			<button @click="search('story')">search</button>
 
 			<br />
 			<br />
 			<div v-for="a in results">
 				<router-link :to="{name: 'story', params: {type: a.type, range: a.range_id, story: a.url}}">
-					{{ a.title }}
+					{{ a.title + " (" + new Date(a.released).getFullYear() + ")" }}
 				</router-link>
 			</div>
 		</div>

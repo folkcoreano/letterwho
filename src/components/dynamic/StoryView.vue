@@ -9,6 +9,7 @@ import setTitle from "@/stores/title";
 import CastAndCrew from "../templates/CastAndCrew.vue";
 import BookStyle from "../templates/BookStyle.vue";
 import ComicStyle from "../templates/ComicStyle.vue";
+import MultipleParts from "../templates/MultipleParts.vue";
 
 const {
 	params: {type, range, story},
@@ -26,13 +27,13 @@ try {
 	supabase
 		.from("story")
 		.select(
-			`
-		*,
+			`*,
 		quote(en,pt,character_id(name,character_id)),
 		range_id(range),
 		story_id(role,type,
 		crew_id(name,crew_id),
-					character_id(name,type,character_id))`
+					character_id(name,type,character_id)),
+					parts(story,title,released,length)`
 		)
 		.limit(1)
 		.match({type: type, range_id: range, url: story})
@@ -200,6 +201,9 @@ function addRelation() {
 			>
 				<template #cast>
 					<CastAndCrew :data="data.story_id" />
+				</template>
+				<template #parts>
+					<MultipleParts :data="data.parts" />
 				</template>
 			</TVStyle>
 		</div>
