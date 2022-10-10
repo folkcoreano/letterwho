@@ -36,22 +36,22 @@ const getStories = () => {
 
 getStories();
 
-const addStory = () => {
-	const file: Story = {
-		story_id: title.value,
-		code: code.value,
-		quote: code.value,
-		parts: code.value,
-		url: title.value.toLowerCase().replaceAll(" ", "-"),
-		type: type.value,
-		released: release.value,
-	};
-};
+// const addStory = () => {
+// 	const file: Story = {
+// 		story_id: title.value,
+// 		code: code.value,
+// 		quote: code.value,
+// 		parts: code.value,
+// 		url: title.value.toLowerCase().replaceAll(" ", "-"),
+// 		type: type.value,
+// 		released: release.value,
+// 	};
+// };
 </script>
 
 <template>
 	<div>
-		<div class="inputs">
+		<!-- <div class="inputs">
 			code:
 			<input
 				type="text"
@@ -62,7 +62,7 @@ const addStory = () => {
 				type="text"
 				v-model="title"
 			/>
-		</div>
+		</div> -->
 		<div>
 			<div
 				v-for="({story_id, type, title, url, range_id}, i) in data"
