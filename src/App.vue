@@ -7,6 +7,15 @@ import {useUser} from "@/stores/user";
 const init = ref(true);
 
 const user = useUser();
+const {lang} = useUser();
+
+if (lang === "pt-br") {
+	document.documentElement.setAttribute("lang", "pt-BR");
+}
+
+if (lang === "en") {
+	document.documentElement.setAttribute("lang", "en");
+}
 
 // watchEffect(async () => {
 // 	const {getAuth, onAuthStateChanged} = await import("firebase/auth");
