@@ -80,8 +80,8 @@ function getChar() {
 		});
 }
 
-// getChar();
-// getCrew();
+getChar();
+getCrew();
 const crew = ref();
 const char = ref();
 const typegroup = ref();
@@ -109,7 +109,7 @@ function addRelation() {
 <template>
 	<template v-if="load">
 		<div>
-			<div v-if="false">
+			<div v-if="true">
 				<p>
 					character
 					<select

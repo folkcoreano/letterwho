@@ -226,11 +226,13 @@ const actTab = ref(tabs.value[0]);
 					class="crewItem"
 				>
 					<RouterLink
+						v-if="crew_id"
 						class="crewName"
 						:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
 						v-text="crew_id.name + ': '"
 					/>
 					<RouterLink
+						v-if="crew_id"
 						class="crewRole"
 						:to="{name: 'character', params: {id: character_id.character_id}}"
 						v-text="character_id.name"

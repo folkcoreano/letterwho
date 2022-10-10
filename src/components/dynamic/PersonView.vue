@@ -3,12 +3,14 @@ import {folder} from "@/stores/images";
 import setTitle from "@/stores/title";
 import supabase from "@/supabase";
 import {ref} from "vue";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 const {
 	params: {id},
 	query: {tab},
 } = useRoute();
+
+const {push, back} = useRouter();
 
 const data = ref();
 const tabs = ref();
@@ -17,28 +19,44 @@ const load = ref(false);
 
 const filtered = ref();
 
-supabase
-	.from("crew")
-	.select("*,name,crew_id(character_id(name),role,story_id(title,released,code,range_id,type,url))")
-	.match({crew_id: id})
-	.limit(1)
-	.single()
-	.then(res => {
-		data.value = res.data;
+try {
+	supabase
+		.from("crew")
+		.select(
+			"*,name,crew_id(character_id(name),role,story_id(title,released,code,range_id,type,url))"
+		)
+		.match({crew_id: id})
+		.limit(1)
+		.single()
+		.then(res => {
+			if (res.data) {
+				data.value = res.data;
 
-		tabs.value = res.data.crew_id.flatMap(e => e.role);
+				let alltabs = res.data.crew_id.flatMap(e => e.role);
 
-		if (tab) {
-			select(tab);
-		} else {
-			select(tabs.value[0]);
-			// actTab.value = tabs.value[0];
-		}
+				const filteredtabs = [...new Set(alltabs)];
 
-		setTitle(res.data.name);
+				tabs.value = filteredtabs;
 
-		load.value = true;
-	});
+				if (tab) {
+					select(tab);
+				} else {
+					select(tabs.value[0]);
+				}
+
+				setTitle(res.data.name);
+
+				load.value = true;
+			} else {
+				back();
+			}
+		})
+		.catch(e => {
+			console.log(e);
+		});
+} catch (e) {
+	console.log(e);
+}
 
 function select(tabs) {
 	actTab.value = tabs;
@@ -120,8 +138,8 @@ function size(tab) {
 }
 
 .list {
-	display: flex;
-	gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
 }
 .item {
 	gap: 0.25rem;

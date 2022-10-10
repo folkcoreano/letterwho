@@ -23,15 +23,22 @@ const getData = () => {
 			.select(
 				`*,
 			character_id(story_id(title,code,released,range_id,type,url)),
-			quotes(en,pt,story_id(url,title))`
+			quotes(id,pt,en,story_id(title,code,url,type,range_id))`
 			)
 			.match({character_id: id})
 			.limit(1)
 			.single()
 			.then(res => {
 				data.value = res.data;
-				tabs.value = res.data.character_id.flatMap(e => e.story_id.type);
+
+				let alltabs = res.data.character_id.flatMap(e => e.story_id.type);
+
+				const filteredtabs = [...new Set(alltabs)];
+
+				tabs.value = filteredtabs;
+
 				setTitle(res.data.name);
+
 				load.value = true;
 			});
 	} catch (error) {
@@ -70,7 +77,10 @@ function size(tab) {
 				</div>
 			</div>
 
-			<div v-if="actTab === 'CHARACTER'">
+			<div
+				class="character"
+				v-if="actTab === 'CHARACTER'"
+			>
 				<div>
 					<img
 						class="image"
@@ -78,9 +88,29 @@ function size(tab) {
 						alt=""
 					/>
 				</div>
+				<div class="quotes">
+					<div
+						class="quote"
+						:key="id"
+						v-for="({id, pt, en, story_id: {title, url, type, range_id}}, i) in data.quotes"
+					>
+						<q>{{ pt }}</q>
+						<br />
+						<q>{{ en }}</q>
+						<br />
+						<router-link
+							class="auth"
+							:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
+							>{{ title }}</router-link
+						>
+					</div>
+				</div>
 			</div>
 
-			<div class="items">
+			<div
+				v-if="actTab !== 'CHARACTER'"
+				class="items"
+			>
 				<div
 					class="item"
 					v-for="({story_id: {title, code, released, range_id, type, url}}, i) in filtered"
@@ -104,8 +134,38 @@ function size(tab) {
 </template>
 
 <style scoped>
+.items {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+}
+.item {
+	display: flex;
+	flex-flow: column;
+	width: fit-content;
+}
+.character {
+	display: flex;
+	flex-flow: column;
+	gap: 1rem;
+}
+.quotes {
+	display: flex;
+	flex-flow: column;
+	gap: 1rem;
+}
+
+.quote {
+	color: #eee;
+	font-weight: bold;
+}
+
+.auth {
+	color: #aaa;
+	font-weight: normal;
+}
 .image {
 	max-width: 100%;
+	width: 20rem;
 }
 .char {
 	display: flex;
@@ -135,15 +195,6 @@ function size(tab) {
 
 .active {
 	background-color: #1f1f1f;
-}
-.items {
-	display: grid;
-	grid-template-columns: 1fr auto;
-}
-.item {
-	display: flex;
-	flex-flow: column;
-	width: fit-content;
 }
 
 .img {

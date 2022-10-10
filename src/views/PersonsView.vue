@@ -26,6 +26,7 @@ const addCrew = () => {
 			.from("crew")
 			.insert({crew_id: crew.value.toLowerCase().replaceAll(" ", "-"), name: crew.value})
 			.then(() => {
+				crew.value = "";
 				getCrew();
 			});
 	} catch (e) {

@@ -130,19 +130,25 @@ getQuotes();
 				:key="id"
 				v-for="({id, pt, en, character_id, story_id: {title, url, type, range_id}}, i) in data"
 			>
-				<q>{{ en }}</q
-				>, <q>{{ pt }}</q>
+				<q>{{ pt }}</q>
 				<br />
-				<div v-if="character_id">
+				<q>{{ en }}</q>
+				<br />
+				<div
+					class="auth"
+					v-if="character_id"
+				>
 					<router-link
 						v-if="character_id"
 						:to="{name: 'character', params: {id: character_id.character_id}}"
 						>{{ character_id.name }},
 					</router-link>
 				</div>
-				<router-link :to="{name: 'story', params: {type: type, range: range_id, story: url}}">{{
-					title
-				}}</router-link>
+				<router-link
+					class="auth"
+					:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
+					>{{ title }}</router-link
+				>
 			</div>
 		</div>
 	</div>
@@ -153,5 +159,15 @@ getQuotes();
 	display: flex;
 	flex-flow: column;
 	gap: 1rem;
+}
+
+.quote {
+	color: #eee;
+	font-weight: bold;
+}
+
+.auth {
+	color: #aaa;
+	font-weight: normal;
 }
 </style>

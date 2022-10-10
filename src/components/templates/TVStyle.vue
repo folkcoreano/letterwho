@@ -26,22 +26,31 @@ const {
 	liked,
 } = props.data;
 
-const frame = frames[0];
+let frame = "";
 
-const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
+if (frames) {
+	frame = frames[0];
+}
+let writer = {crew_id: "aaaa", name: "aaaa"};
 
-let quote;
+if (story_id.length > 0) {
+	writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
+}
+
+let quote = "";
 
 if (props.data.quote.length > 0) {
 	const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
 	quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
-} else {
-	quote = null;
 }
 
 const cover = `${type}/${range}/${code}`;
 
-const resume = lang === "pt-br" ? props.data.resume.pt : props.data.resume.en;
+let resume = "";
+
+if (props.data.resume) {
+	resume = lang === "pt-br" ? props.data.resume.pt : props.data.resume.en;
+}
 
 const time = useTime(lang, released);
 
