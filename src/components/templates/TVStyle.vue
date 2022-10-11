@@ -32,7 +32,7 @@ let frame = `${type}/${range}/${code}F${frameNumber}`;
 
 let writer = {crew_id: "aaaa", name: "aaaa"};
 
-if (story_id.length > 0) {
+if (story_id.some(e => e.role === "Writer")) {
 	writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
 }
 

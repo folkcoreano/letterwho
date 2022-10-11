@@ -20,7 +20,11 @@ const {
 	story_id,
 } = props.data;
 
-const writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
+let writer = {crew_id: "aaaa", name: "aaaa"};
+
+if (story_id.some(e => e.role === "Writer")) {
+	writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
+}
 
 const pages = length + (lang ? " páginas" : " pages");
 

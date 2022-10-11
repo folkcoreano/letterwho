@@ -1,26 +1,72 @@
-<script setup lang="ts">
+<script setup>
 import supabase from "@/supabase";
+import axios from "axios";
 import {ref} from "vue";
 
-interface Story {
-	story_id: any;
-	code?: any;
-	quote?: any;
-	parts?: any;
+// let url = "https://api.catalogopolis.xyz/v1/serials/";
+// let episode = 55;
+// let end = "/episodes";
 
-	url?: any;
+// let serial = url + episode;
+// let episodes = url + episode + end;
 
-	type?: any | "tv" | "audios" | "books" | "comics";
-	title?: any;
-	released?: any;
-	length?: any;
-	resume?: JSON;
-	range_id?: any;
-	publisher_id?: any;
-}
+// axios.get(episodes).then(res => {
+// 	const file = [];
+
+// 	const first = res.data[0].originalAirDate;
+
+// 	const totaltime = res.data.flatMap(e => +e.runtime.slice(0, 2)).reduce((a, b) => a + b);
+
+// 	let n = 1;
+
+// 	for (let ep of res.data) {
+// 		file.push({
+// 			story_id: "TV" + ep.serialID,
+// 			story: "TV" + ep.serialID + "." + n++,
+// 			title: ep.title,
+// 			length: +ep.runtime.slice(0, 2),
+// 			released: ep.originalAirDate,
+// 		});
+// 	}
+
+// 	let story = {};
+
+// 	axios.get(serial).then(res => {
+// 		story = {
+// 			story_id: "TV" + res.data[0].story,
+// 			code: "TV" + res.data[0].story,
+// 			parts: "TV" + res.data[0].story,
+// 			quote: "TV" + res.data[0].story,
+// 			range_id: "season-eigth",
+// 			length: totaltime,
+// 			type: "tv",
+// 			released: first,
+// 			title: res.data[0].title,
+// 			url: new String(res.data[0].title).replaceAll(" ", "-").toLowerCase(),
+// 		};
+
+// 		console.log(story);
+
+// 		console.log(file);
+
+// 		// supabase
+// 		// 	.from("story")
+// 		// 	.insert(story)
+// 		// 	.then(res => {
+// 		// 		console.log(res);
+// 		// 		supabase
+// 		// 			.from("parts")
+// 		// 			.insert(file)
+// 		// 			.then(res => {
+// 		// 				console.log(res.data);
+// 		// 				console.log(res.error);
+// 		// 			});
+// 		// 	});
+// 	});
+// });
 
 const code = ref("");
-const data: any = ref([]);
+const data = ref([]);
 const title = ref("");
 const type = ref("");
 const release = ref("");
@@ -37,7 +83,7 @@ const getStories = () => {
 getStories();
 
 // const addStory = () => {
-// 	const file: Story = {
+// 	const file = {
 // 		story_id: title.value,
 // 		code: code.value,
 // 		quote: code.value,
@@ -46,6 +92,7 @@ getStories();
 // 		type: type.value,
 // 		released: release.value,
 // 	};
+// 	console.log(file);
 // };
 </script>
 
@@ -62,7 +109,19 @@ getStories();
 				type="text"
 				v-model="title"
 			/>
+			type
+			<input
+				type="text"
+				v-model="type"
+			/>
+			released
+			<input
+				type="text"
+				v-model="release"
+			/>
+			<button @click="addStory">add</button>
 		</div> -->
+		<br />
 		<div>
 			<div
 				v-for="({story_id, type, title, url, range_id}, i) in data"

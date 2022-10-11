@@ -6,8 +6,6 @@ setTitle("Audios");
 
 <template>
 	<div>
-		Audios
-		<br />
 		<CategoryView />
 	</div>
 </template>

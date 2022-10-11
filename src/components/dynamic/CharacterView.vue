@@ -111,20 +111,19 @@ function size(tab) {
 				v-if="actTab !== 'CHARACTER'"
 				class="items"
 			>
-				<div
+				<RouterLink
 					class="item"
 					v-for="({story_id: {title, code, released, range_id, type, url}}, i) in filtered"
 					:key="i"
+					:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
 				>
-					<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
-						<img
-							class="img"
-							:src="folder(`${type}/${range_id}/${code}`, '250')"
-							alt=""
-						/>
-						<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
-					</RouterLink>
-				</div>
+					<img
+						class="img"
+						:src="folder(`${type}/${range_id}/${code}`, '250')"
+						alt=""
+					/>
+					<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
+				</RouterLink>
 			</div>
 		</div>
 	</template>
@@ -142,6 +141,10 @@ function size(tab) {
 	display: flex;
 	flex-flow: column;
 	width: fit-content;
+	max-width: 10rem;
+}
+.img {
+	max-width: 100%;
 }
 .character {
 	display: flex;
@@ -195,9 +198,5 @@ function size(tab) {
 
 .active {
 	background-color: #1f1f1f;
-}
-
-.img {
-	max-width: 10rem;
 }
 </style>

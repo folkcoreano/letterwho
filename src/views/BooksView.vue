@@ -6,7 +6,6 @@ setTitle("Books");
 
 <template>
 	<div>
-		Books
 		<CategoryView />
 	</div>
 </template>

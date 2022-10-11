@@ -28,24 +28,18 @@ getRanges();
 <template>
 	<template v-if="load">
 		<div class="ranges">
-			<div
-				class="range"
+			<RouterLink
 				v-for="({title, range, type}, i) in data"
 				:key="i"
+				class="item"
+				:to="{name: 'range', params: {type: type, range: range}}"
 			>
-				<RouterLink
-					class="item"
-					:to="{name: 'range', params: {type: type, range: range}}"
-				>
-					<img
-						class="cover"
-						onerror="this.src='https://i.ibb.co/Kqbh5YK/imagem-2022-06-17-132705588-1-1.png'"
-						:src="folder(`${type}/${range}/${range}`, '200')"
-						alt=""
-					/>
-					{{ title }}
-				</RouterLink>
-			</div>
+				<img
+					class="cover"
+					:src="folder(`${type}/${range}/${range}`, '200')"
+					alt=""
+				/>
+			</RouterLink>
 		</div>
 	</template>
 	<template v-else>
@@ -55,8 +49,11 @@ getRanges();
 
 <style scoped>
 .ranges {
-	display: flex;
-	gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.35rem;
+	max-width: 50rem;
+	margin: auto;
 }
 
 .item {

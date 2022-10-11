@@ -15,7 +15,8 @@ const load = ref(false);
 async function getRange() {
 	supabase
 		.from("ranges")
-		.select("*, range_id(title,type,range_id,url,story_id)")
+		.select("*, range_id(title,type,range_id,released,url,story_id)")
+		.order("released", {foreignTable: "range_id", ascending: true})
 		.match({range: range})
 		.limit(1)
 		.single()
@@ -31,23 +32,20 @@ getRange();
 
 <template>
 	<template v-if="load">
-		<div>
-			<div
-				class="range"
+		<div class="range">
+			<RouterLink
 				v-for="({title, story_id, type, range_id, url}, i) in data.range_id"
 				:key="i"
+				class="story"
+				:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
 			>
-				<RouterLink
-					class="story"
-					:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
-				>
-					<img
-						:src="folder(`${type}/${range_id}/${story_id}`, '150')"
-						:alt="title"
-					/>
-					{{ title }}
-				</RouterLink>
-			</div>
+				<img
+					class="image"
+					:src="folder(`${type}/${range_id}/${story_id}`, '150')"
+					:alt="title"
+				/>
+				<!-- {{ title }} -->
+			</RouterLink>
 		</div>
 	</template>
 	<template v-else>
@@ -56,15 +54,20 @@ getRange();
 </template>
 
 <style scoped>
+.image {
+	max-width: 100%;
+}
 .range {
-	display: flex;
-	gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 0.35rem;
+	max-width: 50rem;
+	margin: auto;
 }
 
 .story {
 	align-items: center;
 	flex-flow: column;
 	display: flex;
-	gap: 1rem;
 }
 </style>

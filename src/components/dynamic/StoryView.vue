@@ -104,11 +104,37 @@ function addRelation() {
 			console.log(res);
 		});
 }
+
+const en = ref();
+const pt = ref();
+
+function addResume() {
+	supabase
+		.from("story")
+		.update({resume: {en: en.value, pt: pt.value}})
+		.match({type: type, range_id: range, url: story})
+		.then(res => {
+			console.log(res);
+		});
+}
 </script>
 
 <template>
 	<template v-if="load">
 		<div>
+			<div v-if="!data.resume">
+				en
+				<input
+					type="text"
+					v-model="en"
+				/>
+				pt
+				<input
+					type="text"
+					v-model="pt"
+				/>
+				<button @click="addResume">add</button>
+			</div>
 			<div v-if="false">
 				<p>
 					character

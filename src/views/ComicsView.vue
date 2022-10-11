@@ -6,8 +6,6 @@ setTitle("Comics");
 
 <template>
 	<div>
-		Comics
-		<br />
 		<CategoryView />
 	</div>
 </template>
