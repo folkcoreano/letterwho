@@ -148,7 +148,7 @@ const actTab = ref(tabs.value[0]);
 			v-show="actTab === tabs[1]"
 			class="crewList"
 		>
-			<div
+			<template
 				class="listgap"
 				v-if="type != 'books' && type != 'comics'"
 			>
@@ -219,26 +219,26 @@ const actTab = ref(tabs.value[0]);
 						v-text="character_id.name"
 					/>
 				</div>
-
-				<div
-					:key="i"
-					v-for="({crew_id, character_id, role}, i) in enemy"
-					class="crewItem"
-				>
-					<RouterLink
-						v-if="crew_id"
-						class="crewName"
-						:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
-						v-text="crew_id.name + ': '"
-					/>
-					<RouterLink
-						v-if="crew_id"
-						class="crewRole"
-						:to="{name: 'character', params: {id: character_id.character_id}}"
-						v-text="character_id.name"
-					/>
-				</div>
-			</div>
+				<template v-if="enemy.crew_id">
+					<div
+						:key="i"
+						v-for="({crew_id, character_id, role}, i) in enemy"
+						class="crewItem"
+					>
+						<RouterLink
+							class="crewName"
+							:to="{name: 'person', params: {id: crew_id.crew_id}, query: {tab: role}}"
+							v-text="crew_id.name + ': '"
+						/>
+						<RouterLink
+							v-if="crew_id"
+							class="crewRole"
+							:to="{name: 'character', params: {id: character_id.character_id}}"
+							v-text="character_id.name"
+						/>
+					</div>
+				</template>
+			</template>
 			<div class="listgap">
 				<div
 					:key="i"
@@ -328,9 +328,17 @@ const actTab = ref(tabs.value[0]);
 	display: flex;
 	flex-flow: column;
 	align-items: center;
-	max-width: 5rem;
+	justify-content: space-between;
+	width: 4.55rem;
 	gap: 0.5rem;
+}
+
+.charItem span {
+	text-overflow: ellipsis;
 	text-align: center;
+	max-height: 2rem;
+	overflow: hidden;
+	max-width: 4.85rem;
 }
 
 .charIcon {

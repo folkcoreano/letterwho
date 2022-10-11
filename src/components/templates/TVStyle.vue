@@ -26,11 +26,10 @@ const {
 	liked,
 } = props.data;
 
-let frame = "";
+const frameNumber = Math.floor(Math.random() * frames);
 
-if (frames) {
-	frame = frames[0];
-}
+let frame = `${type}/${range}/${code}F${frameNumber}`;
+
 let writer = {crew_id: "aaaa", name: "aaaa"};
 
 if (story_id.length > 0) {
@@ -64,7 +63,7 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 <template>
 	<div
 		class="pageMain"
-		:style="`background-image: url(${url(frame)})`"
+		:style="`background-image: url(${folder(frame)})`"
 	>
 		<div class="mainContent">
 			<div class="contentStatus">
