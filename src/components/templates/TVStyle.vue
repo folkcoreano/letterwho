@@ -2,6 +2,7 @@
 import {folder, url} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
+import {useImage, watchOnce} from "@vueuse/core";
 import {ref} from "vue";
 
 const props = defineProps({
@@ -28,7 +29,16 @@ const {
 
 const frameNumber = Math.floor(Math.random() * frames);
 
-let frame = `${type}/${range}/${code}F${frameNumber}`;
+let haveFrame = false;
+
+if (frames < 0) {
+} else {
+	haveFrame = true;
+}
+
+let frame = folder(`${type}/${range}/${code}F${frameNumber}`);
+
+const {isReady} = useImage({src: frame});
 
 let writer = {crew_id: "aaaa", name: "aaaa"};
 
@@ -62,8 +72,9 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 
 <template>
 	<div
-		class="pageMain"
-		:style="`background-image: url(${folder(frame)})`"
+		v-show="isReady"
+		:class="haveFrame ? 'pageMain' : 'pageBlank'"
+		:style="haveFrame ? `background-image: url(${frame})` : ''"
 	>
 		<div class="mainContent">
 			<div class="contentStatus">
@@ -232,6 +243,9 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 				<slot name="parts" />
 			</div>
 		</div>
+	</div>
+	<div v-if="!isReady">
+		<loading-state />
 	</div>
 </template>
 

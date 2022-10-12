@@ -64,6 +64,6 @@ getRanges();
 }
 
 .cover {
-	max-width: 10rem;
+	max-width: 100%;
 }
 </style>

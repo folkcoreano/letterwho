@@ -79,7 +79,7 @@ function size(tab) {
 
 			<div
 				class="character"
-				v-if="actTab === 'CHARACTER'"
+				v-show="actTab === 'CHARACTER'"
 			>
 				<div>
 					<img
@@ -108,7 +108,7 @@ function size(tab) {
 			</div>
 
 			<div
-				v-if="actTab !== 'CHARACTER'"
+				v-show="actTab !== 'CHARACTER'"
 				class="items"
 			>
 				<RouterLink

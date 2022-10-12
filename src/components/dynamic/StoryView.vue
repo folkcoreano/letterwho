@@ -46,83 +46,75 @@ try {
 			} else {
 				push({name: "home"});
 			}
-
-			// let file = [];
-
-			// for (const {type} of res.data.story_id.filter(e => e.type === "DOCTOR")) {
-			// 	file.push(type);
-			// }
-
-			// console.log(file);
 		});
 } catch (err) {
 	console.log(err);
 }
-const crewlist = ref([]);
+// const crewlist = ref([]);
 
-function getCrew() {
-	supabase
-		.from("crew")
-		.select()
-		.then(res => {
-			crewlist.value = res.data;
-		});
-}
+// function getCrew() {
+// 	supabase
+// 		.from("crew")
+// 		.select()
+// 		.then(res => {
+// 			crewlist.value = res.data;
+// 		});
+// }
 
-const charlist = ref([]);
+// const charlist = ref([]);
 
-function getChar() {
-	supabase
-		.from("characters")
-		.select()
-		.then(res => {
-			charlist.value = res.data;
-		});
-}
+// function getChar() {
+// 	supabase
+// 		.from("characters")
+// 		.select()
+// 		.then(res => {
+// 			charlist.value = res.data;
+// 		});
+// }
 
-// getChar();
-// getCrew();
-const crew = ref();
-const char = ref();
-const typegroup = ref();
-const role = ref();
+// // getChar();
+// // getCrew();
+// const crew = ref();
+// const char = ref();
+// const typegroup = ref();
+// const role = ref();
 
-function addRelation() {
-	const file = {
-		crew_id: crew.value,
-		story_id: data.value.code,
-		character_id: char.value,
-		role: role.value,
-		type: typegroup.value,
-	};
-	// console.log(file);
-	// return;
-	supabase
-		.from("relation")
-		.insert(file)
-		.then(res => {
-			console.log(res);
-		});
-}
+// function addRelation() {
+// 	const file = {
+// 		crew_id: crew.value,
+// 		story_id: data.value.code,
+// 		character_id: char.value,
+// 		role: role.value,
+// 		type: typegroup.value,
+// 	};
+// 	// console.log(file);
+// 	// return;
+// 	supabase
+// 		.from("relation")
+// 		.insert(file)
+// 		.then(res => {
+// 			console.log(res);
+// 		});
+// }
 
-const en = ref();
-const pt = ref();
+// const en = ref();
+// const pt = ref();
 
-function addResume() {
-	supabase
-		.from("story")
-		.update({resume: {en: en.value, pt: pt.value}})
-		.match({type: type, range_id: range, url: story})
-		.then(res => {
-			console.log(res);
-		});
-}
+// function addResume() {
+// 	supabase
+// 		.from("story")
+// 		.update({resume: {en: en.value, pt: pt.value}})
+// 		.match({type: type, range_id: range, url: story})
+// 		.then(res => {
+// 			console.log(res);
+// 		});
+// }
 </script>
 
 <template>
 	<template v-if="load">
 		<div>
-			<div v-if="!data.resume">
+			<!-- <div v-if="!data.resume">
 				en
 				<input
 					type="text"
@@ -196,7 +188,7 @@ function addResume() {
 				</p>
 				<p></p>
 				<button @click="addRelation">add</button>
-			</div>
+			</div> -->
 			<AudiosStyle
 				v-if="type === 'audios'"
 				:data="data"
