@@ -1,15 +1,16 @@
 import {createApp} from "vue";
 import {createPinia} from "pinia";
 import {initializeApp} from "firebase/app";
+import {autoAnimatePlugin} from "@formkit/auto-animate/vue";
+import "@/assets/main.css";
 import App from "@/App.vue";
 import router from "@/router";
-import "@/assets/main.css";
 import CategoryView from "@/components/dynamic/CategoryView.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import MainState from "@/components/layout/MainState.vue";
 import TheFooter from "@/components/layout/TheFooter.vue";
 import TheHeader from "@/components/layout/TheHeader.vue";
-import {autoAnimatePlugin} from "@formkit/auto-animate/vue";
+
 const app = createApp(App);
 
 const firebase = {

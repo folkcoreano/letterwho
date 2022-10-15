@@ -1,11 +1,11 @@
 <script setup>
 import setTitle from "@/stores/title";
-
 setTitle("Home");
 </script>
 
 <template>
 	<div>
+		<br />
 		Home!
 		<br />
 		<RouterLink :to="{name: 'persons'}">Pessoas</RouterLink>

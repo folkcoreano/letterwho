@@ -1,8 +1,6 @@
 <script setup>
-import {folder, url} from "@/stores/images";
-import {useTime} from "@/stores/time";
+import {folder} from "@/stores/images";
 import {useUser} from "@/stores/user";
-import {useImage, watchOnce} from "@vueuse/core";
 import {ref} from "vue";
 
 const props = defineProps({
@@ -12,69 +10,51 @@ const props = defineProps({
 const {lang} = useUser();
 
 const {
+	code,
 	title,
 	length,
-	frames,
-	range_id: {range},
-	story_id,
+	range,
 	type,
-	story,
 	released,
-	rating,
-	code,
-	rated,
-	watched,
+	time,
+	url,
+	writer,
+	frame,
 	liked,
+	watched,
+	rated,
+	rating,
+	saved,
+	resume,
+	quote,
+	cover,
 } = props.data;
-
-const frameNumber = Math.floor(Math.random() * frames);
-
-let haveFrame = false;
-
-if (frames < 0) {
-} else {
-	haveFrame = true;
-}
-
-let frame = folder(`${type}/${range}/${code}F${frameNumber}`);
-
-const {isReady} = useImage({src: frame});
-
-let writer = {crew_id: "aaaa", name: "aaaa"};
-
-if (story_id.some(e => e.role === "Writer")) {
-	writer = story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0];
-}
-
-let quote = "";
-
-if (props.data.quote.length > 0) {
-	const sortedQuote = props.data.quote[Math.floor(Math.random() * props.data.quote.length)];
-	quote = lang === "pt-br" ? sortedQuote.pt : sortedQuote.en;
-}
-
-const cover = `${type}/${range}/${code}`;
-
-let resume = "";
-
-if (props.data.resume) {
-	resume = lang === "pt-br" ? props.data.resume.pt : props.data.resume.en;
-}
-
-const time = useTime(lang, released);
 
 const isPC = ref(window.matchMedia("(min-width: 35rem)").matches);
 
 window.matchMedia("(min-width: 35rem)").onchange = e => {
 	isPC.value = e.matches;
 };
+
+const icon = ref();
+
+if (type === "audios" || type === "tv") {
+	icon.value = "ri:timer-2-fill";
+}
+
+if (type === "comics") {
+	icon.value = "ri:pages-fill";
+}
+
+if (type === "books") {
+	icon.value = "ri:file-copy-2-fill";
+}
 </script>
 
 <template>
 	<div
-		v-show="isReady"
-		:class="haveFrame ? 'pageMain' : 'pageBlank'"
-		:style="haveFrame ? `background-image: url(${frame})` : ''"
+		:class="frame ? 'pageMain' : 'pageBlank'"
+		:style="frame ? `background-image: url(${folder(frame)})` : ''"
 	>
 		<div class="mainContent">
 			<div class="contentStatus">
@@ -83,7 +63,7 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 						draggable="false"
 						:alt="title"
 						class="coverPicture"
-						:src="folder(cover, 250)"
+						:src="folder(cover, '300')"
 					/>
 
 					<div
@@ -166,11 +146,15 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 					<div class="pageDetailsItem">
 						<iconify-icon
 							class="pageDetailsItemIcon"
-							icon="ri:timer-2-fill"
+							:icon="icon"
 						/>
-						<span> {{ length }}MIN </span>
+						<span>
+							{{ length }}
+							{{ type === "books" ? (lang === "pt-br" ? " páginas" : " pages") : "" }}
+							{{ type === "comics" ? (lang === "pt-br" ? " edições" : " issues") : "" }}
+							{{ type === "tv" || type === "audios" ? " min" : "" }}
+						</span>
 					</div>
-
 					<div class="pageDetailsItem">
 						<iconify-icon
 							class="pageDetailsItemIcon"
@@ -243,9 +227,6 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 				<slot name="parts" />
 			</div>
 		</div>
-	</div>
-	<div v-if="!isReady">
-		<loading-state />
 	</div>
 </template>
 
@@ -446,8 +427,8 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 		background-size: cover;
 		background-position: center top;
 		background-repeat: no-repeat;
-		box-shadow: inset 0 -4rem 3rem #050505, inset 4rem 0rem 3rem #050505,
-			inset -4rem 0rem 3rem #050505;
+		box-shadow: inset 0 -3rem 3rem #050505, inset 3rem 0rem 3rem #050505,
+			inset -3rem 0rem 3rem #050505;
 	}
 	.mainContent {
 		grid-row: 5;
