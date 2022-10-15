@@ -39,18 +39,20 @@ getChar();
 
 <template>
 	<div>
-		<input
-			type="text"
-			name="char"
-			id="char"
-			v-model.trim="character"
-		/>
-		<button @click="addChar">add</button>
-		<br />
-		{{ character }}
-		<br />
-		{{ character.toLowerCase().replaceAll(" ", "-") }}
-		<br />
+		<div v-if="false">
+			<input
+				type="text"
+				name="char"
+				id="char"
+				v-model.trim="character"
+			/>
+			<button @click="addChar">add</button>
+			<br />
+			{{ character }}
+			<br />
+			{{ character.toLowerCase().replaceAll(" ", "-") }}
+			<br />
+		</div>
 		<div class="chars">
 			<RouterLink
 				v-for="({character_id, name, type}, i) in data"

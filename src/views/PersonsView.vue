@@ -39,7 +39,7 @@ getCrew();
 
 <template>
 	<div>
-		<p>
+		<div v-if="false">
 			<input
 				type="text"
 				v-model.trim="crew"
@@ -51,8 +51,7 @@ getCrew();
 			{{ crew }}
 			<br />
 			{{ crew.toLowerCase().replaceAll(" ", "-") }}
-		</p>
-		<br />
+		</div>
 		<p class="per">
 			<RouterLink
 				class="item"

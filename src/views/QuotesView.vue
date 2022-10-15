@@ -60,8 +60,8 @@ const addQuote = () => {
 		});
 };
 
-getChar();
-getStory();
+// getChar();
+// getStory();
 getQuotes();
 </script>
 
