@@ -1,14 +1,16 @@
 <script setup>
-import supabase from "@/supabase";
 import {ref} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import LoadingState from "../layout/LoadingState.vue";
-import CastAndCrew from "../templates/CastAndCrew.vue";
-import setTitle from "@/stores/title";
-import StoryStyle from "../templates/StoryStyle.vue";
+import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
-import {folder} from "@/stores/images";
 import {useTime} from "@/stores/time";
+import {folder} from "@/stores/images";
+import {useRoute, useRouter} from "vue-router";
+
+import setTitle from "@/stores/title";
+import StoryStyle from "@/components/templates/StoryStyle.vue";
+import LoadingState from "@/components/layout/LoadingState.vue";
+import CastAndCrew from "@/components/templates/CastAndCrew.vue";
+import MultipleParts from "@/components/templates/MultipleParts.vue";
 
 const {
 	params: {type, range, story},
@@ -21,6 +23,7 @@ const {lang} = useUser();
 const data = ref();
 const cast = ref();
 const quotes = ref();
+const parts = ref();
 
 const load = ref(false);
 
@@ -85,6 +88,7 @@ try {
 				};
 				cast.value = res.data.story_id;
 				quotes.value = res.data.quote;
+				parts.value = res.data.parts.length > 0 ? res.data.parts : null;
 			} else {
 				push({name: "home"});
 			}
@@ -106,6 +110,12 @@ try {
 						:quotes="quotes"
 						:data="cast"
 					/>
+				</template>
+				<template
+					v-if="parts"
+					#parts
+				>
+					<MultipleParts :data="parts" />
 				</template>
 			</StoryStyle>
 		</div>

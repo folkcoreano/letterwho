@@ -1,8 +1,8 @@
 <script setup>
-import {char} from "@/stores/images";
-import {useUser} from "@/stores/user";
 import {ref} from "vue";
 import {useRoute} from "vue-router";
+import {char} from "@/stores/images";
+import {useUser} from "@/stores/user";
 
 const props = defineProps({
 	data: Object,

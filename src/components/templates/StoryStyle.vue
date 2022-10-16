@@ -166,9 +166,14 @@ if (type === "books") {
 				</div>
 				<div
 					v-if="isPC"
-					class="cast"
+					class="slots"
 				>
-					<slot name="cast" />
+					<div class="cast">
+						<slot name="cast" />
+					</div>
+					<div class="parts">
+						<slot name="parts" />
+					</div>
 				</div>
 			</div>
 
@@ -221,12 +226,14 @@ if (type === "books") {
 			</div>
 			<div
 				v-if="!isPC"
-				class="cast"
+				class="slots"
 			>
-				<slot name="cast" />
-			</div>
-			<div class="parts">
-				<slot name="parts" />
+				<div class="cast">
+					<slot name="cast" />
+				</div>
+				<div class="parts">
+					<slot name="parts" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -236,79 +243,13 @@ if (type === "books") {
 * {
 	outline: 0px solid rgba(255, 0, 135, 0.5);
 }
-.parts {
-	grid-column: 2;
-}
-.cast {
-	grid-column: 1/3;
-}
 
-.pageProgress {
-	grid-column: 1/3;
-}
-
-.reviewBarShowIcon {
-	display: flex;
-	font-size: 3.55rem;
-	padding: 0.5rem;
-	cursor: pointer;
-	color: #fff;
-	background-color: var(--yellow);
-	border-radius: 50%;
-}
-
-.activityBox {
-	grid-column: 1/3;
-}
-
-.reviewBarShow {
-	position: fixed;
-	bottom: 3.55rem;
-	right: 1.55rem;
-	display: block;
-	--trans: all 200ms ease;
-
-	transition: var(--trans);
-}
-
-.rotate {
-	rotate: 135deg;
-	transition: var(--trans);
-}
-
-.reviewBar {
-	position: fixed;
-	bottom: 0;
-	height: 100%;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	translate: 0 100%;
-	--time: all 350ms ease-in-out;
-	transition: var(--time);
-
+.slots {
 	display: flex;
 	flex-flow: column;
-	align-items: center;
-	justify-content: end;
-	background-image: linear-gradient(
-		to bottom,
-		rgba(0, 0, 0, 0),
-		rgba(0, 0, 0, 0),
-		rgba(0, 0, 0, 0),
-		rgba(0, 0, 0, 1)
-	);
+	gap: 0.5rem;
+	grid-column: 1/3;
 }
-
-.reviewBarUp {
-	translate: 0 0;
-	transition: var(--time);
-}
-
-.reviewSide {
-	display: none;
-}
-
 .pageMain {
 	background-size: contain;
 	background-position: center top;
@@ -440,22 +381,9 @@ if (type === "books") {
 		width: 100%;
 		gap: 2rem;
 	}
-	.reviewBar {
-		display: none;
-	}
-	.activityBox {
-		grid-column: 2;
-	}
-	.reviewBarShow {
-		display: none;
-	}
+
 	.pageDetails {
 		justify-content: start;
-	}
-	.reviewSide {
-		grid-column: 3;
-		grid-row: 1;
-		display: block;
 	}
 	.coverPicture {
 		width: 13rem;
@@ -473,12 +401,6 @@ if (type === "books") {
 	.contentStatus {
 		position: sticky;
 		top: 0;
-	}
-	.pageProgress {
-		grid-column: 2;
-	}
-	.cast {
-		grid-column: 2;
 	}
 }
 </style>
