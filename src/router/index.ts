@@ -49,7 +49,7 @@ const router = createRouter({
 			component: () => import("@/components/dynamic/CharacterView.vue"),
 		},
 		{
-			path: "/characters/",
+			path: "/characters",
 			name: "characters",
 			component: () => import("@/views/CharactersView.vue"),
 		},

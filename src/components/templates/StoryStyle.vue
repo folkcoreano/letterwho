@@ -1,7 +1,9 @@
 <script setup>
 import {folder} from "@/stores/images";
 import {useUser} from "@/stores/user";
+import {onClickOutside, useImage} from "@vueuse/core";
 import {ref} from "vue";
+import LoadingState from "../layout/LoadingState.vue";
 
 const props = defineProps({
 	data: Object,
@@ -49,6 +51,16 @@ if (type === "comics") {
 if (type === "books") {
 	icon.value = "ri:file-copy-2-fill";
 }
+
+const target = ref();
+
+const open = ref(false);
+
+const {isReady} = useImage({src: folder(cover)});
+
+onClickOutside(target, e => {
+	open.value = false;
+});
 </script>
 
 <template>
@@ -56,16 +68,29 @@ if (type === "books") {
 		:class="frame ? 'pageMain' : 'pageBlank'"
 		:style="frame ? `background-image: url(${folder(frame)})` : ''"
 	>
+		<dialog
+			v-if="open"
+			class="dialog"
+		>
+			<img
+				v-if="isReady"
+				ref="target"
+				:alt="title"
+				class="coverDialog"
+				:src="folder(cover)"
+			/>
+			<LoadingState v-else />
+		</dialog>
 		<div class="mainContent">
 			<div class="contentStatus">
 				<div class="statusArea">
 					<img
+						@click="open = !open"
 						draggable="false"
 						:alt="title"
 						class="coverPicture"
 						:src="folder(cover, '500')"
 					/>
-
 					<div
 						v-if="false"
 						class="coverStatus"
@@ -244,6 +269,25 @@ if (type === "books") {
 	outline: 0px solid rgba(255, 0, 135, 0.5);
 }
 
+.coverDialog {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.dialog {
+	transition: all 150ms linear;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	background-color: rgba(17, 17, 17, 0.5);
+	height: 100%;
+	width: 100%;
+}
+
 .slots {
 	display: flex;
 	flex-flow: column;
@@ -296,6 +340,7 @@ if (type === "books") {
 	grid-row: 1;
 }
 .coverPicture {
+	cursor: pointer;
 	max-width: 100%;
 	width: 9rem;
 	border: solid 0.001rem #555;
