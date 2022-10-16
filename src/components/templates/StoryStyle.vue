@@ -63,7 +63,7 @@ if (type === "books") {
 						draggable="false"
 						:alt="title"
 						class="coverPicture"
-						:src="folder(cover, '300')"
+						:src="folder(cover, '500')"
 					/>
 
 					<div
@@ -149,11 +149,10 @@ if (type === "books") {
 							:icon="icon"
 						/>
 						<span>
-							{{ length }}
-							{{ type === "books" ? (lang === "pt-br" ? " páginas" : " pages") : "" }}
-							{{ type === "comics" ? (lang === "pt-br" ? " edições" : " issues") : "" }}
-							{{ type === "tv" || type === "audios" ? " min" : "" }}
-						</span>
+							{{ length }}{{ type === "books" ? (lang === "pt-br" ? " páginas" : " pages") : ""
+							}}{{ type === "comics" ? (lang === "pt-br" ? " edições" : " issues") : ""
+							}}{{ type === "tv" || type === "audios" ? "min" : "" }}</span
+						>
 					</div>
 					<div class="pageDetailsItem">
 						<iconify-icon
@@ -201,11 +200,14 @@ if (type === "books") {
 					<div class="pageDetailsItem">
 						<iconify-icon
 							class="pageDetailsItemIcon"
-							icon="ri:timer-2-fill"
+							:icon="icon"
 						/>
-						<span> {{ length }}MIN </span>
+						<span>
+							{{ length }}{{ type === "books" ? (lang === "pt-br" ? " páginas" : " pages") : ""
+							}}{{ type === "comics" ? (lang === "pt-br" ? " edições" : " issues") : ""
+							}}{{ type === "tv" || type === "audios" ? "min" : "" }}</span
+						>
 					</div>
-
 					<div class="pageDetailsItem">
 						<iconify-icon
 							class="pageDetailsItemIcon"

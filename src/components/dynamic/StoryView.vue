@@ -20,6 +20,7 @@ const {lang} = useUser();
 
 const data = ref();
 const cast = ref();
+const quotes = ref();
 
 const load = ref(false);
 
@@ -28,7 +29,7 @@ try {
 		.from("story")
 		.select(
 			`*,
-		quote(en,pt),
+		quote(en,pt,character_id(character_id,name)),
 		range_id(range),
 		story_id(role,type,crew_id(name,crew_id),character_id(name,type,character_id)),
 		parts(story,title,released,length)`
@@ -82,8 +83,8 @@ try {
 							: null,
 					cover: res.data.type + "/" + res.data.range_id.range + "/" + res.data.code,
 				};
-
 				cast.value = res.data.story_id;
+				quotes.value = res.data.quote;
 			} else {
 				push({name: "home"});
 			}
@@ -101,7 +102,10 @@ try {
 				:data="data"
 			>
 				<template #cast>
-					<CastAndCrew :data="cast" />
+					<CastAndCrew
+						:quotes="quotes"
+						:data="cast"
+					/>
 				</template>
 			</StoryStyle>
 		</div>

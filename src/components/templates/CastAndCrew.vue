@@ -6,6 +6,7 @@ import {useRoute} from "vue-router";
 
 const props = defineProps({
 	data: Object,
+	quotes: Object,
 });
 
 const {
@@ -28,15 +29,15 @@ const crew = props.data.filter(e => e.type === "CREW");
 
 const tabs = ref([
 	lang === "pt-br" ? "Personagens" : "Characters",
-	lang === "pt-br" ? "Elenco e Equipe" : "Cast & Crew",
+	lang === "pt-br"
+		? type === "books" || type === "comics"
+			? "Equipe"
+			: "Elenco e Equipe"
+		: type === "books" || type === "comics"
+		? "Crew"
+		: "Cast & Crew",
+	lang === "pt-br" ? "Citações" : "Quotes",
 ]);
-
-if (type === "books" || type === "comics") {
-	tabs.value = [
-		lang === "pt-br" ? "Personagens" : "Characters",
-		lang === "pt-br" ? "Equipe" : "Crew",
-	];
-}
 
 const actTab = ref(tabs.value[0]);
 </script>
@@ -257,6 +258,22 @@ const actTab = ref(tabs.value[0]);
 				</div>
 			</div>
 		</div>
+
+		<div
+			class="quotes"
+			v-show="actTab === tabs[2]"
+		>
+			<div
+				class="quote"
+				v-for="({en, pt, character_id}, i) in quotes"
+				:key="i"
+			>
+				<q>
+					{{ lang === "pt-br" ? pt : en }}
+				</q>
+				<i> {{ character_id ? character_id.name : "" }}</i>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -265,8 +282,25 @@ const actTab = ref(tabs.value[0]);
 	outline: 0px dotted red;
 }
 
-.vids {
-	min-width: 100%;
+.quote i {
+	color: #ccc;
+}
+
+.quote q {
+	font-weight: bold;
+}
+
+.quote {
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+	gap: 0.15rem;
+}
+
+.quotes {
+	display: flex;
+	flex-flow: column;
+	gap: 1rem;
 }
 
 .tabs {
@@ -275,6 +309,8 @@ const actTab = ref(tabs.value[0]);
 }
 
 .tab {
+	flex: 1;
+	text-align: center;
 	cursor: pointer;
 	padding: 0.25rem;
 	font-weight: bold;
@@ -284,7 +320,8 @@ const actTab = ref(tabs.value[0]);
 }
 
 .active {
-	border-bottom: 2px solid #eee;
+	/* border-bottom: 2px solid #eee; */
+	border-bottom: 2px solid var(--yellow);
 	translate: 0 -0.1rem;
 	transition: all 150ms linear;
 	color: #eee;
@@ -293,7 +330,8 @@ const actTab = ref(tabs.value[0]);
 .tab:hover {
 	translate: 0 -0.1rem;
 	transition: all 150ms linear;
-	border-bottom: 2px solid #ddd;
+	/* border-bottom: 2px solid #ddd; */
+	border-bottom: 2px solid var(--yellow);
 	color: #ddd;
 }
 
@@ -356,5 +394,11 @@ a:hover {
 
 .crewName {
 	font-weight: bold;
+}
+@media (min-width: 35rem) {
+	.tab {
+		flex: unset;
+		text-align: unset;
+	}
 }
 </style>
