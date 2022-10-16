@@ -108,15 +108,16 @@ try {
 				<template #cast>
 					<CastAndCrew
 						:quotes="quotes"
+						:parts="parts"
 						:data="cast"
 					/>
 				</template>
-				<template
+				<!-- <template
 					v-if="parts"
 					#parts
 				>
 					<MultipleParts :data="parts" />
-				</template>
+				</template> -->
 			</StoryStyle>
 		</div>
 	</template>

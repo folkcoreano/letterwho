@@ -3,10 +3,12 @@ import {ref} from "vue";
 import {useRoute} from "vue-router";
 import {char} from "@/stores/images";
 import {useUser} from "@/stores/user";
+import MultipleParts from "./MultipleParts.vue";
 
 const props = defineProps({
 	data: Object,
 	quotes: Object,
+	parts: Object,
 });
 
 const {
@@ -39,6 +41,10 @@ const tabs = ref([
 	lang === "pt-br" ? "Citações" : "Quotes",
 ]);
 
+if (props.parts) {
+	tabs.value.unshift(lang === "pt-br" ? "Episódios" : "Episodes");
+}
+
 const actTab = ref(tabs.value[0]);
 </script>
 
@@ -56,7 +62,14 @@ const actTab = ref(tabs.value[0]);
 		</div>
 
 		<div
-			v-show="actTab === tabs[0]"
+			class="parts"
+			v-show="actTab === 'Episódios' || actTab === 'Episodes'"
+		>
+			<MultipleParts :data="parts" />
+		</div>
+
+		<div
+			v-show="actTab === 'Personagens' || actTab === 'Characters'"
 			class="charsList"
 		>
 			<RouterLink
@@ -146,7 +159,12 @@ const actTab = ref(tabs.value[0]);
 		</div>
 
 		<div
-			v-show="actTab === tabs[1]"
+			v-show="
+				actTab === 'Equipe' ||
+				actTab === 'Crew' ||
+				actTab === 'Elenco e Equipe' ||
+				actTab === 'Cast & Crew'
+			"
 			class="crewList"
 		>
 			<template
@@ -261,7 +279,7 @@ const actTab = ref(tabs.value[0]);
 
 		<div
 			class="quotes"
-			v-show="actTab === tabs[2]"
+			v-show="actTab === 'Citações' || actTab === 'Quotes'"
 		>
 			<div
 				class="quote"
