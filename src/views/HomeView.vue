@@ -6,8 +6,6 @@ setTitle("Home");
 <template>
 	<div>
 		<br />
-		Home!
-		<br />
 		<RouterLink :to="{name: 'register'}">Login</RouterLink>
 		<br />
 		<RouterLink :to="{name: 'persons'}">Pessoas</RouterLink>

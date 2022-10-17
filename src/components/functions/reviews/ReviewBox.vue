@@ -1,10 +1,8 @@
 <script setup>
 import {useDialog} from "@/stores/dialog";
 import {useUser} from "@/stores/user";
-import {Icon} from "@iconify/vue";
 import {onMounted, ref} from "vue";
 import {useRoute} from "vue-router";
-import DialogGlobal from "@/components/functions/DialogGlobal.vue";
 import ReviewWindow from "@/components/functions/reviews/ReviewWindow.vue";
 import supabase from "@/supabase";
 
@@ -17,6 +15,7 @@ const {
 } = useRoute();
 
 const {id, lang} = useUser();
+
 const dialog = useDialog();
 
 const reference = `users/${id}/diary/${story}`;
@@ -36,17 +35,17 @@ const {
 	released,
 	length,
 	title,
-	doctor_id: {doctor},
+	// doctor_id: {doctor},
 } = props.data;
 
-const cover = type + "/" + range + "/" + props.data.story + ".jpg";
+const cover = type + "/" + range + "/" + props.data.code + ".jpg";
 
 const meta = {
 	released: released,
 	length: length,
 	title: title,
 	cover: cover,
-	doctor: doctor,
+	// doctor: doctor,
 };
 
 async function getData() {
@@ -58,7 +57,7 @@ async function getData() {
 
 	getDoc(query).then(res => {
 		res.exists() ? (request = res.data()) : "";
-
+		console.log(request);
 		if (request.watched) {
 			watched.value = request.watched.status;
 		} else {
@@ -103,7 +102,7 @@ async function rateContent(rating) {
 
 		supabase
 			.rpc("rated", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: 1,
 			})
 			.then(() => {
@@ -140,7 +139,7 @@ async function rateContent(rating) {
 	function doTheThing(rate) {
 		supabase
 			.rpc("rating", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: rate,
 			})
 			.then(() => {
@@ -171,13 +170,13 @@ async function removeRate() {
 
 	supabase
 		.rpc("rated", {
-			qid: props.data.story,
+			qid: props.data.code,
 			qval: -1,
 		})
 		.then(() => {
 			supabase
 				.rpc("rating", {
-					qid: props.data.story,
+					qid: props.data.code,
 					qval: -oldRating.value,
 				})
 				.then(() => {
@@ -217,7 +216,7 @@ async function setWatch(state) {
 
 		supabase
 			.rpc("watched", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: 1,
 			})
 			.then(() => {
@@ -251,7 +250,7 @@ async function setWatch(state) {
 
 		supabase
 			.rpc("watched", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: -1,
 			})
 			.then(() => {
@@ -307,7 +306,7 @@ async function setLike(state) {
 		};
 		supabase
 			.rpc("liked", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: 1,
 			})
 			.then(() => {
@@ -328,7 +327,7 @@ async function setLike(state) {
 
 		supabase
 			.rpc("liked", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: -1,
 			})
 			.then(() => {
@@ -375,7 +374,7 @@ async function setSave(state) {
 		};
 		supabase
 			.rpc("watchlist", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: 1,
 			})
 			.then(() => {
@@ -396,7 +395,7 @@ async function setSave(state) {
 
 		supabase
 			.rpc("watchlist", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: -1,
 			})
 			.then(() => {
@@ -429,29 +428,29 @@ onMounted(() => {
 				@click="setWatch(watched)"
 				class="reviewItem"
 			>
-				<Icon
+				<iconify-icon
 					class="reviewItemIcon"
 					:icon="'ri:eye-' + (watched ? 'fill' : 'line')"
-					:color="watched ? 'var(--blue)' : ''"
+					:style="watched ? 'color:var(--blue)' : ''"
 				/>
 			</div>
 			<div
 				@click="setLike(liked)"
 				class="reviewItem"
 			>
-				<Icon
+				<iconify-icon
 					class="reviewItemIcon"
 					:icon="'ri:heart-' + (liked ? 'fill' : 'line')"
-					:color="liked ? 'var(--red)' : ''"
+					:style="liked ? 'color:var(--red)' : ''"
 				/>
 			</div>
 			<div
 				@click="setSave(saved)"
 				class="reviewItem"
 			>
-				<Icon
+				<iconify-icon
 					:icon="'ri:bookmark-' + (saved ? 'fill' : 'line')"
-					:color="saved ? 'var(--green)' : ''"
+					:style="saved ? 'color: var(--green)' : ''"
 					class="reviewItemIcon"
 				/>
 			</div>
@@ -462,41 +461,41 @@ onMounted(() => {
 				v-if="ratingData > 0"
 				@click="removeRate(), (ratingData = 0)"
 			>
-				<Icon
+				<iconify-icon
 					class="removeIcon"
 					icon="ri:close-circle-line"
 				/>
 			</div>
 			<div class="starsBox">
-				<Icon
+				<iconify-icon
 					@click="rateContent(1), (ratingData = 1)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 1 ? 'fill' : 'line')"
-					:color="ratingData >= 1 ? 'var(--yellow)' : ''"
+					:style="ratingData >= 1 ? 'color: var(--yellow)' : ''"
 				/>
-				<Icon
+				<iconify-icon
 					@click="rateContent(2), (ratingData = 2)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 2 ? 'fill' : 'line')"
-					:color="ratingData >= 2 ? 'var(--yellow)' : ''"
+					:style="ratingData >= 2 ? 'color:var(--yellow)' : ''"
 				/>
-				<Icon
+				<iconify-icon
 					@click="rateContent(3), (ratingData = 3)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 3 ? 'fill' : 'line')"
-					:color="ratingData >= 3 ? 'var(--yellow)' : ''"
+					:style="ratingData >= 3 ? 'color: var(--yellow)' : ''"
 				/>
-				<Icon
+				<iconify-icon
 					@click="rateContent(4), (ratingData = 4)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 4 ? 'fill' : 'line')"
-					:color="ratingData >= 4 ? 'var(--yellow)' : ''"
+					:style="ratingData >= 4 ? 'color:var(--yellow)' : ''"
 				/>
-				<Icon
+				<iconify-icon
 					@click="rateContent(5), (ratingData = 5)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 5 ? 'fill' : 'line')"
-					:color="ratingData >= 5 ? 'var(--yellow)' : ''"
+					:style="ratingData >= 5 ? 'color:var(--yellow)' : ''"
 				/>
 			</div>
 		</div>

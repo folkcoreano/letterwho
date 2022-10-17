@@ -1,9 +1,11 @@
 <script setup>
 import {ref} from "vue";
-import ConfirmButton from "@/components/buttons/ConfirmButton.vue";
 import {useUser} from "@/stores/user";
+import {useRouter} from "vue-router";
 
 const user = useUser();
+
+const {push} = useRouter();
 
 const response = ref(user.lang ? "Vamos lá!" : "Let's go!");
 
@@ -19,12 +21,10 @@ const isPass = ref(false);
 async function signUP() {
 	const {doc, getFirestore, setDoc} = await import("firebase/firestore");
 	const {createUserWithEmailAndPassword, getAuth} = await import("firebase/auth");
-	const {useRouter} = await import("vue-router");
 	const {names, propics} = await import("@/stores/names");
 
 	const db = getFirestore();
 	const auth = getAuth();
-	const router = useRouter();
 
 	const random = Math.floor(Math.random() * names.length);
 
@@ -47,7 +47,7 @@ async function signUP() {
 					created: new Date().toDateString(),
 					beta: true,
 				}).then(() => {
-					router.push({name: "profile"});
+					push({name: "profile"});
 				});
 			}
 		})

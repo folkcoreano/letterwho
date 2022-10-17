@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import {useUser} from "@/stores/user";
 import {per} from "@/stores/percentage";
 import {Icon} from "@iconify/vue";
@@ -158,4 +158,4 @@ th {
 	text-align: center;
 	padding: 0.55rem 0;
 }
-</style>
+</style> -->

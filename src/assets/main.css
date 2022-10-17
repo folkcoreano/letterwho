@@ -67,13 +67,6 @@ a:visited {
   transition: all 150ms ease-in;
 }
 
-.writerLink {
-  border-bottom: 1px solid #555;
-  padding: 0 0.15rem;
-  color: #fff;
-  font-weight: bold;
-}
-
 @media (min-width: 35rem) {
   #foot {
     display: none;

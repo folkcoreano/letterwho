@@ -55,7 +55,7 @@ async function getReview() {
 		.select()
 		.limit(1)
 		.single()
-		.match({url: story})
+		.match({type: type, range_id: range, url: story})
 		.then(res => {
 			media.value = res.data;
 
@@ -642,12 +642,11 @@ onMounted(() => {
 					<picture>
 						<source
 							media="(min-width: 35rem)"
-							:srcset="folder(type + '/' + range + '/' + media.story, '250')"
+							:srcset="folder(type + '/' + range + '/' + media.code, '250')"
 						/>
-
 						<img
 							class="mediaCoverPicture"
-							:src="folder(type + '/' + range + '/' + media.story, '150')"
+							:src="folder(type + '/' + range + '/' + media.code, '150')"
 							:alt="media.title"
 						/>
 					</picture>

@@ -57,13 +57,17 @@ watchEffect(async () => {
 
 			init.value = true;
 		} else {
+			user.logged = false;
+
 			user.info = {
 				name: "nobody",
 				created: "sla",
 				lang: "en",
 				picture: "aa",
 			};
+
 			console.log(":p");
+
 			init.value = true;
 		}
 	});

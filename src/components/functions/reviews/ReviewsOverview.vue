@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import {url} from "@/stores/url";
 import {ref} from "vue";
 import {useRoute} from "vue-router";
@@ -42,4 +42,4 @@ getReviews();
 			/>{{ data.name }}:{{ data.review }}:{{ data.rating }}
 		</router-link>
 	</div>
-</template>
+</template> -->

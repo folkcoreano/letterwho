@@ -11,6 +11,7 @@ import StoryStyle from "@/components/templates/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import CastAndCrew from "@/components/templates/CastAndCrew.vue";
 import MultipleParts from "@/components/templates/MultipleParts.vue";
+import ReviewBox from "../functions/reviews/ReviewBox.vue";
 
 const {
 	params: {type, range, story},
@@ -108,6 +109,9 @@ try {
 				v-if="load"
 				:data="data"
 			>
+				<template #review>
+					<ReviewBox :data="data" />
+				</template>
 				<template #cast>
 					<CastAndCrew
 						:quotes="quotes"

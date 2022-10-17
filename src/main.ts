@@ -11,6 +11,7 @@ import MainState from "@/components/layout/MainState.vue";
 import TheFooter from "@/components/layout/TheFooter.vue";
 import TheHeader from "@/components/layout/TheHeader.vue";
 import ConfirmButton from "@/components/buttons/ConfirmButton.vue";
+import DialogGlobal from "@/components/functions/DialogGlobal.vue";
 
 const app = createApp(App);
 
@@ -31,6 +32,7 @@ app
 	.component("LoadingState", LoadingState)
 	.component("MainState", MainState)
 	.component("TheHeader", TheHeader)
+	.component("DialogGlobal", DialogGlobal)
 	.component("ConfirmButton", ConfirmButton)
 	.component("TheFooter", TheFooter);
 

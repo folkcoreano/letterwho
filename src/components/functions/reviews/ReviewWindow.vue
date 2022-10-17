@@ -1,12 +1,10 @@
 <script setup>
 import {ref} from "vue";
-import {kit, url} from "@/stores/url";
-import {Icon} from "@iconify/vue";
 import {useRoute} from "vue-router";
 import {useUser} from "@/stores/user";
-import {timeAgo} from "@/stores/timeago";
+import {useTime} from "@/stores/time";
 import {useDialog} from "@/stores/dialog";
-import ConfirmButton from "@/components/buttons/ConfirmButton.vue";
+import {folder} from "@/stores/images";
 import dayjs from "dayjs";
 import {onClickOutside} from "@vueuse/core";
 import supabase from "@/supabase";
@@ -24,14 +22,9 @@ const {
 
 const {name, picture, id, lang} = useUser();
 
-const {
-	released,
-	length,
-	title,
-	doctor_id: {doctor},
-} = props.data;
+const {released, length, title} = props.data;
 
-const cover = type + "/" + range + "/" + props.data.story + ".jpg";
+const cover = type + "/" + range + "/" + props.data.code;
 
 const {watched, rated} = props.status;
 
@@ -41,7 +34,7 @@ const review = ref("");
 const rating = ref(0);
 const daySet = ref();
 
-const response = ref(lang ? "Publicar" : "Publish");
+const response = ref(lang === "pt-br" ? "Publicar" : "Publish");
 
 const isDaySet = ref(false);
 const isRewatch = ref(false);
@@ -51,7 +44,6 @@ const meta = {
 	length: length,
 	title: title,
 	cover: cover,
-	doctor: doctor,
 };
 
 async function postReview() {
@@ -234,7 +226,7 @@ onClickOutside(target, () => {
 			<div class="mediaCoverPC">
 				<img
 					class="mediaCover"
-					:src="kit(cover, 150)"
+					:src="folder(cover, '150')"
 					:alt="title"
 				/>
 			</div>
@@ -247,7 +239,7 @@ onClickOutside(target, () => {
 					<div class="mediaCoverMobile">
 						<img
 							class="mediaCoverPictureMobile"
-							:src="kit(cover, 150)"
+							:src="folder(cover, '150')"
 							:alt="title"
 						/>
 					</div>
@@ -261,7 +253,7 @@ onClickOutside(target, () => {
 							:class="isRewatch ? 'reviewOption optionActive' : 'reviewOption'"
 							tabindex="0"
 						>
-							<Icon
+							<iconify-icon
 								class="reviewOptionIcon"
 								icon="ri:repeat-fill"
 							/>
@@ -273,7 +265,7 @@ onClickOutside(target, () => {
 								:class="isDaySet ? 'dateIcon dateActive' : 'dateIcon'"
 								tabindex="0"
 							>
-								<Icon
+								<iconify-icon
 									class="reviewDateIcon"
 									icon="ri:calendar-event-fill"
 								/>
@@ -306,13 +298,13 @@ onClickOutside(target, () => {
 								class="stars"
 								tabindex="0"
 							>
-								<Icon
+								<iconify-icon
 									class="removeIcon"
 									icon="ri:close-circle-line"
 								/>
 							</div>
 							<div class="stars">
-								<Icon
+								<iconify-icon
 									tabindex="0"
 									v-for="n in 5"
 									:key="n"
@@ -321,7 +313,7 @@ onClickOutside(target, () => {
 									class="star"
 									v-model.number="rating"
 									:icon="'ri:star-' + (rating >= n ? 'fill' : 'line')"
-									:color="rating >= n ? 'var(--yellow)' : ''"
+									:style="rating >= n ? 'color: var(--yellow)' : ''"
 								/>
 							</div>
 						</div>
@@ -331,7 +323,7 @@ onClickOutside(target, () => {
 								tabindex="0"
 								:hoverColor="'var(--red)'"
 							>
-								<Icon
+								<iconify-icon
 									class="sendIcon"
 									icon="ri:arrow-go-back-line"
 								/>
@@ -343,7 +335,7 @@ onClickOutside(target, () => {
 								tabindex="0"
 								:hoverColor="'var(--blue)'"
 							>
-								<Icon
+								<iconify-icon
 									class="sendIcon"
 									icon="ri:quill-pen-line"
 								/>

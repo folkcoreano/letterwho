@@ -124,7 +124,6 @@ onClickOutside(target, e => {
 					</div>
 				</div>
 			</div>
-
 			<div class="pageData mobileHeader">
 				<div class="pageHeader">
 					<div class="pageTitle">
@@ -200,7 +199,12 @@ onClickOutside(target, e => {
 					</div>
 				</div>
 			</div>
-
+			<div
+				v-if="isPC"
+				class="reviewBox"
+			>
+				<slot name="review" />
+			</div>
 			<div
 				v-if="!isPC"
 				class="pageData mobile"
@@ -266,6 +270,11 @@ onClickOutside(target, e => {
 <style scoped>
 * {
 	outline: 0px solid rgba(255, 0, 135, 0.5);
+}
+
+.reviewBox {
+	grid-column: 3;
+	grid-row: 1;
 }
 
 .coverDialog {

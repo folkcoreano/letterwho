@@ -6,34 +6,42 @@ import {ref} from "vue";
 
 import SignOUT from "@/components/functions/SignOUT.vue";
 
+const {lang, logged} = useUser();
+
 const user = useUser();
 
 const tab = ref(0);
 </script>
 
 <template>
-	<div class="register">
-		<div class="choices">
-			<span
-				:class="tab == 0 ? 'tab active' : 'tab'"
-				tabindex="0"
-				@click="tab = 0"
-			>
-				{{ user.lang ? "Entrar" : "Login" }}
-			</span>
-			<span
-				:class="tab == 1 ? 'tab active' : 'tab'"
-				tabindex="0"
-				@click="tab = 1"
-			>
-				{{ user.lang ? "Criar conta" : "Create an account" }}
-			</span>
+	<div>
+		<SignOUT v-if="logged" />
+		<div
+			class="register"
+			v-if="!logged"
+		>
+			<div class="choices">
+				<span
+					:class="tab == 0 ? 'tab active' : 'tab'"
+					tabindex="0"
+					@click="tab = 0"
+				>
+					{{ lang ? "Entrar" : "Login" }}
+				</span>
+				<span
+					:class="tab == 1 ? 'tab active' : 'tab'"
+					tabindex="0"
+					@click="tab = 1"
+				>
+					{{ lang ? "Criar conta" : "Create an account" }}
+				</span>
+			</div>
+			<LoginPage
+				v-if="tab == 0"
+				:user="user"
+			/>
+			<RegisterPage v-if="tab == 1" />
 		</div>
-		<LoginPage
-			v-if="tab == 0"
-			:user="user"
-		/>
-		<RegisterPage v-if="tab == 1" />
 	</div>
 </template>
 

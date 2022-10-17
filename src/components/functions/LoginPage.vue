@@ -15,7 +15,6 @@ const color = ref("var(--blue)");
 const response = ref(props.user.lang ? "Deixa eu entrar!" : "Let me in!");
 
 async function login() {
-	const {useRouter} = await import("vue-router");
 	const {getAuth, signInWithEmailAndPassword} = await import("firebase/auth");
 
 	const auth = getAuth();
