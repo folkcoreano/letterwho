@@ -101,6 +101,9 @@ try {
 <template>
 	<template v-if="load">
 		<div>
+			<router-link :to="{name: 'reviews', params: {type: type, range: range, story: story}}"
+				>REVIEWS</router-link
+			>
 			<StoryStyle
 				v-if="load"
 				:data="data"
@@ -112,12 +115,6 @@ try {
 						:data="cast"
 					/>
 				</template>
-				<!-- <template
-					v-if="parts"
-					#parts
-				>
-					<MultipleParts :data="parts" />
-				</template> -->
 			</StoryStyle>
 		</div>
 	</template>

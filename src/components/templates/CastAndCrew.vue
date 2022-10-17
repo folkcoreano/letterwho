@@ -46,6 +46,8 @@ if (props.parts) {
 }
 
 const actTab = ref(tabs.value[0]);
+
+const size = "100";
 </script>
 
 <template>
@@ -81,7 +83,7 @@ const actTab = ref(tabs.value[0]);
 				<img
 					style="border: 2px solid var(--yellow)"
 					class="charIcon"
-					:src="char('p/' + character_id.character_id, '500')"
+					:src="char('p/' + character_id.character_id, size)"
 					:alt="character_id.name"
 				/>
 				<span>
@@ -98,7 +100,7 @@ const actTab = ref(tabs.value[0]);
 				<img
 					class="charIcon"
 					style="border: 2px solid var(--green)"
-					:src="char('p/' + character_id.character_id, '500')"
+					:src="char('p/' + character_id.character_id, size)"
 					:alt="character_id.name"
 				/>
 				<span>
@@ -115,7 +117,7 @@ const actTab = ref(tabs.value[0]);
 				<img
 					class="charIcon"
 					style="border: 2px solid var(--purple)"
-					:src="char('p/' + character_id.character_id, '500')"
+					:src="char('p/' + character_id.character_id, size)"
 					:alt="character_id.name"
 				/>
 				<span>
@@ -132,7 +134,7 @@ const actTab = ref(tabs.value[0]);
 				<img
 					class="charIcon"
 					style="border: 2px solid var(--blue)"
-					:src="char('p/' + character_id.character_id, '500')"
+					:src="char('p/' + character_id.character_id, size)"
 					:alt="character_id.name"
 				/>
 				<span>
@@ -149,7 +151,7 @@ const actTab = ref(tabs.value[0]);
 				<img
 					class="charIcon"
 					style="border: 2px solid var(--red)"
-					:src="char('p/' + character_id.character_id, '500')"
+					:src="char('p/' + character_id.character_id, size)"
 					:alt="character_id.name"
 				/>
 				<span>
@@ -324,6 +326,8 @@ const actTab = ref(tabs.value[0]);
 .tabs {
 	display: flex;
 	gap: 0.55rem;
+	overflow: auto;
+	white-space: nowrap;
 }
 
 .tab {

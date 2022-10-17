@@ -1,10 +1,16 @@
 <script setup>
-import axios from "axios";
+import {folder} from "@/stores/images";
 import {ref} from "vue";
+import {useRoute} from "vue-router";
 
 const props = defineProps({
 	data: Object,
 });
+
+const {
+	params: {type, range},
+} = useRoute();
+
 const data = ref(props.data);
 </script>
 
@@ -18,7 +24,7 @@ const data = ref(props.data);
 			<div class="partCoverBox">
 				<img
 					class="partCover"
-					:src="'https://artworks.thetvdb.com/banners/episodes/76107/29738' + (i + 3) + '.jpg'"
+					:src="folder(type + '/' + range + '/' + story, '50')"
 					:alt="title"
 				/>
 			</div>

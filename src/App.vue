@@ -17,57 +17,57 @@ if (lang === "en") {
 	document.documentElement.setAttribute("lang", "en");
 }
 
-// watchEffect(async () => {
-// 	const {getAuth, onAuthStateChanged} = await import("firebase/auth");
+watchEffect(async () => {
+	const {getAuth, onAuthStateChanged} = await import("firebase/auth");
 
-// 	const auth = getAuth();
+	const auth = getAuth();
 
-// 	onAuthStateChanged(auth, async res => {
-// 		if (res) {
-// 			user.logged = true;
+	onAuthStateChanged(auth, async res => {
+		if (res) {
+			user.logged = true;
 
-// 			const {getDoc, doc, getFirestore} = await import("firebase/firestore");
+			const {getDoc, doc, getFirestore} = await import("firebase/firestore");
 
-// 			const db = getFirestore();
+			const db = getFirestore();
 
-// 			const query = doc(db, "users", res.uid);
+			const query = doc(db, "users", res.uid);
 
-// 			user.data = {
-// 				data: res,
-// 				email: res.email,
-// 			};
+			user.data = {
+				data: res,
+				email: res.email,
+			};
 
-// 			user.id = res.uid;
+			user.id = res.uid;
 
-// 			getDoc(query).then(res => {
-// 				let document;
-// 				if (res.exists()) {
-// 					document = res.data();
+			getDoc(query).then(res => {
+				let document;
+				if (res.exists()) {
+					document = res.data();
 
-// 					user.info = {
-// 						name: document.name,
-// 						created: document.created,
-// 						picture: document.picture,
-// 						lang: document.lang,
-// 					};
-// 				} else {
-// 					console.log("no data :(");
-// 				}
-// 			});
+					user.info = {
+						name: document.name,
+						created: document.created,
+						picture: document.picture,
+						lang: document.lang,
+					};
+				} else {
+					console.log("no data :(");
+				}
+			});
 
-// 			init.value = true;
-// 		} else {
-// 			user.info = {
-// 				name: "nobody",
-// 				created: "sla",
-// 				lang: "en",
-// 				picture: "aa",
-// 			};
-// 			console.log(":p");
-// 			init.value = true;
-// 		}
-// 	});
-// });
+			init.value = true;
+		} else {
+			user.info = {
+				name: "nobody",
+				created: "sla",
+				lang: "en",
+				picture: "aa",
+			};
+			console.log(":p");
+			init.value = true;
+		}
+	});
+});
 </script>
 
 <template>

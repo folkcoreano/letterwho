@@ -10,6 +10,7 @@ import LoadingState from "@/components/layout/LoadingState.vue";
 import MainState from "@/components/layout/MainState.vue";
 import TheFooter from "@/components/layout/TheFooter.vue";
 import TheHeader from "@/components/layout/TheHeader.vue";
+import ConfirmButton from "@/components/buttons/ConfirmButton.vue";
 
 const app = createApp(App);
 
@@ -30,6 +31,7 @@ app
 	.component("LoadingState", LoadingState)
 	.component("MainState", MainState)
 	.component("TheHeader", TheHeader)
+	.component("ConfirmButton", ConfirmButton)
 	.component("TheFooter", TheFooter);
 
 app.use(autoAnimatePlugin);

@@ -56,7 +56,7 @@ const target = ref();
 
 const open = ref(false);
 
-const {isReady} = useImage({src: folder(cover)});
+// const {isReady} = useImage({src: folder(cover)});
 
 onClickOutside(target, e => {
 	open.value = false;
@@ -73,19 +73,18 @@ onClickOutside(target, e => {
 			class="dialog"
 		>
 			<img
-				v-if="isReady"
 				ref="target"
 				:alt="title"
 				class="coverDialog"
 				:src="folder(cover)"
 			/>
-			<LoadingState v-else />
+			<!-- <LoadingState v-else /> -->
 		</dialog>
 		<div class="mainContent">
 			<div class="contentStatus">
 				<div class="statusArea">
 					<img
-						@click="open = !open"
+						@click="open = true"
 						draggable="false"
 						:alt="title"
 						class="coverPicture"
