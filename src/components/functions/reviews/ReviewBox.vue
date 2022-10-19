@@ -8,7 +8,32 @@ import supabase from "@/supabase";
 
 const props = defineProps({
 	data: Object,
+	doctors: Object,
 });
+
+let doctors = [];
+
+// try {
+// 	doctors = [...new Set(props.doctors)];
+// 	// for (let doc of props.doctors) {
+// 	// 	let file = {
+// 	// 		[doc.replace("-", "")]: {
+// 	// 			watchtime: "",
+// 	// 			stories: "",
+// 	// 		},
+// 	// 	};
+// 	// 	doctors.push(file);
+// 	// 	// doctors.doctors.push({
+// 	// 	// 	[doc.replace("-", "")]: {
+// 	// 	// 		watchtime: "",
+// 	// 	// 		stories: "",
+// 	// 	// 	},
+// 	// 	// });
+// 	// }
+// 	console.log(doctors);
+// } catch (e) {
+// 	console.log(e);
+// }
 
 const {
 	params: {type, range, story},
@@ -31,12 +56,7 @@ const watching = ref(false);
 const ratingData = ref(0);
 const oldRating = ref(0);
 
-const {
-	released,
-	length,
-	title,
-	// doctor_id: {doctor},
-} = props.data;
+const {released, length, title, url, code} = props.data;
 
 const cover = type + "/" + range + "/" + props.data.code + ".jpg";
 
@@ -44,8 +64,9 @@ const meta = {
 	released: released,
 	length: length,
 	title: title,
-	cover: cover,
-	// doctor: doctor,
+	range: range,
+	story: url,
+	code: code,
 };
 
 async function getData() {
@@ -56,24 +77,27 @@ async function getData() {
 	let request = {};
 
 	getDoc(query).then(res => {
-		res.exists() ? (request = res.data()) : "";
-		console.log(request);
-		if (request.watched) {
+		res.exists() ? (request = res.data()) : (request = {});
+
+		if (request.watched !== undefined) {
 			watched.value = request.watched.status;
 		} else {
 			watched.value = false;
 		}
-		if (request.liked) {
+
+		if (request.liked !== undefined) {
 			liked.value = request.liked.status;
 		} else {
 			liked.value = false;
 		}
-		if (request.saved) {
+
+		if (request.saved !== undefined) {
 			saved.value = request.saved.status;
 		} else {
 			saved.value = false;
 		}
-		if (request.rating) {
+
+		if (request.rating !== undefined) {
 			rated.value = true;
 			ratingData.value = request.rating.rating;
 			oldRating.value = request.rating.rating;
@@ -193,7 +217,35 @@ async function setWatch(state) {
 	const db = getFirestore();
 	const query = doc(db, reference);
 
-	// const doctorfile = doc(db, "users", id, "stats", doctor);
+	const doctorfile = doc(db, "users", id, "stats", "DOCTORS");
+
+	const addDoctors = {
+		doctors: [],
+	};
+
+	const remDoctors = {doctors: []};
+
+	for (let doc of props.doctors) {
+		addDoctors.doctors.push({
+			status: {
+				[doc]: {
+					watchtime: increment(+1),
+					stories: increment(+length),
+				},
+			},
+		});
+	}
+
+	for (let doc of props.doctors) {
+		remDoctors.doctors.push({
+			status: {
+				[doc]: {
+					watchtime: increment(-1),
+					stories: increment(-length),
+				},
+			},
+		});
+	}
 
 	state ? desloga() : loga();
 
@@ -222,15 +274,7 @@ async function setWatch(state) {
 			.then(() => {
 				setDoc(query, data, {merge: true})
 					.then(res => {
-						// setDoc(
-						// 	doctorfile,
-						// 	{
-						// 		doctor: doctor,
-						// 		stories: increment(1),
-						// 		timewatched: increment(length),
-						// 	},
-						// 	{merge: true}
-						// );
+						setDoc(doctorfile, addDoctors, {merge: true});
 						console.log("watch success");
 						if (saved.value === true) {
 							saved.value = false;
@@ -262,15 +306,7 @@ async function setWatch(state) {
 					{merge: true}
 				)
 					.then(() => {
-						// setDoc(
-						// 	doctorfile,
-						// 	{
-						// 		doctor: doctor,
-						// 		stories: increment(-1),
-						// 		timewatched: increment(-length),
-						// 	},
-						// 	{merge: true}
-						// );
+						setDoc(doctorfile, remDoctors, {merge: true});
 						console.log("deswatch success");
 					})
 					.catch(err => {

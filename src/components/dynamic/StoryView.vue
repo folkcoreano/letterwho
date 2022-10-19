@@ -25,6 +25,7 @@ const data = ref();
 const cast = ref();
 const quotes = ref();
 const parts = ref();
+const doctors = ref();
 
 const load = ref(false);
 
@@ -90,6 +91,9 @@ try {
 				cast.value = res.data.story_id;
 				quotes.value = res.data.quote;
 				parts.value = res.data.parts.length > 0 ? res.data.parts : null;
+				doctors.value = res.data.story_id
+					.filter(e => e.type === "DOCTOR")
+					.flatMap(e => e.character_id.character_id);
 			} else {
 				push({name: "home"});
 			}
@@ -110,7 +114,11 @@ try {
 				:data="data"
 			>
 				<template #review>
-					<ReviewBox :data="data" />
+					<ReviewBox
+						v-if="false"
+						:doctors="doctors"
+						:data="data"
+					/>
 				</template>
 				<template #cast>
 					<CastAndCrew

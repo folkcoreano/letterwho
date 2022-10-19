@@ -1,9 +1,8 @@
 <script setup>
+import {ref} from "vue";
 import {folder} from "@/stores/images";
 import {useUser} from "@/stores/user";
-import {onClickOutside, useImage} from "@vueuse/core";
-import {ref} from "vue";
-import LoadingState from "../layout/LoadingState.vue";
+import {onClickOutside} from "@vueuse/core";
 
 const props = defineProps({
 	data: Object,
@@ -56,8 +55,6 @@ const target = ref();
 
 const open = ref(false);
 
-// const {isReady} = useImage({src: folder(cover)});
-
 onClickOutside(target, e => {
 	open.value = false;
 });
@@ -78,7 +75,6 @@ onClickOutside(target, e => {
 				class="coverDialog"
 				:src="folder(cover)"
 			/>
-			<!-- <LoadingState v-else /> -->
 		</dialog>
 		<div class="mainContent">
 			<div class="contentStatus">

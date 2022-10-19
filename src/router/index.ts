@@ -114,7 +114,7 @@ router.beforeEach((to, from, next) => {
 		if (getAuth().currentUser) {
 			next();
 		} else {
-			next("/"); //login
+			next({name: "register"});
 		}
 	} else {
 		next();
