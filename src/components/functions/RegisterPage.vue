@@ -44,10 +44,10 @@ async function signUP() {
 					name: names[random],
 					picture: propics[randompics],
 					lang: 0,
-					created: new Date().toDateString(),
+					created: new Date().toISOString(),
 					beta: true,
 				}).then(() => {
-					push({name: "profile"});
+					push({name: "home"});
 				});
 			}
 		})
