@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import {useUser} from "@/stores/user";
 import {useRoute} from "vue-router";
 
 const route = useRoute();
+
+const {lang} = useUser();
 
 function handleRoute(rota: string) {
 	return route.path.includes(rota);
@@ -19,6 +22,12 @@ function handleRoute(rota: string) {
 				class="footerIcon"
 				:icon="'ri:home-2-' + (route.name === 'home' ? 'fill' : 'line')"
 			/>
+			<div
+				v-show="route.name === 'home'"
+				class="title"
+			>
+				Home
+			</div>
 		</RouterLink>
 		<RouterLink
 			to="/audios"
@@ -29,6 +38,12 @@ function handleRoute(rota: string) {
 				class="footerIcon"
 				:icon="'ri:headphone-' + (handleRoute('audios') ? 'fill' : 'line')"
 			/>
+			<div
+				v-show="handleRoute('audios')"
+				class="title"
+			>
+				{{ lang === "pt-br" ? "Áudios" : "Audios" }}
+			</div>
 		</RouterLink>
 		<RouterLink
 			to="/books"
@@ -39,6 +54,12 @@ function handleRoute(rota: string) {
 				class="footerIcon"
 				:icon="'ri:file-list-3-' + (handleRoute('books') ? 'fill' : 'line')"
 			/>
+			<div
+				v-show="handleRoute('books')"
+				class="title"
+			>
+				{{ lang === "pt-br" ? "Livros" : "Books" }}
+			</div>
 		</RouterLink>
 		<RouterLink
 			to="/comics"
@@ -48,6 +69,12 @@ function handleRoute(rota: string) {
 				class="footerIcon"
 				:icon="'ri:book-mark-' + (handleRoute('comics') ? 'fill' : 'line')"
 			/>
+			<div
+				v-show="handleRoute('comics')"
+				class="title"
+			>
+				{{ lang === "pt-br" ? "HQs" : "Comics" }}
+			</div>
 		</RouterLink>
 		<RouterLink
 			to="/tv"
@@ -57,6 +84,12 @@ function handleRoute(rota: string) {
 				class="footerIcon"
 				:icon="'ri:tv-' + (handleRoute('tv') ? 'fill' : 'line')"
 			/>
+			<div
+				v-show="handleRoute('tv')"
+				class="title"
+			>
+				TV
+			</div>
 		</RouterLink>
 	</section>
 </template>
@@ -72,8 +105,17 @@ section {
 	overflow: auto;
 }
 
+.title {
+	font-size: 0.85rem;
+	font-weight: bold;
+}
+
 .footerLink {
 	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.25rem;
 	padding: 0.5rem;
 	cursor: pointer;
 	transition: all 150ms ease;

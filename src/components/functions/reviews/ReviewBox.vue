@@ -11,30 +11,6 @@ const props = defineProps({
 	doctors: Object,
 });
 
-let doctors = [];
-
-// try {
-// 	doctors = [...new Set(props.doctors)];
-// 	// for (let doc of props.doctors) {
-// 	// 	let file = {
-// 	// 		[doc.replace("-", "")]: {
-// 	// 			watchtime: "",
-// 	// 			stories: "",
-// 	// 		},
-// 	// 	};
-// 	// 	doctors.push(file);
-// 	// 	// doctors.doctors.push({
-// 	// 	// 	[doc.replace("-", "")]: {
-// 	// 	// 		watchtime: "",
-// 	// 	// 		stories: "",
-// 	// 	// 	},
-// 	// 	// });
-// 	// }
-// 	console.log(doctors);
-// } catch (e) {
-// 	console.log(e);
-// }
-
 const {
 	params: {type, range, story},
 } = useRoute();
@@ -43,30 +19,28 @@ const {id, lang} = useUser();
 
 const dialog = useDialog();
 
-const reference = `users/${id}/diary/${story}`;
-
 const watched = ref(false);
 const liked = ref(false);
 const saved = ref(false);
 
 const rated = ref();
 
-const watching = ref(false);
-
 const ratingData = ref(0);
 const oldRating = ref(0);
 
-const {released, length, title, url, code} = props.data;
+const {released, length, title, code} = props.data;
 
-const cover = type + "/" + range + "/" + props.data.code + ".jpg";
+const reference = `users/${id}/diary/${code}`;
 
-const meta = {
+const storyFile = {
+	code: code,
 	released: released,
 	length: length,
 	title: title,
+	type: type,
 	range: range,
-	story: url,
-	code: code,
+	story: story,
+	created: new Date().toISOString(),
 };
 
 async function getData() {
@@ -212,40 +186,34 @@ async function removeRate() {
 }
 
 async function setWatch(state) {
-	const {getFirestore, setDoc, increment, doc} = await import("firebase/firestore");
+	const {getFirestore, writeBatch, setDoc, increment, doc} = await import("firebase/firestore");
 
 	const db = getFirestore();
 	const query = doc(db, reference);
 
-	const doctorfile = doc(db, "users", id, "stats", "DOCTORS");
+	const addData = {
+		tv: type === "tv" ? increment(1) : increment(0),
+		audios: type === "audios" ? increment(1) : increment(0),
+		books: type === "books" ? increment(1) : increment(0),
+		comics: type === "comics" ? increment(1) : increment(0),
 
-	const addDoctors = {
-		doctors: [],
+		tv_time: type === "tv" ? increment(length) : increment(0),
+		audios_time: type === "audios" ? increment(length) : increment(0),
+		books_time: type === "books" ? increment(length) : increment(0),
+		comics_time: type === "comics" ? increment(length) : increment(0),
 	};
 
-	const remDoctors = {doctors: []};
+	const remData = {
+		tv: type === "tv" ? increment(-1) : increment(0),
+		audios: type === "audios" ? increment(-1) : increment(0),
+		books: type === "books" ? increment(-1) : increment(0),
+		comics: type === "comics" ? increment(-1) : increment(0),
 
-	for (let doc of props.doctors) {
-		addDoctors.doctors.push({
-			status: {
-				[doc]: {
-					watchtime: increment(+1),
-					stories: increment(+length),
-				},
-			},
-		});
-	}
-
-	for (let doc of props.doctors) {
-		remDoctors.doctors.push({
-			status: {
-				[doc]: {
-					watchtime: increment(-1),
-					stories: increment(-length),
-				},
-			},
-		});
-	}
+		tv_time: type === "tv" ? increment(-length) : increment(0),
+		audios_time: type === "audios" ? increment(-length) : increment(0),
+		books_time: type === "books" ? increment(-length) : increment(0),
+		comics_time: type === "comics" ? increment(-length) : increment(0),
+	};
 
 	state ? desloga() : loga();
 
@@ -255,11 +223,7 @@ async function setWatch(state) {
 		watched.value = true;
 
 		const data = {
-			type: type,
-			range: range,
-			story: story,
-			created: new Date().toISOString(),
-			data: meta,
+			...storyFile,
 			watched: {
 				status: true,
 				time: new Date().toISOString(),
@@ -272,18 +236,26 @@ async function setWatch(state) {
 				qval: 1,
 			})
 			.then(() => {
-				setDoc(query, data, {merge: true})
-					.then(res => {
-						setDoc(doctorfile, addDoctors, {merge: true});
-						console.log("watch success");
-						if (saved.value === true) {
-							saved.value = false;
-							setSave(true);
-						}
-					})
-					.catch(err => {
-						console.log(err);
-					});
+				const addBatch = writeBatch(db);
+
+				addBatch.set(query, data, {merge: true});
+
+				for (const doctor of props.doctors) {
+					addBatch.set(doc(db, "users", id, "stats", doctor), addData, {merge: true});
+				}
+
+				addBatch.set(doc(db, "users", id), addData, {merge: true});
+
+				addBatch.commit().then(() => {
+					console.log("ok");
+				});
+
+				console.log("watch success");
+
+				if (saved.value === true) {
+					saved.value = false;
+					setSave(true);
+				}
 			});
 	}
 
@@ -298,20 +270,24 @@ async function setWatch(state) {
 				qval: -1,
 			})
 			.then(() => {
-				setDoc(
-					query,
-					{
-						watched: false,
-					},
-					{merge: true}
-				)
-					.then(() => {
-						setDoc(doctorfile, remDoctors, {merge: true});
-						console.log("deswatch success");
-					})
-					.catch(err => {
-						console.log(err);
-					});
+				const remBatch = writeBatch(db);
+
+				remBatch.set(query, {watched: false}, {merge: true});
+
+				for (const doctor of props.doctors) {
+					remBatch.set(doc(db, "users", id, "stats", doctor), remData, {merge: true});
+				}
+
+				remBatch.set(doc(db, "users", id), remData, {merge: true});
+
+				remBatch.commit().then(() => {
+					console.log("ok");
+				});
+
+				console.log("deswatch success");
+			})
+			.catch(err => {
+				console.log(err);
 			});
 	}
 }
@@ -330,11 +306,7 @@ async function setLike(state) {
 		liked.value = true;
 
 		const data = {
-			type: type,
-			range: range,
-			story: story,
-			created: new Date().toISOString(),
-			data: meta,
+			...storyFile,
 			liked: {
 				status: true,
 				time: new Date().toISOString(),
@@ -398,11 +370,7 @@ async function setSave(state) {
 		saved.value = true;
 
 		const data = {
-			type: type,
-			range: range,
-			story: story,
-			created: new Date().toISOString(),
-			data: meta,
+			...storyFile,
 			saved: {
 				status: true,
 				time: new Date().toISOString(),
@@ -561,10 +529,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
-* {
+/* * {
 	outline: 1px solid rgba(255, 0, 135, 0);
 	user-select: none;
-}
+} */
 .ratingBox {
 	gap: 0.5rem;
 	padding: 0.8rem;

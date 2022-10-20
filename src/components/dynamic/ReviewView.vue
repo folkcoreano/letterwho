@@ -1,17 +1,17 @@
 <script setup>
-import {useUser} from "@/stores/user";
-import {useRoute, useRouter} from "vue-router";
-import {ref, onMounted} from "vue";
 import supabase from "@/supabase";
+import {ref, onMounted} from "vue";
+import {useUser} from "@/stores/user";
 import {useTime} from "@/stores/time";
 import {folder} from "@/stores/images";
+import {useRoute, useRouter} from "vue-router";
 
 const {lang, picture, name, logged} = useUser();
 
 const user = useUser();
 
 const {
-	params: {type, story, range, id},
+	params: {type, range, story, id},
 } = useRoute();
 
 const {push} = useRouter();
@@ -62,7 +62,6 @@ async function getReview() {
 			getDoc(q).then(res => {
 				if (res.exists()) {
 					data.value = res.data();
-
 					if (data.value.comments > 0) {
 						getComments();
 					}
@@ -100,6 +99,7 @@ async function editReview() {
 	const {getFirestore, doc, setDoc} = await import("firebase/firestore");
 
 	const db = getFirestore();
+
 	const query = doc(db, "reviews", type, range, story, "reviews", id);
 
 	responseEdit.value = lang ? "Editando..." : "Editing...";
@@ -118,7 +118,9 @@ async function editReview() {
 			{merge: true}
 		).then(() => {
 			getReview();
+
 			responseEdit.value = lang ? "Feito!" : "Done!";
+
 			setTimeout(() => {
 				editing.value = false;
 			}, 1000);
@@ -139,11 +141,14 @@ async function editReview() {
 			{merge: true}
 		).then(() => {
 			getReview();
+
 			responseEdit.value = lang ? "Feito!" : "Done!";
+
 			setTimeout(() => {
 				editing.value = false;
 			}, 1000);
 		});
+
 		console.log("change rating");
 	}
 
@@ -159,7 +164,9 @@ async function editReview() {
 			{merge: true}
 		).then(() => {
 			getReview();
+
 			responseEdit.value = lang ? "Feito!" : "Done!";
+
 			setTimeout(() => {
 				editing.value = false;
 			}, 1000);
@@ -180,7 +187,9 @@ async function editReview() {
 			{merge: true}
 		).then(() => {
 			getReview();
+
 			responseEdit.value = lang ? "Feito!" : "Done!";
+
 			setTimeout(() => {
 				editing.value = false;
 			}, 1000);
@@ -190,11 +199,13 @@ async function editReview() {
 }
 
 async function deleteReview() {
-	const {getFirestore, doc, getDocs, collection, deleteDoc} = await import("firebase/firestore");
+	const {getFirestore, doc, writeBatch, getDocs, collection} = await import("firebase/firestore");
 
 	const db = getFirestore();
+
 	const query = doc(db, "reviews", type, range, story, "reviews", id);
-	const activity = doc(db, "users", data.value.id, "diary", story, "activity", id);
+
+	const activity = doc(db, "users", data.value.id, "diary", media.value.code, "activity", id);
 
 	responseDelete.value = lang ? "Deletando..." : "Deleting...";
 
@@ -202,57 +213,64 @@ async function deleteReview() {
 		console.log("remove watch");
 
 		supabase
-			.rpc("incwatch", {
-				qid: media.value.story,
+			.rpc("watched", {
+				qid: media.value.code,
 				qval: 1,
 			})
 			.then(() => {
-				deleteDoc(query).then(res => {
-					console.log("review deleted");
+				const delBatch = writeBatch(db);
 
-					deleteDoc(activity)
-						.then(res => {
-							console.log("activity deleted");
-							responseDelete.value = lang ? "Deletado!" : "Deleted!";
+				delBatch.delete(query);
 
-							push({name: "story", params: {type: type, range: range, story: story}});
-						})
-						.then(() => {
-							if (data.value.comments > 0) {
-								deleteAllComments();
-							}
-						});
+				delBatch.delete(activity);
+
+				delBatch.commit().then(() => {
+					console.log("deleted!");
+
+					responseDelete.value = lang ? "Deletado!" : "Deleted!";
+
+					push({name: "story", params: {type: type, range: range, story: story}});
+
+					if (data.value.comments > 0) {
+						deleteAllComments();
+					}
 				});
 			});
 	} else {
 		console.log("vida que segue");
 
-		deleteDoc(query).then(res => {
-			console.log("review deleted");
+		const delBatch = writeBatch(db);
 
-			deleteDoc(activity)
-				.then(res => {
-					console.log("activity deleted");
-					responseDelete.value = lang ? "Deletado!" : "Deleted!";
-					push({name: "story", params: {type: type, range: range, story: story}});
-				})
-				.then(() => {
-					if (data.value.comments > 0) {
-						deleteAllComments();
-					}
-				});
+		delBatch.delete(query);
+
+		delBatch.delete(activity);
+
+		delBatch.commit().then(() => {
+			console.log("deleted!");
+
+			responseDelete.value = lang ? "Deletado!" : "Deleted!";
+
+			push({name: "story", params: {type: type, range: range, story: story}});
+
+			if (data.value.comments > 0) {
+				deleteAllComments();
+			}
 		});
 	}
 
 	function deleteAllComments() {
 		const comments = collection(db, "reviews", type, range, story, "reviews", id, "comments");
 
+		const commentsBatch = writeBatch(db);
+
 		getDocs(comments).then(res => {
 			res.forEach(docs => {
-				const comment = doc(db, "reviews", type, range, story, "reviews", id, "comments", docs.id);
-				deleteDoc(comment).then(() => {
-					console.log(docs.id + ": deleted");
-				});
+				commentsBatch.delete(
+					doc(db, "reviews", type, range, story, "reviews", id, "comments", docs.id)
+				);
+			});
+			commentsBatch.commit().then(() => {
+				console.log("all comments deleted!");
 			});
 		});
 	}
@@ -276,13 +294,13 @@ async function likeReview(state) {
 	);
 
 	const db = getFirestore();
+
 	const review = doc(db, "reviews", type, range, story, "reviews", id);
 
 	if (logged) {
 		if (state === true) {
 			updateDoc(review, {
 				likes: increment(-1),
-
 				wholiked: arrayRemove(user.id),
 			}).then(() => {
 				getReview();
@@ -316,7 +334,7 @@ async function getComments() {
 
 	const commentsQuery = query(
 		collection(db, "reviews", type, range, story, "reviews", id, "comments"),
-		limit(4),
+		limit(5),
 		orderBy("created", "desc")
 	);
 
@@ -343,8 +361,11 @@ async function addComment() {
 	const {getFirestore, addDoc, collection, updateDoc, increment, doc} = await import(
 		"firebase/firestore"
 	);
+
 	const db = getFirestore();
+
 	const query = collection(db, "reviews", type, range, story, "reviews", id, "comments");
+
 	const review = doc(db, "reviews", type, range, story, "reviews", id);
 
 	commentResponse.value = lang ? "Postando..." : "Posting...";
@@ -359,13 +380,17 @@ async function addComment() {
 
 	addDoc(query, userdata).then(() => {
 		commentResponse.value = lang ? "Postado!" : "Posted!";
+
 		comment.value = "";
+
 		updateDoc(review, {
 			comments: increment(1),
 		})
 			.then(() => {
 				isComment.value = false;
+
 				getComments();
+
 				getReview();
 			})
 			.finally(() => {
@@ -376,8 +401,11 @@ async function addComment() {
 
 async function deleteComment(commentId) {
 	const {getFirestore, deleteDoc, updateDoc, increment, doc} = await import("firebase/firestore");
+
 	const db = getFirestore();
+
 	const query = doc(db, "reviews", type, range, story, "reviews", id, "comments", commentId);
+
 	const review = doc(db, "reviews", type, range, story, "reviews", id);
 
 	deleteDoc(query).then(() => {
@@ -385,6 +413,7 @@ async function deleteComment(commentId) {
 			comments: increment(-1),
 		}).then(() => {
 			getComments();
+
 			getReview();
 		});
 	});
@@ -406,6 +435,7 @@ async function likeComment(state, commentId) {
 				wholiked: arrayRemove(user.id),
 			}).then(() => {
 				getComments();
+
 				console.log("you remove it i guess");
 			});
 
@@ -416,8 +446,10 @@ async function likeComment(state, commentId) {
 				wholiked: arrayUnion(user.id),
 			}).then(() => {
 				getComments();
+
 				console.log("you did it i guess");
 			});
+
 			console.log("like");
 		}
 	} else {
@@ -794,27 +826,23 @@ onMounted(() => {
 </template>
 
 <style scoped>
-* {
+/* * {
 	outline: 0px dotted rgba(0, 255, 0, 0);
-}
-
+} */
 .commentNew {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	cursor: pointer;
 }
-
 .commentButtons {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 }
-
 .commentStatusIcon {
 	font-size: 1.55rem;
 }
-
 .commentStatus {
 	display: flex;
 	align-items: center;
@@ -822,26 +850,22 @@ onMounted(() => {
 	font-size: 1.15rem;
 	font-weight: bold;
 }
-
 .commentsHeader {
 	padding: 0.55rem;
 	display: flex;
 	justify-content: space-between;
 }
-
 .commentDelete {
 	cursor: pointer;
 	display: flex;
 	font-size: 1.25rem;
 	transition: all 150ms ease;
 }
-
 .commentDelete:hover {
 	color: var(--red);
 	translate: 0 -0.1rem;
 	transition: all 150ms ease;
 }
-
 .commentDate {
 	display: flex;
 	gap: 0.25rem;
@@ -851,38 +875,32 @@ onMounted(() => {
 	font-size: 1.25rem;
 	transition: all 150ms ease;
 }
-
 .commentLikeIcon:hover {
 	translate: 0 -0.1rem;
 	transition: all 150ms ease;
 }
-
 .commentLike {
 	display: flex;
 	align-items: center;
 	gap: 0.15rem;
 	cursor: pointer;
 }
-
 .commentBot {
 	color: #aaa;
 	gap: 0.5rem;
 	display: flex;
 	justify-content: space-between;
 }
-
 .commentsSection {
 	display: flex;
 	flex-flow: column;
 	gap: 0.5rem;
 	padding: 0.5rem 0;
 }
-
 .commentName {
 	font-weight: bold;
 	width: fit-content;
 }
-
 .commentData {
 	display: flex;
 	flex-flow: column;
@@ -891,23 +909,19 @@ onMounted(() => {
 	padding: 0.55rem 0.25rem;
 	border-top: 0.01rem #2f2f2f solid;
 }
-
 .commentPicture {
 	display: flex;
 	align-items: flex-start;
 }
-
 .commentPictureImage {
 	max-width: 2.15rem;
 	border-radius: 50%;
 }
-
 .comment {
 	display: flex;
 	gap: 0.55rem;
 	padding: 0.25rem;
 }
-
 .commentArea {
 	padding: 1rem 0;
 	grid-column: 1 / 3;
@@ -922,11 +936,9 @@ onMounted(() => {
 	flex: 0.5;
 	width: 100%;
 }
-
 .commentIcon {
 	font-size: 1.35rem;
 }
-
 .commentBox {
 	display: flex;
 	flex-flow: column;
@@ -934,17 +946,14 @@ onMounted(() => {
 	gap: 0.5rem;
 	padding: 1rem;
 }
-
 .likeReviewIcon {
 	font-size: 1.55rem;
 	transition: all 150ms ease;
 }
-
 .likeReviewIcon:hover {
 	translate: 0 -0.1rem;
 	transition: all 150ms ease;
 }
-
 .likeReview {
 	display: flex;
 	cursor: pointer;
@@ -957,13 +966,11 @@ onMounted(() => {
 	gap: 0.5rem;
 	align-items: center;
 }
-
 .reviewEdit {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 }
-
 .updateUser {
 	display: flex;
 	border-radius: 50%;
@@ -973,18 +980,15 @@ onMounted(() => {
 	cursor: pointer;
 	transition: all 150ms linear;
 }
-
 .updateUserIcon {
 	border-radius: 50%;
 	font-size: 1.95rem;
 	color: #ccc;
 }
-
 .updateUser:hover {
 	background-color: #2a2a2a;
 	transition: all 150ms linear;
 }
-
 .lastEdit {
 	text-align: right;
 	padding: 0.155rem;
@@ -994,49 +998,41 @@ onMounted(() => {
 	align-items: center;
 	justify-content: space-between;
 }
-
 .ratingEdit {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 }
-
 .removeIcon {
 	font-size: 1.75rem;
 	cursor: pointer;
 	transition: all 150ms linear;
 }
-
 .removeIcon:hover {
 	color: var(--red);
 	translate: 0 -0.1rem;
 	transition: all 150ms linear;
 }
-
 .starsEdit {
 	display: flex;
 	flex-flow: row wrap;
 	align-items: center;
 	gap: 0.1rem;
 }
-
 .starEdit {
 	font-size: 2.25rem;
 	cursor: pointer;
 	transition: all 150ms linear;
 }
-
 .starEdit:hover {
 	cursor: pointer;
 	translate: 0 -0.1rem;
 	transition: all 150ms linear;
 	color: var(--yellow);
 }
-
 .buttonEdit {
 	font-size: 1.35rem;
 }
-
 .editButtons {
 	align-items: center;
 	display: flex;
@@ -1049,7 +1045,6 @@ onMounted(() => {
 	flex-flow: row wrap;
 	gap: 0.85rem;
 }
-
 .reviewTextEdit {
 	display: flex;
 	flex-flow: column;
@@ -1064,22 +1059,12 @@ onMounted(() => {
 	background-color: #1a1a1a;
 	width: 100%;
 }
-
 .reviewPage {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	grid-template-rows: auto auto;
 	gap: 0.5rem;
-
-	/* --color: #101010; */
-
-	/* background-repeat: no-repeat; */
-	/* background-size: contain; */
-	/* padding-top: 8rem; */
-	/* box-shadow: inset 0.25rem -5rem 1rem 1rem var(--color),
-		inset -0.25rem -5rem 1rem 1rem var(--color); */
 }
-
 .userArea {
 	grid-column: 2;
 	grid-row: 1;
@@ -1096,12 +1081,9 @@ onMounted(() => {
 	display: flex;
 	flex-flow: column;
 }
-
 .reviewDate {
 	display: flex;
-
 	align-items: center;
-
 	flex-flow: row wrap;
 	gap: 0.5rem;
 	align-items: center;
@@ -1109,20 +1091,17 @@ onMounted(() => {
 	font-weight: bold;
 	color: #aaa;
 }
-
 .reviewEditIcon {
 	font-size: 1.55rem;
 	color: #ccc;
 	cursor: pointer;
 	transition: all 150ms linear;
 }
-
 .reviewEditIcon:hover {
 	transition: all 150ms linear;
 	color: #eee;
 	translate: 0 -0.1rem;
 }
-
 .reviewDateBottom {
 	padding: 0.155rem;
 	font-size: 1rem;
@@ -1130,7 +1109,6 @@ onMounted(() => {
 	align-items: center;
 	justify-content: end;
 }
-
 .mediaArea {
 	grid-column: 1;
 	grid-row: 1;
@@ -1141,70 +1119,56 @@ onMounted(() => {
 	align-items: center;
 	justify-content: end;
 }
-
 .editIcon {
 	font-size: 1.55rem;
 	cursor: pointer;
 }
-
 .mediaHead {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 }
-
 .year {
 	color: #aaa;
 	font-size: 1rem;
 	border-bottom: 0.01rem #555 solid;
 }
-
 .title {
 	font-size: 1.15rem;
 	font-weight: bold;
 	display: flex;
 	align-items: center;
 }
-
 .stars {
 	display: flex;
 	align-items: center;
 }
-
 .star {
 	color: var(--yellow);
 }
-
 .rewatch {
 	color: var(--green);
 }
-
 .userReview {
 	display: flex;
 	flex-flow: column;
 	gap: 0.5rem;
 	height: 100%;
 }
-
 .review {
 	flex: 1;
 	padding: 0.255rem;
-
 	color: #eaeaea;
 	text-align: justify;
 }
-
 .date {
 	font-weight: bold;
 	padding: 0.255rem;
-
 	color: #aaa;
-
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
-
 .mediaArea {
 	padding: 0.255rem;
 }
@@ -1229,30 +1193,25 @@ onMounted(() => {
 	font-size: 1rem;
 	font-weight: bold;
 }
-
 @media (min-width: 35rem) {
 	.reviewPage {
 		grid-template-columns: 1fr auto;
 		max-width: 50rem;
 		margin: auto;
 	}
-
 	.userCover {
 		font-size: 1.15rem;
 	}
-
 	.userPicture {
 		max-width: 3rem;
 	}
 	.mediaCoverPicture {
 		max-width: 10rem;
 	}
-
 	.userArea {
 		grid-column: 1;
 		grid-row: 1;
 	}
-
 	.reviewArea {
 		grid-column: 1;
 		grid-row: 2;
@@ -1261,12 +1220,10 @@ onMounted(() => {
 		grid-column: 2;
 		grid-row: 1 / 3;
 	}
-
 	.mediaArea {
 		top: 0;
 		position: sticky;
 	}
-
 	.commentArea {
 		grid-column: 1;
 	}

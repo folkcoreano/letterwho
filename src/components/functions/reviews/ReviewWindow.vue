@@ -1,30 +1,29 @@
 <script setup>
 import {ref} from "vue";
+import dayjs from "dayjs";
+import supabase from "@/supabase";
 import {useRoute} from "vue-router";
 import {useUser} from "@/stores/user";
-import {useTime} from "@/stores/time";
-import {useDialog} from "@/stores/dialog";
 import {folder} from "@/stores/images";
-import dayjs from "dayjs";
+import {useDialog} from "@/stores/dialog";
 import {onClickOutside} from "@vueuse/core";
-import supabase from "@/supabase";
-
-const days = dayjs;
 
 const props = defineProps({
 	data: Object,
 	status: Object,
 });
 
+const days = dayjs;
+
 const {
-	params: {story, type, range},
+	params: {type, range, story},
 } = useRoute();
 
 const {name, picture, id, lang} = useUser();
 
-const {released, length, title} = props.data;
+const {released, length, title, code} = props.data;
 
-const cover = type + "/" + range + "/" + props.data.code;
+const cover = `${type}/${range}/${code}`;
 
 const {watched, rated} = props.status;
 
@@ -39,11 +38,15 @@ const response = ref(lang === "pt-br" ? "Publicar" : "Publish");
 const isDaySet = ref(false);
 const isRewatch = ref(false);
 
-const meta = {
+const storyFile = {
+	code: code,
 	released: released,
 	length: length,
 	title: title,
-	cover: cover,
+	type: type,
+	range: range,
+	story: story,
+	created: new Date().toISOString(),
 };
 
 async function postReview() {
@@ -52,7 +55,8 @@ async function postReview() {
 	const db = getFirestore();
 
 	const reviewQuery = collection(db, "reviews", type, range, story, "reviews");
-	const mediaQuery = doc(db, "users", id, "diary", story);
+
+	const mediaQuery = doc(db, "users", id, "diary", code);
 
 	let today = new Date().toISOString();
 
@@ -78,7 +82,9 @@ async function postReview() {
 		review: review.value,
 	}).then(res => {
 		console.log("review added");
-		const activityQuery = doc(db, "users", id, "diary", story, "activity", res.id);
+
+		const activityQuery = doc(db, "users", id, "diary", code, "activity", res.id);
+
 		setDoc(activityQuery, {
 			id: res.id,
 			folder: "review",
@@ -87,12 +93,15 @@ async function postReview() {
 			time: today,
 		}).then(() => {
 			console.log("diary added");
+
 			if (watched === false && rated === false) {
 				setWatchedAndRated();
 			}
+
 			if (rated === false && watched === true) {
 				setRated();
 			}
+
 			if (rated === true && watched === false) {
 				setWatched();
 			}
@@ -114,13 +123,19 @@ async function postReview() {
 
 		supabase
 			.rpc("watched", {
-				qid: props.data.story,
+				qid: props.data.code,
 				qval: 1,
 			})
 			.then(() => {
 				setDoc(
 					mediaQuery,
-					{data: meta, watched: {status: true, time: new Date().toISOString()}},
+					{
+						...storyFile,
+						watched: {
+							status: true,
+							time: new Date().toISOString(),
+						},
+					},
 					{merge: true}
 				).then(() => {
 					console.log("watch added");
@@ -134,13 +149,13 @@ async function postReview() {
 
 			supabase
 				.rpc("rated", {
-					qid: props.data.story,
+					qid: props.data.code,
 					qval: 1,
 				})
 				.then(() => {
 					supabase
 						.rpc("rating", {
-							qid: props.data.story,
+							qid: props.data.code,
 							qval: rating.value,
 						})
 						.then(() => {
@@ -161,26 +176,26 @@ async function postReview() {
 			console.log("setWatchedAndRated");
 			supabase
 				.rpc("watched", {
-					qid: props.data.story,
+					qid: props.data.code,
 					qval: 1,
 				})
 				.then(() => {
 					supabase
 						.rpc("rated", {
-							qid: props.data.story,
+							qid: props.data.code,
 							qval: 1,
 						})
 						.then(() => {});
 					supabase
 						.rpc("rating", {
-							qid: props.data.story,
+							qid: props.data.code,
 							qval: rating.value,
 						})
 						.then(() => {
 							setDoc(
 								mediaQuery,
 								{
-									data: meta,
+									...storyFile,
 									rating: {rating: rating.value, time: new Date().toISOString()},
 									watched: {status: true, time: new Date().toISOString()},
 								},
@@ -193,14 +208,14 @@ async function postReview() {
 
 			supabase
 				.rpc("watched", {
-					qid: props.data.story,
+					qid: props.data.code,
 					qval: 1,
 				})
 				.then(() => {
 					setDoc(
 						mediaQuery,
 						{
-							data: meta,
+							...storyFile,
 							watched: {status: true, time: new Date().toISOString()},
 						},
 						{merge: true}
@@ -352,20 +367,17 @@ onClickOutside(target, () => {
 </template>
 
 <style scoped>
-* {
+/* * {
 	outline: 1px dotted rgba(255, 0, 0, 0);
-}
-
+} */
 .reviewButton {
 	display: flex;
 	justify-content: end;
 	gap: 0.85rem;
 }
-
 .sendIcon {
 	font-size: 1.45rem;
 }
-
 .reviewField {
 	display: flex;
 	flex-flow: column;
@@ -376,7 +388,6 @@ onClickOutside(target, () => {
 	align-items: center;
 	gap: 0.15rem;
 }
-
 .reviewStars {
 	display: flex;
 	gap: 0.5rem;

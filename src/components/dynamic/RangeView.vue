@@ -17,7 +17,7 @@ async function getRange() {
 		.from("ranges")
 		.select("*, range_id(title,type,range_id,released,url,story_id)")
 		.order("released", {foreignTable: "range_id", ascending: true})
-		.match({range: range})
+		.match({type: type, range: range})
 		.limit(1)
 		.single()
 		.then(res => {

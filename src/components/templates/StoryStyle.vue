@@ -264,8 +264,15 @@ onClickOutside(target, e => {
 </template>
 
 <style scoped>
-* {
+/* * {
 	outline: 0px solid rgba(255, 0, 135, 0.5);
+} */
+
+.writerLink {
+	border-bottom: 1px solid #555;
+	padding: 0 0.15rem;
+	color: #fff;
+	font-weight: bold;
 }
 
 .reviewBox {

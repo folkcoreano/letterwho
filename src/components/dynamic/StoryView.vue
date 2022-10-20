@@ -3,15 +3,12 @@ import {ref} from "vue";
 import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
 import {useTime} from "@/stores/time";
-import {folder} from "@/stores/images";
 import {useRoute, useRouter} from "vue-router";
-
 import setTitle from "@/stores/title";
 import StoryStyle from "@/components/templates/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import CastAndCrew from "@/components/templates/CastAndCrew.vue";
-import MultipleParts from "@/components/templates/MultipleParts.vue";
-import ReviewBox from "../functions/reviews/ReviewBox.vue";
+import ReviewBox from "@/components/functions/reviews/ReviewBox.vue";
 
 const {
 	params: {type, range, story},
@@ -51,7 +48,10 @@ try {
 				data.value = {
 					code: res.data.code,
 					title: res.data.title,
-					length: res.data.length,
+					length:
+						res.data.parts.length > 0
+							? res.data.parts.flatMap(e => +e.length).reduce((a, b) => a + b)
+							: res.data.length,
 					range: res.data.range_id.range,
 					type: res.data.type,
 					released: res.data.released,
@@ -63,13 +63,9 @@ try {
 					frame:
 						res.data.frames < 0
 							? null
-							: res.data.type +
-							  "/" +
-							  res.data.range_id.range +
-							  "/" +
-							  res.data.code +
-							  "F" +
-							  Math.floor(Math.random() * res.data.frames),
+							: `${res.data.type}/${res.data.range_id.range}/${res.data.code}F${Math.floor(
+									Math.random() * res.data.frames
+							  )}`,
 					liked: res.data.liked,
 					watched: res.data.watched,
 					rated: res.data.rated,
@@ -86,11 +82,15 @@ try {
 								? res.data.quote[Math.floor(Math.random() * res.data.quote.length)].pt
 								: res.data.quote[Math.floor(Math.random() * res.data.quote.length)].en
 							: null,
-					cover: res.data.type + "/" + res.data.range_id.range + "/" + res.data.code,
+					cover: `${res.data.type}/${res.data.range_id.range}/${res.data.code}`,
 				};
+
 				cast.value = res.data.story_id;
+
 				quotes.value = res.data.quote;
+
 				parts.value = res.data.parts.length > 0 ? res.data.parts : null;
+
 				doctors.value = res.data.story_id
 					.filter(e => e.type === "DOCTOR")
 					.flatMap(e => e.character_id.character_id);
@@ -115,7 +115,7 @@ try {
 			>
 				<template #review>
 					<ReviewBox
-						v-if="false"
+						v-if="1"
 						:doctors="doctors"
 						:data="data"
 					/>
