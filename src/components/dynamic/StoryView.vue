@@ -16,7 +16,7 @@ const {
 
 const {push} = useRouter();
 
-const {lang} = useUser();
+const {lang, logged} = useUser();
 
 const data = ref();
 const cast = ref();
@@ -115,7 +115,7 @@ try {
 			>
 				<template #review>
 					<ReviewBox
-						v-if="1"
+						v-if="logged"
 						:doctors="doctors"
 						:data="data"
 					/>
