@@ -24,6 +24,7 @@ const quotes = ref();
 const parts = ref();
 const doctors = ref();
 const characters = ref();
+const code = ref();
 
 const load = ref(false);
 
@@ -32,7 +33,7 @@ try {
 		.from("story")
 		.select(
 			`*,
-		quote(en,pt,character_id(character_id,name)),
+		quote(id,en,pt,character_id(character_id,name)),
 		range_id(range),
 		story_id(role,type,crew_id(crew_id,name),character_id(character_id,name)),
 		parts(story,title,released,length)`
@@ -111,6 +112,8 @@ try {
 
 				quotes.value = res.data.quote;
 
+				code.value = res.data.code;
+
 				parts.value = res.data.parts.length > 0 ? res.data.parts : null;
 
 				doctors.value = res.data.story_id
@@ -144,6 +147,7 @@ try {
 				</template>
 				<template #cast>
 					<Tabs
+						:code="code"
 						:quotes="quotes"
 						:parts="parts"
 						:crew="crew"

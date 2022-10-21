@@ -12,6 +12,7 @@ const props = defineProps({
 	characters: Object,
 	quotes: Object,
 	parts: Object,
+	code: String,
 });
 
 const {
@@ -86,7 +87,9 @@ function selectTab(n) {
 		<div class="content">
 			<keep-alive>
 				<component
+					:characters="characters"
 					:data="data"
+					:code="code"
 					:is="activeTab"
 				></component>
 			</keep-alive>
