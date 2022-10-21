@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from "vue";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 const props = defineProps({
 	user: Object,
@@ -8,10 +8,18 @@ const props = defineProps({
 
 const {push, back} = useRouter();
 
+const {
+	query: {from, id},
+} = useRoute();
+
 const email = ref();
+
 const password = ref();
+
 const isPass = ref(false);
+
 const color = ref("var(--blue)");
+
 const response = ref(props.user.lang ? "Deixa eu entrar!" : "Let me in!");
 
 async function login() {
@@ -26,7 +34,11 @@ async function login() {
 			response.value = props.user.lang ? "Sucesso!" : "Success!";
 
 			setTimeout(() => {
-				back();
+				if (from === "user") {
+					push({name: "user", params: {id: id}});
+				} else {
+					back();
+				}
 			}, 500);
 		})
 		.catch(() => {

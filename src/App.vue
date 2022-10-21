@@ -59,6 +59,8 @@ watchEffect(async () => {
 		} else {
 			user.logged = false;
 
+			user.id = "";
+
 			user.info = {
 				name: "nobody",
 				created: "sla",

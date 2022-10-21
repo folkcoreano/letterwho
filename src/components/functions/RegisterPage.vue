@@ -1,11 +1,15 @@
 <script setup>
 import {ref} from "vue";
 import {useUser} from "@/stores/user";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 const user = useUser();
 
 const {push} = useRouter();
+
+const {
+	query: {from, id},
+} = useRoute();
 
 const response = ref(user.lang ? "Vamos lá!" : "Let's go!");
 
@@ -43,11 +47,17 @@ async function signUP() {
 				setDoc(doc(db, "users", res.user.uid), {
 					name: names[random],
 					picture: propics[randompics],
-					lang: 0,
+					lang: "en",
 					created: new Date().toISOString(),
 					beta: true,
 				}).then(() => {
-					push({name: "home"});
+					setTimeout(() => {
+						if (from === "user") {
+							push({name: "user", params: {id: id}});
+						} else {
+							push({name: "home"});
+						}
+					}, 500);
 				});
 			}
 		})

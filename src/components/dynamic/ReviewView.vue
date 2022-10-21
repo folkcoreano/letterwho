@@ -478,7 +478,11 @@ onMounted(() => {
 			<div class="userArea">
 				<router-link
 					class="userCover"
-					:to="{name: 'user', params: {id: data.id}}"
+					:to="
+						logged
+							? {name: 'user', params: {id: data.id}}
+							: {name: 'register', query: {from: 'user', id: data.id}}
+					"
 				>
 					<picture>
 						<source
@@ -762,7 +766,11 @@ onMounted(() => {
 						class="comment"
 					>
 						<router-link
-							:to="{name: 'user', params: {id: data.id}}"
+							:to="
+								logged
+									? {name: 'user', params: {id: data.id}}
+									: {name: 'register', query: {from: 'user', id: data.id}}
+							"
 							class="commentPicture"
 						>
 							<img
@@ -774,7 +782,11 @@ onMounted(() => {
 
 						<div class="commentData">
 							<router-link
-								:to="{name: 'user', params: {id: data.id}}"
+								:to="
+									logged
+										? {name: 'user', params: {id: data.id}}
+										: {name: 'register', query: {from: 'user', id: data.id}}
+								"
 								class="commentName"
 							>
 								{{ data.name }}

@@ -2,7 +2,7 @@
 import LoginPage from "@/components/functions/LoginPage.vue";
 import {useUser} from "@/stores/user";
 import RegisterPage from "@/components/functions/RegisterPage.vue";
-import {ref} from "vue";
+import {ref, shallowRef} from "vue";
 
 import SignOUT from "@/components/functions/SignOUT.vue";
 
@@ -11,6 +11,17 @@ const {lang, logged} = useUser();
 const user = useUser();
 
 const tab = ref(0);
+const activeTab = shallowRef(LoginPage);
+
+function changeTab(n) {
+	tab.value = n;
+	if (n === 0) {
+		activeTab.value = LoginPage;
+	}
+	if (n === 1) {
+		activeTab.value = RegisterPage;
+	}
+}
 </script>
 
 <template>
@@ -23,38 +34,35 @@ const tab = ref(0);
 			<div class="choices">
 				<span
 					:class="tab == 0 ? 'tab active' : 'tab'"
-					tabindex="0"
-					@click="tab = 0"
+					@click="changeTab(0)"
 				>
 					{{ lang ? "Entrar" : "Login" }}
 				</span>
 				<span
 					:class="tab == 1 ? 'tab active' : 'tab'"
-					tabindex="0"
-					@click="tab = 1"
+					@click="changeTab(1)"
 				>
 					{{ lang ? "Criar conta" : "Create an account" }}
 				</span>
 			</div>
-			<LoginPage
-				v-if="tab == 0"
-				:user="user"
-			/>
-			<RegisterPage v-if="tab == 1" />
+			<keep-alive>
+				<component
+					:user="user"
+					:is="activeTab"
+				></component>
+			</keep-alive>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-* {
+/* * {
 	outline: 1px dotted rgba(255, 20, 145, 0);
-}
-
+} */
 .choices {
 	display: flex;
 	gap: 1rem;
 }
-
 .register {
 	display: flex;
 	flex-flow: column;
@@ -62,7 +70,6 @@ const tab = ref(0);
 	max-width: 35rem;
 	margin: auto;
 }
-
 .tab {
 	flex: 1;
 	font-weight: bold;
@@ -78,7 +85,6 @@ const tab = ref(0);
 	align-items: center;
 	justify-content: center;
 }
-
 .active {
 	transition: all 150ms linear;
 	color: #eee;

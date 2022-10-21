@@ -84,10 +84,12 @@ function selectTab(n) {
 			</div>
 		</div>
 		<div class="content">
-			<component
-				:data="data"
-				:is="activeTab"
-			></component>
+			<keep-alive>
+				<component
+					:data="data"
+					:is="activeTab"
+				></component>
+			</keep-alive>
 		</div>
 	</div>
 </template>

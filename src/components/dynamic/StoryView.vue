@@ -143,14 +143,12 @@ try {
 					/>
 				</template>
 				<template #cast>
-					<keep-alive>
-						<Tabs
-							:quotes="quotes"
-							:parts="parts"
-							:crew="crew"
-							:characters="characters"
-						/>
-					</keep-alive>
+					<Tabs
+						:quotes="quotes"
+						:parts="parts"
+						:crew="crew"
+						:characters="characters"
+					/>
 				</template>
 			</StoryStyle>
 		</div>
