@@ -34,7 +34,7 @@ try {
 			`*,
 		quote(en,pt,character_id(character_id,name)),
 		range_id(range),
-		story_id(role,type,crew_id(name,crew_id),character_id(name,character_id)),
+		story_id(role,type,crew_id(crew_id,name),character_id(character_id,name)),
 		parts(story,title,released,length)`
 		)
 		.limit(1)
