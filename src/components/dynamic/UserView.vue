@@ -1,10 +1,11 @@
 <script setup>
-import {folder, favicon} from "@/stores/images";
-import setTitle from "@/stores/title";
 import supabase from "@/supabase";
-import {ref, onMounted, onUnmounted} from "vue";
 import {useRoute} from "vue-router";
-import {Pie, Doughnut} from "vue-chartjs";
+import setTitle from "@/stores/title";
+import {Pie, Bar, Doughnut} from "vue-chartjs";
+import {folder, favicon} from "@/stores/images";
+import {ref, onMounted, onUnmounted} from "vue";
+import {useFavicon} from "@vueuse/core";
 
 import {
 	Chart as ChartJS,
@@ -26,17 +27,9 @@ const {
 const user = ref();
 
 const load = ref(false);
-const chartData = ref({
-	labels: ["January", "February", "March"],
-	datasets: [
-		{
-			label: "Statistics",
-			color: "red",
-			backgroundColor: "deeppink",
-			data: [400, 20, 12],
-		},
-	],
-});
+const chartData = ref({});
+
+const chartOptions = ref({});
 
 async function getUser() {
 	const {getFirestore, getDoc, doc} = await import("firebase/firestore");
@@ -49,23 +42,53 @@ async function getUser() {
 			user.value = res.data();
 			setTitle(user.value.name);
 			const icon = favicon(user.value.picture.slice(0, -4));
-			document.querySelector("link[rel*='icon']").href = icon;
+			useFavicon(icon);
 
-			user.value.tv !== undefined
-				? ((load.value = true),
-				  (chartData.value = {
-						labels: ["TV", "Audios", "Books", "Comics"],
-						datasets: [
-							{
-								label: user.value.name,
-								color: "#999",
-								backgroundColor: ["#ff3863", "#80558c", "#fcc14a", "#59ce8f"],
-								data: [user.value.tv, user.value.audios, user.value.books, user.value.comics],
+			if (user.value.tv !== undefined) {
+				chartData.value = {
+					responsive: true,
+					labels: ["TV", "Audios", "Books", "Comics"],
+					datasets: [
+						{
+							label: user.value.name,
+							backgroundColor: ["#ff3863", "#80558c", "#fcc14a", "#59ce8f"],
+							data: [user.value.tv, user.value.audios, user.value.books, user.value.comics],
+						},
+					],
+				};
+
+				chartOptions.value = {
+					resposive: true,
+					maintainAspectRatio: true,
+					layout: {
+						padding: 20,
+					},
+					plugins: {
+						title: {
+							display: true,
+							color: "#eee",
+							font: {
+								size: 25,
+								weight: "bold",
 							},
-						],
-				  }))
-				: (load.value = false);
+							text: user.value.name,
+						},
+						legend: {
+							labels: {
+								font: {
+									size: 15,
+									weight: "bold",
+								},
+								color: "#eee",
+							},
+						},
+					},
+				};
+			}
+
+			load.value = true;
 		} else {
+			load.value = false;
 			user.value = null;
 		}
 	});
@@ -83,16 +106,17 @@ onMounted(() => {
 	getUser();
 });
 onUnmounted(() => {
-	document.querySelector("link[rel*='icon']").href = "https://ik.imagekit.io/letterwho/tardis.svg";
+	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
 });
 </script>
 
 <template>
 	<div class="user">
 		<!-- <pre>{{ user }}</pre> -->
-		<Doughnut
+		<Bar
 			v-if="load"
 			:chartData="chartData"
+			:chartOptions="chartOptions"
 		/>
 		<!-- <Pie
 			v-if="load"

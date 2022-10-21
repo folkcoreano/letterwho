@@ -7,8 +7,8 @@ import {useRoute, useRouter} from "vue-router";
 import setTitle from "@/stores/title";
 import StoryStyle from "@/components/templates/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
-import CastAndCrew from "@/components/templates/CastAndCrew.vue";
 import ReviewBox from "@/components/functions/reviews/ReviewBox.vue";
+import Tabs from "../templates/Tabs.vue";
 
 const {
 	params: {type, range, story},
@@ -19,10 +19,11 @@ const {push} = useRouter();
 const {lang, logged} = useUser();
 
 const data = ref();
-const cast = ref();
+const crew = ref();
 const quotes = ref();
 const parts = ref();
 const doctors = ref();
+const characters = ref();
 
 const load = ref(false);
 
@@ -33,7 +34,7 @@ try {
 			`*,
 		quote(en,pt,character_id(character_id,name)),
 		range_id(range),
-		story_id(role,type,crew_id(name,crew_id),character_id(name,type,character_id)),
+		story_id(role,type,crew_id(name,crew_id),character_id(name,character_id)),
 		parts(story,title,released,length)`
 		)
 		.limit(1)
@@ -85,7 +86,28 @@ try {
 					cover: `${res.data.type}/${res.data.range_id.range}/${res.data.code}`,
 				};
 
-				cast.value = res.data.story_id;
+				const crewFile = [];
+
+				for (const person of res.data.story_id) {
+					if (person.crew_id) {
+						crewFile.push({
+							tab: person.role,
+							type: person.type,
+							person: {
+								name: person.crew_id.name,
+								url: person.crew_id.crew_id,
+							},
+							role: {
+								name: person.character_id ? person.character_id.name : person.role,
+								url: person.character_id ? person.character_id.character_id : null,
+							},
+						});
+					}
+				}
+
+				crew.value = crewFile;
+
+				characters.value = res.data.story_id.filter(e => e.type === "CHARACTER");
 
 				quotes.value = res.data.quote;
 
@@ -115,17 +137,20 @@ try {
 			>
 				<template #review>
 					<ReviewBox
-						v-if="logged"
+						v-if="false"
 						:doctors="doctors"
 						:data="data"
 					/>
 				</template>
 				<template #cast>
-					<CastAndCrew
-						:quotes="quotes"
-						:parts="parts"
-						:data="cast"
-					/>
+					<keep-alive>
+						<Tabs
+							:quotes="quotes"
+							:parts="parts"
+							:crew="crew"
+							:characters="characters"
+						/>
+					</keep-alive>
 				</template>
 			</StoryStyle>
 		</div>
