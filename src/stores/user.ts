@@ -1,10 +1,11 @@
+import {useStorage} from "@vueuse/core";
 import {defineStore} from "pinia";
 import {ref} from "vue";
 
 export const useUser = defineStore("user", () => {
-	const logged = ref(false);
-	const lang = ref("");
-	const id = ref("");
+	const logged = ref(useStorage("logged", false));
+	const lang = ref(useStorage("lang", ""));
+	const id = ref(useStorage("id", ""));
 	const name = ref("");
 	const email = ref("");
 	const picture = ref("");

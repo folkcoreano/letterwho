@@ -11,35 +11,77 @@ const user = useUser();
 
 const {lang} = useUser();
 
-function checkUser() {
-	supabase.auth.getUser().then(res => {
-		if (res.data.user) {
+onMounted(() => {
+	watchEffect(async () => {
+		supabase.auth.onAuthStateChange((e, s) => {
+			if (e === "USER_UPDATED" && s) {
+				user.logged = true;
+				user.id = s.user.id;
+				user.email = s.user.email ? s.user.email : "";
+				user.created = s.user.created_at;
+				user.lang = s.user.user_metadata.language;
+			}
+
+			if (e === "SIGNED_IN" && s) {
+				user.logged = true;
+				user.id = s.user.id;
+				user.email = s.user.email ? s.user.email : "";
+				user.created = s.user.created_at;
+				user.lang = s.user.user_metadata.language;
+			}
+
+			if (e === "SIGNED_OUT") {
+				user.logged = false;
+				user.id = "";
+				user.email = "";
+				user.created = "";
+				user.lang = "en";
+				user.name = "";
+				user.picture = "";
+			}
+
+			if (e === "TOKEN_REFRESHED" && s) {
+				user.logged = true;
+				user.id = s.user.id;
+				user.email = s.user.email ? s.user.email : "";
+				user.created = s.user.created_at;
+				user.lang = s.user.user_metadata.language;
+			}
+		});
+	});
+
+	supabase.auth.getSession().then(res => {
+		if (res.data.session) {
 			user.logged = true;
-			user.id = res.data.user.id;
-			user.email = res.data.user.email ? res.data.user.email : "";
-			user.created = res.data.user.created_at;
-			user.lang = res.data.user.user_metadata.language;
+
+			user.id = res.data.session.user.id;
+			user.email = res.data.session.user.email ? res.data.session.user.email : "";
+			user.created = res.data.session.user.created_at;
+			user.lang = res.data.session.user.user_metadata.language;
+
+			if (res.data.session.user.user_metadata.language === "pt-br") {
+				document.documentElement.setAttribute("lang", "pt-BR");
+			}
+
+			if (res.data.session.user.user_metadata.language === "en") {
+				document.documentElement.setAttribute("lang", "en");
+			}
+
 			supabase
 				.from("users")
 				.select()
 				.limit(1)
 				.single()
-				.match({id: res.data.user.id})
+				.match({id: res.data.session.user.id})
 				.then(res => {
 					if (res.data) {
 						user.name = res.data.name;
 						user.picture = res.data.picture;
 						init.value = true;
+					} else {
+						init.value = true;
 					}
 				});
-
-			if (res.data.user.user_metadata.language === "pt-br") {
-				document.documentElement.setAttribute("lang", "pt-BR");
-			}
-
-			if (res.data.user.user_metadata.language === "en") {
-				document.documentElement.setAttribute("lang", "en");
-			}
 		} else {
 			user.logged = false;
 			user.id = "";
@@ -48,57 +90,7 @@ function checkUser() {
 			user.lang = "en";
 			user.name = "";
 			user.picture = "";
-		}
 
-		if (res.error) {
-			console.log(res.error);
-		}
-	});
-}
-
-watchEffect(async () => {
-	supabase.auth.onAuthStateChange((e, s) => {
-		if (e === "USER_UPDATED" && s) {
-			user.logged = true;
-			user.id = s.user.id;
-			user.email = s.user.email ? s.user.email : "";
-			user.created = s.user.created_at;
-			user.lang = s.user.user_metadata.language;
-		}
-
-		if (e === "SIGNED_IN" && s) {
-			user.logged = true;
-			user.id = s.user.id;
-			user.email = s.user.email ? s.user.email : "";
-			user.created = s.user.created_at;
-			user.lang = s.user.user_metadata.language;
-		}
-
-		if (e === "SIGNED_OUT") {
-			user.logged = false;
-			user.id = "";
-			user.email = "";
-			user.created = "";
-			user.lang = "en";
-			user.name = "";
-			user.picture = "";
-		}
-
-		if (e === "TOKEN_REFRESHED" && s) {
-			user.logged = true;
-			user.id = s.user.id;
-			user.email = s.user.email ? s.user.email : "";
-			user.created = s.user.created_at;
-			user.lang = s.user.user_metadata.language;
-		}
-	});
-});
-
-onMounted(() => {
-	supabase.auth.getSession().then(res => {
-		if (res.data.session) {
-			checkUser();
-		} else {
 			init.value = true;
 		}
 	});
