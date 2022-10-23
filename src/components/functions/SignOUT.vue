@@ -8,7 +8,8 @@ const {push} = useRouter();
 const buttonState = ref("LOGOUT");
 
 async function getOut() {
-	supabase.auth.signOut(() => {
+	supabase.auth.signOut().then(res => {
+		console.log(res);
 		push({name: "home"});
 	});
 }

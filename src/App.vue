@@ -5,7 +5,7 @@ import {useUser} from "@/stores/user";
 import {watchEffect} from "@vue/runtime-core";
 import {RouterLink, RouterView} from "vue-router";
 
-const init = ref(true);
+const init = ref(false);
 
 const user = useUser();
 
@@ -29,6 +29,7 @@ function checkUser() {
 					if (res.data) {
 						user.name = res.data.name;
 						user.picture = res.data.picture;
+						init.value = true;
 					}
 				});
 
@@ -50,6 +51,7 @@ function checkUser() {
 		}
 
 		if (res.error) {
+			console.log(res.error);
 		}
 	});
 }
@@ -93,7 +95,13 @@ watchEffect(async () => {
 });
 
 onMounted(() => {
-	checkUser();
+	supabase.auth.getSession().then(res => {
+		if (res.data.session) {
+			checkUser();
+		} else {
+			init.value = true;
+		}
+	});
 });
 </script>
 

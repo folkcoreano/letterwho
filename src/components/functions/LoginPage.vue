@@ -34,7 +34,6 @@ async function login() {
 
 		user.id = res.data.user.id;
 
-		console.table(res.data.user);
 		setTimeout(() => {
 			if (from === "user") {
 				push({name: "user", params: {id: id}});
