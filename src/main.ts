@@ -1,8 +1,8 @@
 import {createApp} from "vue";
-import App from "@/App.vue";
 import {createPinia} from "pinia";
-import "@/assets/main.css";
 import router from "@/router";
+import App from "@/App.vue";
+import "@/assets/main.css";
 import {autoAnimatePlugin} from "@formkit/auto-animate/vue";
 
 import CategoryView from "@/components/dynamic/CategoryView.vue";

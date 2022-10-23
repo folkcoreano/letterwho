@@ -7,23 +7,23 @@ const language = ref("pt-br");
 
 const user = useUser();
 
-function changeLanguage() {
-	supabase.auth
-		.updateUser({
-			data: {
-				language: language.value,
-				beta: true,
-			},
-		})
-		.then(res => {
-			console.log(res);
-		});
-}
+// function changeLanguage() {
+// 	supabase.auth
+// 		.updateUser({
+// 			data: {
+// 				language: language.value,
+// 				beta: true,
+// 			},
+// 		})
+// 		.then(res => {
+// 			console.log(res);
+// 		});
+// }
 </script>
 
 <template>
 	<div>
-		<select
+		<!-- <select
 			v-model="language"
 			name="lang"
 			id="lang"
@@ -33,7 +33,7 @@ function changeLanguage() {
 		</select>
 		<br />
 		<button @click="changeLanguage">change lang to: {{ language }}</button>
-		<br />
+		<br /> -->
 		<pre>{{ user }}</pre>
 	</div>
 </template>

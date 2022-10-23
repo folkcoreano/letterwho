@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
 import HomeView from "@/views/HomeView.vue";
+import supabase from "@/supabase";
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,9 @@ const router = createRouter({
 		{
 			path: "/profile",
 			name: "profile",
+			meta: {
+				auth: true,
+			},
 			component: () => import("@/views/ProfileView.vue"),
 		},
 		{
@@ -32,9 +36,6 @@ const router = createRouter({
 		{
 			path: "/comics",
 			name: "comics",
-			meta: {
-				auth: false,
-			},
 			component: () => import("@/views/ComicsView.vue"),
 		},
 		{
@@ -113,16 +114,18 @@ const router = createRouter({
 	},
 });
 
-// router.beforeEach((to, from, next) => {
-// 	if (to.matched.some(record => record.meta.auth)) {
-// 		if (getAuth().currentUser) {
-// 			next();
-// 		} else {
-// 			next({name: "register"});
-// 		}
-// 	} else {
-// 		next();
-// 	}
-// });
+router.beforeEach((to, from, next) => {
+	if (to.matched.some(record => record.meta.auth)) {
+		supabase.auth.getSession().then(res => {
+			if (res.data.session) {
+				next();
+			} else {
+				next({name: "register"});
+			}
+		});
+	} else {
+		next();
+	}
+});
 
 export default router;
