@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import {ref} from "vue";
 import {useUser} from "@/stores/user";
 import {useRoute, useRouter} from "vue-router";
+import supabase from "@/supabase";
 
 const user = useUser();
 
@@ -23,12 +24,7 @@ const credentials = ref({
 const isPass = ref(false);
 
 async function signUP() {
-	const {doc, getFirestore, setDoc} = await import("firebase/firestore");
-	const {createUserWithEmailAndPassword, getAuth} = await import("firebase/auth");
 	const {names, propics} = await import("@/stores/names");
-
-	const db = getFirestore();
-	const auth = getAuth();
 
 	const random = Math.floor(Math.random() * names.length);
 
@@ -36,35 +32,44 @@ async function signUP() {
 
 	response.value = user.lang ? "Trabalhando..." : "Working...";
 
-	createUserWithEmailAndPassword(auth, credentials.value.email, credentials.value.password)
+	supabase.auth
+		.signUp({
+			email: credentials.value.email,
+			password: credentials.value.password,
+		})
 		.then(res => {
-			response.value = user.lang ? "Sucesso!" : "Success!";
+			console.log(res);
 
-			user.data = res.user;
-			user.id = res.user.uid;
+			if (res.data.user) {
+				console.log("user created!");
 
-			if (res !== null) {
-				setDoc(doc(db, "users", res.user.uid), {
-					name: names[random],
-					picture: propics[randompics],
-					lang: "en",
-					created: new Date().toISOString(),
-					beta: true,
-				}).then(() => {
-					setTimeout(() => {
-						if (from === "user") {
-							push({name: "user", params: {id: id}});
-						} else {
-							push({name: "home"});
-						}
-					}, 500);
-				});
+				supabase
+					.from("users")
+					.insert({
+						name: names[random],
+						picture: propics[randompics],
+						beta: true,
+						language: "en",
+						id: res.data.user.id,
+						diary_id: res.data.user.id,
+						reviews_id: res.data.user.id,
+						likes_id: res.data.user.id,
+						comments_id: res.data.user.id,
+					})
+					.then(res => {
+						console.log(res);
+
+						console.log("user added to the table!");
+						setTimeout(() => {
+							if (from === "user") {
+								push({name: "user", params: {id: `${id}`}});
+							} else {
+								push({name: "home"});
+							}
+						}, 500);
+					});
 			}
-		})
-		.catch(() => {
-			response.value = user.lang ? "Erro!" : "Error!";
-		})
-		.finally(() => {});
+		});
 }
 </script>
 
@@ -124,6 +129,7 @@ async function signUP() {
 * {
 	outline: 1px solid rgba(255, 0, 0, 0);
 }
+
 .content {
 	display: flex;
 	flex-flow: column;

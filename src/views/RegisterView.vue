@@ -45,12 +45,12 @@ function changeTab(n) {
 					{{ lang ? "Criar conta" : "Create an account" }}
 				</span>
 			</div>
-			<keep-alive>
-				<component
-					:user="user"
-					:is="activeTab"
-				></component>
-			</keep-alive>
+			<!-- <keep-alive> -->
+			<component
+				:user="user"
+				:is="activeTab"
+			></component>
+			<!-- </keep-alive> -->
 		</div>
 	</div>
 </template>

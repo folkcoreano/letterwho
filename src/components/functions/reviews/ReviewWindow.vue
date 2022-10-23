@@ -19,6 +19,8 @@ const {
 	params: {type, range, story},
 } = useRoute();
 
+const hasData = ref(props.data.diary.length > 0);
+
 const {name, picture, id, lang} = useUser();
 
 const {released, length, title, code} = props.data;
@@ -38,26 +40,7 @@ const response = ref(lang === "pt-br" ? "Publicar" : "Publish");
 const isDaySet = ref(false);
 const isRewatch = ref(false);
 
-const storyFile = {
-	code: code,
-	released: released,
-	length: length,
-	title: title,
-	type: type,
-	range: range,
-	story: story,
-	created: new Date().toISOString(),
-};
-
 async function postReview() {
-	const {getFirestore, addDoc, setDoc, doc, collection} = await import("firebase/firestore");
-
-	const db = getFirestore();
-
-	const reviewQuery = collection(db, "reviews", type, range, story, "reviews");
-
-	const mediaQuery = doc(db, "users", id, "diary", code);
-
 	let today = new Date().toISOString();
 
 	if (isDaySet.value === true) {
@@ -66,44 +49,93 @@ async function postReview() {
 
 	response.value = lang ? "Publicando..." : "Publishing...";
 
-	addDoc(reviewQuery, {
-		name: name,
-		picture: picture,
-		id: id,
-
-		rewatch: isRewatch.value,
-
-		type: type,
-		range: range,
-		story: story,
-		created: today,
-
-		rating: rating.value,
-		review: review.value,
-	}).then(res => {
-		console.log("review added");
-
-		const activityQuery = doc(db, "users", id, "diary", code, "activity", res.id);
-
-		setDoc(activityQuery, {
-			id: res.id,
-			folder: "review",
-			rewatch: isRewatch.value,
+	supabase
+		.from("reviews")
+		.insert({
+			user_id: id,
+			story_id: story,
+			text: review.value,
 			rating: rating.value,
-			time: today,
-		}).then(() => {
-			console.log("diary added");
+			created: today,
+			rewatch: isRewatch.value,
+		})
+		.limit(1)
+		.select("id")
+		.single()
+		.then(res => {
+			console.log(res);
 
-			if (watched === false && rated === false) {
-				setWatchedAndRated();
-			}
-
-			if (rated === false && watched === true) {
-				setRated();
-			}
-
-			if (rated === true && watched === false) {
-				setWatched();
+			if (hasData.value === false) {
+				supabase
+					.from("diary")
+					.insert([
+						{
+							user_id: id,
+							story_id: story,
+							rewatch: false,
+							review: false,
+							created: new Date().toISOString(),
+							watched: {
+								status: true,
+								time: new Date().toISOString(),
+							},
+							rating:
+								rating.value > 0
+									? {
+											rating: rating.value,
+											time: new Date().toISOString(),
+									  }
+									: null,
+						},
+						{
+							user_id: id,
+							story_id: story,
+							rewatch: isRewatch.value,
+							review: true,
+							review_id: res.data.id,
+							created: new Date().toISOString(),
+						},
+					])
+					.then(res => {
+						hasData.value = true;
+						if (rating.value > 0) {
+							setRated();
+						}
+						console.log(res);
+					});
+			} else {
+				supabase
+					.from("diary")
+					.insert({
+						user_id: id,
+						story_id: story,
+						rewatch: isRewatch.value,
+						review: true,
+						review_id: res.data.id,
+						created: new Date().toISOString(),
+					})
+					.then(res => {
+						supabase
+							.from("diary")
+							.update({
+								watched: watched
+									? {
+											status: true,
+									  }
+									: {
+											status: true,
+											time: new Date().toISOString(),
+									  },
+							})
+							.match({
+								user_id: id,
+								story_id: story,
+								review: false,
+								rewatch: false,
+							});
+						console.log(res);
+						hasData.value = true;
+					});
 			}
 
 			response.value = lang ? "Publicado!" : "Published!";
@@ -116,112 +148,21 @@ async function postReview() {
 					: "";
 			}, 1000);
 		});
-	});
 
-	function setWatched() {
-		console.log("set watched");
-
+	function setRated() {
 		supabase
-			.rpc("watched", {
+			.rpc("rated", {
 				qid: props.data.code,
 				qval: 1,
 			})
 			.then(() => {
-				setDoc(
-					mediaQuery,
-					{
-						...storyFile,
-						watched: {
-							status: true,
-							time: new Date().toISOString(),
-						},
-					},
-					{merge: true}
-				).then(() => {
-					console.log("watch added");
-				});
+				supabase
+					.rpc("rating", {
+						qid: props.data.code,
+						qval: rating.value,
+					})
+					.then(() => {});
 			});
-	}
-
-	function setRated() {
-		if (rating.value > 0) {
-			console.log("set rated");
-
-			supabase
-				.rpc("rated", {
-					qid: props.data.code,
-					qval: 1,
-				})
-				.then(() => {
-					supabase
-						.rpc("rating", {
-							qid: props.data.code,
-							qval: rating.value,
-						})
-						.then(() => {
-							setDoc(
-								mediaQuery,
-								{rating: {rating: rating.value, time: new Date().toISOString()}},
-								{merge: true}
-							).then(() => {
-								console.log("rate added");
-							});
-						});
-				});
-		}
-	}
-
-	function setWatchedAndRated() {
-		if (rating.value > 0) {
-			console.log("setWatchedAndRated");
-			supabase
-				.rpc("watched", {
-					qid: props.data.code,
-					qval: 1,
-				})
-				.then(() => {
-					supabase
-						.rpc("rated", {
-							qid: props.data.code,
-							qval: 1,
-						})
-						.then(() => {});
-					supabase
-						.rpc("rating", {
-							qid: props.data.code,
-							qval: rating.value,
-						})
-						.then(() => {
-							setDoc(
-								mediaQuery,
-								{
-									...storyFile,
-									rating: {rating: rating.value, time: new Date().toISOString()},
-									watched: {status: true, time: new Date().toISOString()},
-								},
-								{merge: true}
-							);
-						});
-				});
-		} else {
-			console.log("setWatchAndRated, but only watched");
-
-			supabase
-				.rpc("watched", {
-					qid: props.data.code,
-					qval: 1,
-				})
-				.then(() => {
-					setDoc(
-						mediaQuery,
-						{
-							...storyFile,
-							watched: {status: true, time: new Date().toISOString()},
-						},
-						{merge: true}
-					);
-				});
-		}
 	}
 }
 

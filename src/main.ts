@@ -1,10 +1,10 @@
 import {createApp} from "vue";
-import {createPinia} from "pinia";
-import {initializeApp} from "firebase/app";
-import {autoAnimatePlugin} from "@formkit/auto-animate/vue";
-import "@/assets/main.css";
 import App from "@/App.vue";
+import {createPinia} from "pinia";
+import "@/assets/main.css";
 import router from "@/router";
+import {autoAnimatePlugin} from "@formkit/auto-animate/vue";
+
 import CategoryView from "@/components/dynamic/CategoryView.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import MainState from "@/components/layout/MainState.vue";
@@ -14,18 +14,6 @@ import ConfirmButton from "@/components/buttons/ConfirmButton.vue";
 import DialogGlobal from "@/components/functions/DialogGlobal.vue";
 
 const app = createApp(App);
-
-const firebase = {
-	apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-	authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-	databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-	projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-	storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-	messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-	appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
-
-initializeApp(firebase);
 
 app
 	.component("CategoryView", CategoryView)

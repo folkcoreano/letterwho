@@ -1,4 +1,6 @@
 <script setup>
+import {useUser} from "@/stores/user";
+import supabase from "@/supabase";
 import {ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
@@ -7,6 +9,8 @@ const props = defineProps({
 });
 
 const {push, back} = useRouter();
+
+const user = useUser();
 
 const {
 	query: {from, id},
@@ -23,28 +27,22 @@ const color = ref("var(--blue)");
 const response = ref(props.user.lang ? "Deixa eu entrar!" : "Let me in!");
 
 async function login() {
-	const {getAuth, signInWithEmailAndPassword} = await import("firebase/auth");
-
-	const auth = getAuth();
-
 	response.value = props.user.lang ? "Trabalhando..." : "Working...";
 
-	signInWithEmailAndPassword(auth, email.value, password.value)
-		.then(() => {
-			response.value = props.user.lang ? "Sucesso!" : "Success!";
+	supabase.auth.signInWithPassword({email: email.value, password: password.value}).then(res => {
+		response.value = props.user.lang ? "Sucesso!" : "Success!";
 
-			setTimeout(() => {
-				if (from === "user") {
-					push({name: "user", params: {id: id}});
-				} else {
-					back();
-				}
-			}, 500);
-		})
-		.catch(() => {
-			response.value = props.user.lang ? "Erro!" : "Error!";
-		})
-		.finally(() => {});
+		user.id = res.data.user.id;
+
+		console.table(res.data.user);
+		setTimeout(() => {
+			if (from === "user") {
+				push({name: "user", params: {id: id}});
+			} else {
+				back();
+			}
+		}, 500);
+	});
 }
 </script>
 

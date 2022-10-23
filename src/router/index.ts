@@ -1,6 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
 import HomeView from "@/views/HomeView.vue";
-import {getAuth} from "firebase/auth";
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +18,11 @@ const router = createRouter({
 			path: "/audios",
 			name: "audios",
 			component: () => import("@/views/AudiosView.vue"),
+		},
+		{
+			path: "/profile",
+			name: "profile",
+			component: () => import("@/views/ProfileView.vue"),
 		},
 		{
 			path: "/books",
@@ -109,16 +113,16 @@ const router = createRouter({
 	},
 });
 
-router.beforeEach((to, from, next) => {
-	if (to.matched.some(record => record.meta.auth)) {
-		if (getAuth().currentUser) {
-			next();
-		} else {
-			next({name: "register"});
-		}
-	} else {
-		next();
-	}
-});
+// router.beforeEach((to, from, next) => {
+// 	if (to.matched.some(record => record.meta.auth)) {
+// 		if (getAuth().currentUser) {
+// 			next();
+// 		} else {
+// 			next({name: "register"});
+// 		}
+// 	} else {
+// 		next();
+// 	}
+// });
 
 export default router;

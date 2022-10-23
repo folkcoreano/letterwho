@@ -1,4 +1,5 @@
 <script setup>
+import supabase from "@/supabase";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 
@@ -7,18 +8,9 @@ const {push} = useRouter();
 const buttonState = ref("LOGOUT");
 
 async function getOut() {
-	const {getAuth, signOut} = await import("firebase/auth");
-
-	const auth = getAuth();
-
-	signOut(auth)
-		.then(res => {
-			push({name: "home"});
-			console.log(res);
-		})
-		.catch(error => {
-			console.log(error);
-		});
+	supabase.auth.signOut(() => {
+		push({name: "home"});
+	});
 }
 </script>
 

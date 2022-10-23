@@ -3,12 +3,12 @@ import {ref} from "vue";
 import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
 import {useTime} from "@/stores/time";
-import {useRoute, useRouter} from "vue-router";
 import setTitle from "@/stores/title";
+import {useRoute, useRouter} from "vue-router";
+import Tabs from "@/components/templates/Tabs.vue";
 import StoryStyle from "@/components/templates/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import ReviewBox from "@/components/functions/reviews/ReviewBox.vue";
-import Tabs from "../templates/Tabs.vue";
 
 const {
 	params: {type, range, story},
@@ -16,7 +16,7 @@ const {
 
 const {push} = useRouter();
 
-const {lang, logged} = useUser();
+const {lang, id, logged} = useUser();
 
 const data = ref();
 const crew = ref();
@@ -36,9 +36,12 @@ try {
 		quote(id,en,pt,character_id(character_id,name)),
 		range_id(range),
 		story_id(role,type,crew_id(crew_id,name),character_id(character_id,name)),
-		parts(story,title,released,length)`
+		parts(title,story,released,length),
+		diary_id(*)`
 		)
-		.limit(1)
+		// .limit(3, {foreignTable: "reviews_id"})
+		// .order("created", {foreignTable: "reviews_id", ascending: false})
+		.filter("diary_id.user_id", "eq", id)
 		.single()
 		.match({type: type, range_id: range, url: story})
 		.then(res => {
@@ -48,6 +51,7 @@ try {
 				setTitle(res.data.title);
 
 				data.value = {
+					diary: res.data.diary_id,
 					code: res.data.code,
 					title: res.data.title,
 					length:
@@ -120,6 +124,7 @@ try {
 					.filter(e => e.type === "DOCTOR")
 					.flatMap(e => e.character_id.character_id);
 			} else {
+				console.table(res.error);
 				push({name: "home"});
 			}
 		});
@@ -140,7 +145,7 @@ try {
 			>
 				<template #review>
 					<ReviewBox
-						v-if="false"
+						v-if="true"
 						:doctors="doctors"
 						:data="data"
 					/>

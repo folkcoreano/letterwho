@@ -30,6 +30,8 @@ const reviewtext = ref();
 const username = ref();
 const userpicture = ref();
 
+const userid = ref();
+
 const responseEdit = ref(lang ? "Editar" : "Edit");
 const responseDelete = ref(lang ? "Deletar" : "Delete");
 
@@ -39,174 +41,117 @@ const likes = ref(0);
 const comment = ref("");
 const comments = ref([]);
 
+const commentID = ref();
+const likesID = ref();
+
 const commentResponse = ref(lang ? "Comentar" : "Comment");
 
 const isComment = ref(false);
 
 async function getReview() {
-	const {doc, getDoc, getFirestore} = await import("firebase/firestore");
-
-	const db = getFirestore();
-
-	const q = doc(db, "reviews", type, range, story, "reviews", id);
-
 	supabase
-		.from("story")
-		.select()
+		.from("reviews")
+		.select(
+			`
+		id,
+		created,
+		rating,
+		rewatch,
+		updated,
+		text,
+		story_id(title,released,url,code),
+		user_id(id,name,picture),
+		likes_id,
+		comments_id
+		`
+		)
 		.limit(1)
+		.match({id: id})
 		.single()
-		.match({type: type, range_id: range, url: story})
 		.then(res => {
-			media.value = res.data;
+			likesID.value = res.data.likes_id;
 
-			getDoc(q).then(res => {
-				if (res.exists()) {
-					data.value = res.data();
-					if (data.value.comments > 0) {
-						getComments();
-					}
+			commentID.value = res.data.comments_id;
 
-					data.value.likes ? (likes.value = data.value.likes) : (likes.value = 0);
+			media.value = res.data.story_id;
 
-					document.title =
-						media.value.title +
-						", review " +
-						(lang ? "por " : "by ") +
-						data.value.name +
-						" / LetterWHO";
+			getLikes();
+			getComments();
 
-					load.value = true;
+			data.value = {
+				id: res.data.user_id.id,
+				name: res.data.user_id.name,
+				picture: res.data.user_id.picture,
+				rating: res.data.rating,
+				rewatch: res.data.rewatch,
+				review: res.data.text,
+				created: res.data.created,
+				updated: res.data.updated,
+			};
 
-					reviewtext.value = data.value.review;
+			reviewtext.value = res.data.text;
+			rating.value = res.data.rating;
+			username.value = res.data.user_id.name;
+			userpicture.value = res.data.user_id.picture;
+			userid.value = res.data.user_id.id;
 
-					rating.value = data.value.rating;
+			document.title =
+				res.data.story_id.title +
+				", review " +
+				(lang ? "por " : "by ") +
+				res.data.user_id.name +
+				" / LetterWHO";
 
-					username.value = data.value.name;
-
-					userpicture.value = data.value.picture;
-
-					data.value.wholiked
-						? (userliked.value = data.value.wholiked.some(e => e === user.id))
-						: "";
-				} else {
-					push({name: "story", params: {type: type, range: range, story: story}});
-				}
-			});
+			load.value = true;
 		});
 }
 
 async function editReview() {
-	const {getFirestore, doc, setDoc} = await import("firebase/firestore");
+	supabase
+		.from("reviews")
+		.update({
+			rating: rating.value,
+			text: reviewtext.value,
+			updated: new Date().toISOString(),
+		})
+		.match({id: id})
+		.select(
+			`
+		id,
+		created,
+		rating,
+		rewatch,
+		updated,
+		text,
+		story_id(title,released,url,code),
+		user_id(id,name,picture)
+		`
+		)
+		.then(res => {
+			data.value = {
+				id: res.data[0].user_id.id,
+				name: res.data[0].user_id.name,
+				picture: res.data[0].user_id.picture,
+				rating: res.data[0].rating,
+				rewatch: res.data[0].rewatch,
+				review: res.data[0].text,
+				created: res.data[0].created,
+				updated: res.data[0].updated,
+			};
 
-	const db = getFirestore();
-
-	const query = doc(db, "reviews", type, range, story, "reviews", id);
-
-	responseEdit.value = lang ? "Editando..." : "Editing...";
-
-	if (
-		isUpdatingUser.value === true &&
-		reviewtext.value === data.value.review &&
-		rating.value === data.value.rating
-	) {
-		setDoc(
-			query,
-			{
-				name: name,
-				picture: picture,
-			},
-			{merge: true}
-		).then(() => {
-			getReview();
-
-			responseEdit.value = lang ? "Feito!" : "Done!";
-
-			setTimeout(() => {
-				editing.value = false;
-			}, 1000);
-		});
-
-		console.log("change user");
-	}
-
-	if (rating.value !== data.value.rating && reviewtext.value === data.value.review) {
-		setDoc(
-			query,
-			{
-				rating: rating.value,
-				updated: new Date().toISOString(),
-				name: isUpdatingUser.value ? name : data.value.name,
-				picture: isUpdatingUser.value ? picture : data.value.picture,
-			},
-			{merge: true}
-		).then(() => {
-			getReview();
+			reviewtext.value = res.data[0].text;
+			rating.value = res.data[0].rating;
+			username.value = res.data[0].user_id.name;
+			userpicture.value = res.data[0].user_id.picture;
+			userid.value = res.data[0].user_id.id;
 
 			responseEdit.value = lang ? "Feito!" : "Done!";
 
-			setTimeout(() => {
-				editing.value = false;
-			}, 1000);
+			editing.value = false;
 		});
-
-		console.log("change rating");
-	}
-
-	if (reviewtext.value !== data.value.review && rating.value === data.value.rating) {
-		setDoc(
-			query,
-			{
-				review: reviewtext.value,
-				updated: new Date().toISOString(),
-				name: isUpdatingUser.value ? name : data.value.name,
-				picture: isUpdatingUser.value ? picture : data.value.picture,
-			},
-			{merge: true}
-		).then(() => {
-			getReview();
-
-			responseEdit.value = lang ? "Feito!" : "Done!";
-
-			setTimeout(() => {
-				editing.value = false;
-			}, 1000);
-		});
-		console.log("change review");
-	}
-
-	if (rating.value !== data.value.rating && reviewtext.value !== data.value.review) {
-		setDoc(
-			query,
-			{
-				rating: rating.value,
-				review: reviewtext.value,
-				updated: new Date().toISOString(),
-				name: isUpdatingUser.value ? name : data.value.name,
-				picture: isUpdatingUser.value ? picture : data.value.picture,
-			},
-			{merge: true}
-		).then(() => {
-			getReview();
-
-			responseEdit.value = lang ? "Feito!" : "Done!";
-
-			setTimeout(() => {
-				editing.value = false;
-			}, 1000);
-		});
-		console.log("change review and rating");
-	}
 }
 
 async function deleteReview() {
-	const {getFirestore, doc, writeBatch, getDocs, collection} = await import("firebase/firestore");
-
-	const db = getFirestore();
-
-	const query = doc(db, "reviews", type, range, story, "reviews", id);
-
-	const activity = doc(db, "users", data.value.id, "diary", media.value.code, "activity", id);
-
 	responseDelete.value = lang ? "Deletando..." : "Deleting...";
 
 	if (data.value.rewatch === true) {
@@ -218,61 +163,44 @@ async function deleteReview() {
 				qval: 1,
 			})
 			.then(() => {
-				const delBatch = writeBatch(db);
+				supabase
+					.from("diary")
+					.delete()
+					.match({review_id: id})
+					.then(res => {
+						supabase
+							.from("reviews")
+							.delete()
+							.match({id: id})
+							.then(res => {
+								console.log(res);
+								console.log("deleted!");
 
-				delBatch.delete(query);
+								responseDelete.value = lang ? "Deletado!" : "Deleted!";
 
-				delBatch.delete(activity);
-
-				delBatch.commit().then(() => {
-					console.log("deleted!");
-
-					responseDelete.value = lang ? "Deletado!" : "Deleted!";
-
-					push({name: "story", params: {type: type, range: range, story: story}});
-
-					if (data.value.comments > 0) {
-						deleteAllComments();
-					}
-				});
+								push({name: "story", params: {type: type, range: range, story: story}});
+							});
+					});
 			});
 	} else {
 		console.log("vida que segue");
+		supabase
+			.from("diary")
+			.delete()
+			.match({review_id: id})
+			.then(res => {
+				supabase
+					.from("reviews")
+					.delete()
+					.match({id: id})
+					.then(res => {
+						console.log("deleted!");
 
-		const delBatch = writeBatch(db);
+						responseDelete.value = lang ? "Deletado!" : "Deleted!";
 
-		delBatch.delete(query);
-
-		delBatch.delete(activity);
-
-		delBatch.commit().then(() => {
-			console.log("deleted!");
-
-			responseDelete.value = lang ? "Deletado!" : "Deleted!";
-
-			push({name: "story", params: {type: type, range: range, story: story}});
-
-			if (data.value.comments > 0) {
-				deleteAllComments();
-			}
-		});
-	}
-
-	function deleteAllComments() {
-		const comments = collection(db, "reviews", type, range, story, "reviews", id, "comments");
-
-		const commentsBatch = writeBatch(db);
-
-		getDocs(comments).then(res => {
-			res.forEach(docs => {
-				commentsBatch.delete(
-					doc(db, "reviews", type, range, story, "reviews", id, "comments", docs.id)
-				);
+						push({name: "story", params: {type: type, range: range, story: story}});
+					});
 			});
-			commentsBatch.commit().then(() => {
-				console.log("all comments deleted!");
-			});
-		});
 	}
 }
 
@@ -289,173 +217,88 @@ async function shareReview() {
 }
 
 async function likeReview(state) {
-	const {getFirestore, increment, updateDoc, arrayRemove, arrayUnion, doc} = await import(
-		"firebase/firestore"
-	);
-
-	const db = getFirestore();
-
-	const review = doc(db, "reviews", type, range, story, "reviews", id);
-
-	if (logged) {
-		if (state === true) {
-			updateDoc(review, {
-				likes: increment(-1),
-				wholiked: arrayRemove(user.id),
-			}).then(() => {
-				getReview();
-
-				console.log("you remove it i guess");
+	if (state === false) {
+		supabase
+			.from("likes")
+			.insert({
+				user_id: user.id,
+				review_id: likesID.value,
+			})
+			.then(res => {
+				userliked.value = true;
+				likes.value += 1;
 			});
-
-			console.log("deslike");
-		} else {
-			updateDoc(review, {
-				likes: increment(1),
-				wholiked: arrayUnion(user.id),
-			}).then(() => {
-				getReview();
-
-				console.log("you did it i guess");
-			});
-			console.log("like");
-		}
 	} else {
-		push({name: "register"});
+		supabase
+			.from("likes")
+			.delete()
+			.match({user_id: user.id, review_id: likesID.value})
+			.then(res => {
+				userliked.value = false;
+				likes.value -= 1;
+			});
 	}
 }
 
-async function getComments() {
-	const {getFirestore, getDocs, limit, query, orderBy, collection} = await import(
-		"firebase/firestore"
-	);
-
-	const db = getFirestore();
-
-	const commentsQuery = query(
-		collection(db, "reviews", type, range, story, "reviews", id, "comments"),
-		limit(5),
-		orderBy("created", "desc")
-	);
-
-	console.log("getting comments...");
-
-	let file;
-
-	let data = [];
-
-	getDocs(commentsQuery).then(res => {
-		console.log("comments here!");
-
-		res.forEach(doc => {
-			file = {id: doc.id, data: doc.data()};
-
-			data.push(file);
+async function getLikes() {
+	supabase
+		.from("likes")
+		.select("user_id(id,name,picture)", {count: "exact", head: false})
+		.match({review_id: likesID.value})
+		.then(res => {
+			likes.value = res.count;
+			userliked.value = res.data.some(e => e.user_id.id === user.id);
 		});
-
-		comments.value = data;
-	});
 }
 
 async function addComment() {
-	const {getFirestore, addDoc, collection, updateDoc, increment, doc} = await import(
-		"firebase/firestore"
-	);
-
-	const db = getFirestore();
-
-	const query = collection(db, "reviews", type, range, story, "reviews", id, "comments");
-
-	const review = doc(db, "reviews", type, range, story, "reviews", id);
-
 	commentResponse.value = lang ? "Postando..." : "Posting...";
-
-	const userdata = {
-		name: name,
-		id: user.id,
-		picture: picture,
-		comment: comment.value,
-		created: new Date().toISOString(),
-	};
-
-	addDoc(query, userdata).then(() => {
-		commentResponse.value = lang ? "Postado!" : "Posted!";
-
-		comment.value = "";
-
-		updateDoc(review, {
-			comments: increment(1),
+	supabase
+		.from("comments")
+		.insert({
+			user_id: user.id,
+			review_id: commentID.value,
+			comment: comment.value,
+			created: new Date().toISOString(),
 		})
-			.then(() => {
-				isComment.value = false;
+		.select("comment,created,updated,id,user_id(id,name,picture)")
+		.then(res => {
+			console.log(res);
+			comments.value.unshift(res.data[0]);
+			commentResponse.value = lang ? "Postado!" : "Posted!";
+			comment.value = "";
+			isComment.value = false;
+			commentResponse.value = lang ? "Comentar" : "Comment";
+			data.value.comments += 1;
+		});
+}
 
-				getComments();
-
-				getReview();
-			})
-			.finally(() => {
-				commentResponse.value = lang ? "Comentar" : "Comment";
-			});
-	});
+async function getComments() {
+	supabase
+		.from("comments")
+		.select("comment,created,updated,id,user_id(id,name,picture)", {count: "exact"})
+		.order("created", {ascending: false})
+		.match({review_id: commentID.value})
+		.then(res => {
+			comments.value = res.data;
+			data.value.comments = res.count;
+		});
+	return;
 }
 
 async function deleteComment(commentId) {
-	const {getFirestore, deleteDoc, updateDoc, increment, doc} = await import("firebase/firestore");
-
-	const db = getFirestore();
-
-	const query = doc(db, "reviews", type, range, story, "reviews", id, "comments", commentId);
-
-	const review = doc(db, "reviews", type, range, story, "reviews", id);
-
-	deleteDoc(query).then(() => {
-		updateDoc(review, {
-			comments: increment(-1),
-		}).then(() => {
+	supabase
+		.from("comments")
+		.delete()
+		.match({id: commentId})
+		.then(res => {
+			console.log(res);
+			data.value.comments -= 1;
 			getComments();
-
-			getReview();
 		});
-	});
 }
 
-async function likeComment(state, commentId) {
-	const {getFirestore, increment, updateDoc, arrayRemove, arrayUnion, doc} = await import(
-		"firebase/firestore"
-	);
-
-	const db = getFirestore();
-
-	const review = doc(db, "reviews", type, range, story, "reviews", id, "comments", commentId);
-
-	if (logged) {
-		if (state === true) {
-			updateDoc(review, {
-				likes: increment(-1),
-				wholiked: arrayRemove(user.id),
-			}).then(() => {
-				getComments();
-
-				console.log("you remove it i guess");
-			});
-
-			console.log("deslike");
-		} else {
-			updateDoc(review, {
-				likes: increment(1),
-				wholiked: arrayUnion(user.id),
-			}).then(() => {
-				getComments();
-
-				console.log("you did it i guess");
-			});
-
-			console.log("like");
-		}
-	} else {
-		push({name: "register"});
-	}
-}
+async function likeComment(state, commentId) {}
 
 function quickLikeCheck(map) {
 	if (logged) {
@@ -480,18 +323,18 @@ onMounted(() => {
 					class="userCover"
 					:to="
 						logged
-							? {name: 'user', params: {id: data.id}}
-							: {name: 'register', query: {from: 'user', id: data.id}}
+							? {name: 'user', params: {id: userid}}
+							: {name: 'register', query: {from: 'user', id: userid}}
 					"
 				>
 					<picture>
 						<source
 							media="(min-width: 35rem)"
-							:srcset="folder(data.picture.slice(0, -4), '100')"
+							:srcset="folder(data.picture, '100')"
 						/>
 						<img
 							class="userPicture"
-							:src="folder(data.picture.slice(0, -4), '50')"
+							:src="folder(data.picture, '50')"
 							:alt="data.name"
 						/>
 					</picture>
@@ -577,6 +420,7 @@ onMounted(() => {
 								<span>{{ likes > 0 ? likes : "" }}</span>
 							</div>
 						</div>
+
 						<div v-if="data.updated">
 							{{ (lang ? "editado " : "edited ") + useTime(lang, data.updated) }}
 						</div>
@@ -586,17 +430,6 @@ onMounted(() => {
 						v-if="editing === true"
 						class="reviewTextEdit"
 					>
-						<div
-							v-if="name !== data.name || picture !== data.picture"
-							@click="isUpdatingUser = !isUpdatingUser"
-							class="updateUser"
-						>
-							<iconify-icon
-								class="updateUserIcon"
-								:style="isUpdatingUser ? 'color: var(--green)' : ''"
-								:icon="'ri:account-pin-box-' + (isUpdatingUser ? 'fill' : 'line')"
-							/>
-						</div>
 						<textarea
 							name="edit"
 							id="edit"
@@ -671,7 +504,7 @@ onMounted(() => {
 			</div>
 
 			<div class="mediaArea">
-				<router-link
+				<RouterLink
 					:to="{name: 'story', params: {type: type, range: range, story: story}}"
 					class="mediaCover"
 				>
@@ -686,8 +519,9 @@ onMounted(() => {
 							:alt="media.title"
 						/>
 					</picture>
-				</router-link>
+				</RouterLink>
 			</div>
+
 			<div class="commentArea">
 				<div class="commentsHeader">
 					<div class="commentStatus">
@@ -761,22 +595,22 @@ onMounted(() => {
 				</div>
 				<div class="commentsSection">
 					<div
-						v-for="({id, data}, i) in comments"
+						v-for="({id, comment, created, updated, user_id}, i) in comments"
 						:key="i"
 						class="comment"
 					>
 						<router-link
 							:to="
 								logged
-									? {name: 'user', params: {id: data.id}}
-									: {name: 'register', query: {from: 'user', id: data.id}}
+									? {name: 'user', params: {id: user_id.id}}
+									: {name: 'register', query: {from: 'user', id: user_id.id}}
 							"
 							class="commentPicture"
 						>
 							<img
 								class="commentPictureImage"
-								:src="folder(data.picture.slice(0, -4), '100')"
-								:alt="data.name"
+								:src="folder(user_id.picture, '100')"
+								:alt="user_id.name"
 							/>
 						</router-link>
 
@@ -784,20 +618,21 @@ onMounted(() => {
 							<router-link
 								:to="
 									logged
-										? {name: 'user', params: {id: data.id}}
-										: {name: 'register', query: {from: 'user', id: data.id}}
+										? {name: 'user', params: {id: user_id.id}}
+										: {name: 'register', query: {from: 'user', id: user_id.id}}
 								"
 								class="commentName"
 							>
-								{{ data.name }}
+								{{ user_id.name }}
 							</router-link>
 
 							<div class="commentText">
-								{{ data.comment }}
+								{{ comment }}
 							</div>
 
 							<div class="commentBot">
 								<div
+									v-if="false"
 									@click="likeComment(quickLikeCheck(data.wholiked), id)"
 									class="commentLike"
 								>
@@ -813,14 +648,14 @@ onMounted(() => {
 
 								<div class="commentDate">
 									<iconify-icon
-										v-if="user.id === data.id"
+										v-if="user.id === user_id.id"
 										@click="deleteComment(id)"
 										class="commentDelete"
 										icon="ri:delete-bin-2-fill"
 									/>
 									<span>
-										<span v-if="user.id === data.id"> &sdot; </span>
-										{{ useTime(lang, data.created) }}
+										<span v-if="user.id === user_id.id"> &sdot; </span>
+										{{ useTime(lang, created) }}
 									</span>
 								</div>
 							</div>
