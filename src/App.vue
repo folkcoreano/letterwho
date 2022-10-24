@@ -48,7 +48,6 @@ onMounted(() => {
 				});
 		} else {
 			console.log("no session");
-			localStorage.clear();
 			user.logged = false;
 			user.id = "";
 			user.email = "";
@@ -83,7 +82,6 @@ onMounted(() => {
 
 			if (e === "SIGNED_OUT") {
 				console.log(e);
-				localStorage.clear();
 				user.logged = false;
 				user.id = "";
 				user.email = "";
