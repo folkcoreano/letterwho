@@ -171,7 +171,7 @@ try {
 			>
 				<template #review>
 					<ReviewBox
-						v-if="true"
+						v-if="logged"
 						:doctors="doctors"
 						:data="data"
 					/>

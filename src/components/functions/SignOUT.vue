@@ -9,6 +9,7 @@ const buttonState = ref("LOGOUT");
 
 async function getOut() {
 	supabase.auth.signOut().then(res => {
+		localStorage.clear();
 		console.log(res);
 		push({name: "home"});
 	});

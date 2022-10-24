@@ -1,14 +1,24 @@
 <script setup>
 import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
-const {id} = useUser();
+const {id, logged} = useUser();
 setTitle("Home");
 </script>
 
 <template>
 	<div>
 		<br />
-		<RouterLink :to="{name: 'user', params: {id}}">Profile</RouterLink>
+		<RouterLink
+			v-if="logged"
+			:to="{name: 'user', params: {id}}"
+			>User</RouterLink
+		>
+		<br />
+		<RouterLink
+			v-if="logged"
+			:to="{name: 'profile'}"
+			>Profile</RouterLink
+		>
 		<br />
 		<RouterLink :to="{name: 'register'}">Login</RouterLink>
 		<br />
