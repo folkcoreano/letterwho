@@ -40,6 +40,8 @@ const response = ref(lang === "pt-br" ? "Publicar" : "Publish");
 const isDaySet = ref(false);
 const isRewatch = ref(false);
 
+const isLoved = ref(false);
+
 async function postReview() {
 	let today = new Date().toISOString();
 
@@ -58,6 +60,7 @@ async function postReview() {
 			rating: rating.value,
 			created: today,
 			rewatch: isRewatch.value,
+			loved: isLoved.value,
 		})
 		.limit(1)
 		.select("id")
@@ -168,6 +171,12 @@ async function postReview() {
 
 const target = ref(null);
 
+document.onkeydown = e => {
+	if (e.key === "Escape") {
+		dialog.isReview = false;
+	}
+};
+
 onClickOutside(target, () => {
 	dialog.isReview = false;
 });
@@ -212,6 +221,19 @@ onClickOutside(target, () => {
 							<iconify-icon
 								class="reviewOptionIcon"
 								icon="ri:repeat-fill"
+								:style="isRewatch ? 'color: var(--green)' : ''"
+							/>
+						</div>
+						<div
+							@keydown.space.enter="isLoved = !isLoved"
+							@click="isLoved = !isLoved"
+							:class="isLoved ? 'reviewOption optionActive' : 'reviewOption'"
+							tabindex="0"
+						>
+							<iconify-icon
+								class="reviewOptionIcon"
+								:style="isLoved ? 'color: var(--red)' : ''"
+								:icon="'ri:heart-3-' + (isLoved ? 'fill' : 'line')"
 							/>
 						</div>
 						<div class="reviewDate">
@@ -311,6 +333,16 @@ onClickOutside(target, () => {
 /* * {
 	outline: 1px dotted rgba(255, 0, 0, 0);
 } */
+
+.loved {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.isLoved {
+	font-size: 2rem;
+}
 .reviewButton {
 	display: flex;
 	justify-content: end;
@@ -448,13 +480,11 @@ onClickOutside(target, () => {
 
 .reviewOption:hover {
 	background-color: #3a3a3a;
-	color: var(--green);
 	transition: all 150ms linear;
 }
 
 .optionActive {
 	background-color: #3a3a3a;
-	color: var(--green);
 	transition: all 150ms linear;
 }
 

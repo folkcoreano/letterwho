@@ -11,75 +11,122 @@ const props = defineProps({
 </script>
 
 <template>
-	<div class="reviews">
-		<RouterLink
-			:to="{name: 'review', params: {type: type, range: range_id, story: url, id: id}}"
+	<div class="diary">
+		<div
+			:key="i"
 			v-for="(
 				{
 					id,
 					created,
 					text,
+					loved,
 					rating,
 					rewatch,
 					story_id: {title, type, range_id, url, released, code},
 				},
 				i
 			) in data"
-			:key="i"
-			class="review"
+			class="item"
 		>
-			<div class="side">
+			<RouterLink
+				class="itemIcon"
+				:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
+			>
 				<img
 					class="img"
-					:src="folder(`${type}/${range_id}/${code}`, '100')"
-					:alt="title"
+					:src="folder(`${type}/${range_id}/${code}`, '150')"
+					alt=""
 				/>
-			</div>
-			<div class="text">
-				<div>
-					{{ title }} ({{ new Date(released).getFullYear() }})
-					<span v-if="rating > 0"
-						><iconify-icon
-							v-for="s in rating"
-							icon="ri:star-fill"
-							style="color: var(--yellow)"
-						/>
+			</RouterLink>
+			<RouterLink
+				:to="{name: 'review', params: {type, range: range_id, story: url, id}}"
+				class="side"
+			>
+				<div class="title">
+					<span> {{ title }} ({{ new Date(released).getFullYear() }}) </span>
+
+					<iconify-icon
+						v-if="loved"
+						style="color: var(--red)"
+						icon="ri:heart-3-fill"
+					/>
+
+					<iconify-icon
+						v-if="rewatch"
+						style="color: var(--green)"
+						icon="ri:repeat-fill"
+					/>
+
+					<span
+						class="stars"
+						v-if="rating"
+					>
 						<iconify-icon
-							v-if="rewatch"
-							icon="ri:repeat-fill"
-							style="color: var(--green)"
+							v-for="s in rating"
+							style="color: var(--yellow)"
+							icon="ri:star-s-fill"
 						/>
 					</span>
 				</div>
-				<div>
+				<div class="text">
 					{{ text }}
 				</div>
-				<div>
-					{{ useTime(lang, created) }}
+				<div class="bot">
+					{{ useTime(lang, created) }} &sdot; {{ new Date(created).toLocaleDateString() }}
 				</div>
-			</div>
-		</RouterLink>
+			</RouterLink>
+		</div>
 	</div>
 </template>
 
 <style scoped>
-.reviews {
+.diary {
 	display: flex;
 	flex-flow: column;
-	gap: 1rem;
+	gap: 0.25rem;
+}
+.item {
+	display: flex;
+	gap: 0.55rem;
+	padding: 0.45rem;
 }
 
-.review {
-	display: flex;
-	gap: 0.5rem;
+.item:not(:last-child) {
+	border-bottom: 0.01rem #333 solid;
 }
-.text {
+
+.stars {
+	display: flex;
+}
+
+.side {
 	display: flex;
 	flex-flow: column;
-	gap: 0.15rem;
-	justify-content: space-evenly;
+	gap: 0.35rem;
+	justify-content: space-between;
 }
+
+.title {
+	display: flex;
+	flex-flow: row;
+	gap: 0.25rem;
+	align-items: center;
+	font-weight: bold;
+}
+
+.bot {
+	color: #aaa;
+}
+
 .img {
-	max-height: 8rem;
+	max-width: 4rem;
+	outline: 0.001rem solid #555;
+	border-radius: 0.05rem;
+	transition: 150ms linear all;
+}
+
+.img:hover {
+	transition: 150ms linear all;
+	outline: 0.001rem solid #888;
 }
 </style>

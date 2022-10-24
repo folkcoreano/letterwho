@@ -29,36 +29,35 @@ const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
 
 const load = ref(false);
 
-const tab = shallowRef(Reviews);
+const tab = shallowRef(Activity);
 
 onMounted(() => {
 	supabase
 		.from("users")
 		.select(
 			`
-		id,
-		name,
-		picture,
-		diary_id(id,created,review,rewatch,${storyQuery.value}),
-		reviews_id(id,created,text,rating,rewatch,${storyQuery.value}),
-		likes_id(id,review_id(id,created,user_id(name,picture),text,rating,rewatch,${storyQuery.value})),
-		comments_id(id,comment,created,review_id(id,user_id(id,picture,name),${storyQuery.value}))
-		`
+			id,
+			name,
+			picture,
+			diary_id(id,created,watched,saved,liked,rating,review,review_id(id,rating,loved),rewatch,${storyQuery.value}),
+			reviews_id(id,created,text,loved,rating,rewatch,${storyQuery.value}),
+			likes_id(id,review_id(id,created,user_id(name,picture),text,rating,rewatch,${storyQuery.value}))
+			`
 		)
 		.limit(1)
 		.order("id", {foreignTable: "diary_id", ascending: false})
 		.order("id", {foreignTable: "reviews_id", ascending: false})
 		.order("id", {foreignTable: "likes_id", ascending: false})
-		.order("id", {foreignTable: "comments_id", ascending: false})
+		// .limit(10, {foreignTable: "diary_id"})
+		// .filter("diary_id.watched", "not.is", null)
 		.match({id: id})
 		.single()
 		.then(res => {
 			user.value = res.data;
-			diary.value = res.data.diary_id.filter(e => e.review === true || e.rewatch === true);
+			diary.value = res.data.diary_id;
 			reviews.value = res.data.reviews_id;
 			likes.value = res.data.likes_id;
-			comments.value = res.data.comments_id;
-			data.value = reviews.value;
+			data.value = diary.value;
 
 			load.value = true;
 
@@ -87,41 +86,41 @@ onUnmounted(() => {
 				</div>
 			</div>
 			<div class="tabs">
-				<!-- <div
+				<div
 					@click="(tab = Activity), (data = diary)"
 					class="tab"
+					:style="tab === Activity ? 'border-bottom: 2px solid var(--yellow)' : ''"
 				>
-					ACTIVITY
-				</div> -->
+					{{ lang === "pt-br" ? "Atividade" : "Activity" }}
+				</div>
 				<div
 					@click="(tab = Reviews), (data = reviews)"
-					:style="tab === Reviews ? 'background-color: #1f1f1f' : ''"
+					:style="tab === Reviews ? 'border-bottom: 2px solid var(--yellow)' : ''"
 					class="tab"
 				>
-					REVIEWS
+					Reviews
 				</div>
 				<div
-					@click="(tab = Comments), (data = comments)"
-					:style="tab === Comments ? 'background-color: #1f1f1f' : ''"
-					class="tab"
-				>
-					COMMENTS
-				</div>
-				<div
+					v-if="false"
 					@click="(tab = Likes), (data = likes)"
-					:style="tab === Likes ? 'background-color: #1f1f1f' : ''"
+					:style="tab === Likes ? 'border-bottom: 2px solid var(--yellow)' : ''"
 					class="tab"
 				>
-					LIKES
+					Likes
 				</div>
 			</div>
 			<div class="activeTab">
-				<keep-alive>
-					<component
-						:data="data"
-						:is="tab"
-					/>
-				</keep-alive>
+				<transition
+					name="route"
+					mode="out-in"
+				>
+					<keep-alive>
+						<component
+							:data="data"
+							:is="tab"
+						/>
+					</keep-alive>
+				</transition>
 			</div>
 		</div>
 	</template>
@@ -133,20 +132,22 @@ onUnmounted(() => {
 <style scoped>
 .tabs {
 	display: flex;
+	border-bottom: 2px solid #444;
 }
 
 .tab {
+	padding: 0.55rem;
+	cursor: pointer;
 	flex: 1;
-	padding: 0.25rem;
-	background-color: #0f0f0f;
 	text-align: center;
 	transition: all 150ms linear;
-	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	translate: 0 2px;
 }
 
 .tab:hover {
 	transition: all 150ms linear;
-	background-color: #1f1f1f;
+	border-bottom: 2px solid #666;
 }
 .profile {
 	display: flex;

@@ -59,6 +59,7 @@ async function getReview() {
 		rating,
 		rewatch,
 		updated,
+		loved,
 		text,
 		story_id(title,released,url,code),
 		user_id(id,name,picture),
@@ -88,6 +89,7 @@ async function getReview() {
 				review: res.data.text,
 				created: res.data.created,
 				updated: res.data.updated,
+				loved: res.data.loved,
 			};
 
 			reviewtext.value = res.data.text;
@@ -365,9 +367,23 @@ onMounted(() => {
 					<span class="title">
 						{{ media.title }}
 					</span>
+
 					<span class="year">
 						{{ new Date(media.released).getFullYear() }}
 					</span>
+
+					<iconify-icon
+						v-if="data.loved"
+						style="color: var(--red)"
+						icon="ri:heart-3-fill"
+					/>
+
+					<iconify-icon
+						v-if="data.rewatch"
+						class="rewatch"
+						icon="ri:repeat-fill"
+					/>
+
 					<div class="stars">
 						<iconify-icon
 							class="star"
@@ -376,12 +392,6 @@ onMounted(() => {
 							:key="s"
 						/>
 					</div>
-
-					<iconify-icon
-						v-if="data.rewatch"
-						class="rewatch"
-						icon="ri:repeat-fill"
-					/>
 				</div>
 
 				<div class="reviewDate">

@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import {url} from "@/stores/images";
+import {folder} from "@/stores/images";
 import {useUser} from "@/stores/user";
 
-const {picture, name} = useUser();
+const {picture, name, id} = useUser();
 </script>
 
 <template>
-	<div>
+	<RouterLink
+		class="user"
+		:to="{name: 'user', params: {id}}"
+	>
+		<div>{{ name }}</div>
 		<img
 			class="head"
-			:src="url(picture, '100')"
+			:src="folder(picture, '100')"
 			:alt="name"
 		/>
-	</div>
+	</RouterLink>
 </template>
 
 <style scoped>
@@ -20,5 +24,12 @@ const {picture, name} = useUser();
 	max-width: 2.15rem;
 	border-radius: 50%;
 	cursor: pointer;
+}
+
+.user {
+	display: flex;
+	flex-flow: row;
+	gap: 0.45rem;
+	align-items: center;
 }
 </style>
