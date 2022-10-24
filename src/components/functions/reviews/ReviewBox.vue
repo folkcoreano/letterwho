@@ -19,24 +19,24 @@ const {id, lang} = useUser();
 
 const dialog = useDialog();
 
-const hasData = ref(props.data.diary.length > 0);
+const hasData = ref(props.data.hasData);
 
 const hasDataFile = ref(
 	hasData.value
-		? props.data.diary.filter(e => e.review === false && e.rewatch === false)[0]
+		? props.data.diary
 		: {
-				watched: null,
-				saved: null,
-				liked: null,
-				rating: null,
+				watched: false,
+				saved: false,
+				liked: false,
+				rating: false,
 		  }
 );
 
-const watched = ref(hasDataFile.value.watched ? hasDataFile.value.watched.status : null);
+const watched = ref(hasDataFile.value.watched ? hasDataFile.value.watched.status : false);
 
-const liked = ref(hasDataFile.value.liked ? hasDataFile.value.liked.status : null);
+const liked = ref(hasDataFile.value.liked ? hasDataFile.value.liked.status : false);
 
-const saved = ref(hasDataFile.value.saved ? hasDataFile.value.saved.status : null);
+const saved = ref(hasDataFile.value.saved ? hasDataFile.value.saved.status : false);
 
 const rated = ref(hasDataFile.value.rating ? true : false);
 
@@ -206,10 +206,7 @@ async function setWatch(state) {
 			supabase
 				.from("diary")
 				.update({
-					watched: {
-						status: false,
-						time: new Date().toISOString(),
-					},
+					watched: null,
 				})
 				.match({
 					user_id: id,
@@ -253,10 +250,7 @@ async function setWatch(state) {
 			supabase
 				.from("diary")
 				.update({
-					watched: {
-						status: false,
-						time: new Date().toISOString(),
-					},
+					watched: null,
 				})
 				.match({
 					user_id: id,
@@ -302,10 +296,7 @@ async function setLike(state) {
 			supabase
 				.from("diary")
 				.update({
-					liked: {
-						status: false,
-						time: new Date().toISOString(),
-					},
+					liked: null,
 				})
 				.match({
 					user_id: id,
@@ -345,10 +336,7 @@ async function setLike(state) {
 			supabase
 				.from("diary")
 				.update({
-					liked: {
-						status: false,
-						time: new Date().toISOString(),
-					},
+					liked: null,
 				})
 				.match({
 					user_id: id,
@@ -392,10 +380,7 @@ async function setSave(state) {
 			supabase
 				.from("diary")
 				.update({
-					saved: {
-						status: false,
-						time: new Date().toISOString(),
-					},
+					saved: null,
 				})
 				.match({
 					user_id: id,
@@ -436,10 +421,7 @@ async function setSave(state) {
 			supabase
 				.from("diary")
 				.update({
-					saved: {
-						status: false,
-						time: new Date().toISOString(),
-					},
+					saved: null,
 				})
 				.match({
 					user_id: id,

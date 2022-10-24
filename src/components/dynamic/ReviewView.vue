@@ -22,7 +22,6 @@ const media = ref();
 const load = ref(false);
 
 const editing = ref(false);
-const isUpdatingUser = ref(false);
 
 const rating = ref();
 const reviewtext = ref();
@@ -32,19 +31,21 @@ const userpicture = ref();
 
 const userid = ref();
 
-const responseEdit = ref(lang ? "Editar" : "Edit");
-const responseDelete = ref(lang ? "Deletar" : "Delete");
+const responseEdit = ref(lang === "pt-br" ? "Editar" : "Edit");
+const responseDelete = ref(lang === "pt-br" ? "Deletar" : "Delete");
 
 const userliked = ref(false);
 const likes = ref(0);
 
-const comment = ref("");
+const commentData = ref("");
+const isEditingComment = ref(false);
+const editingCommentID = ref("");
 const comments = ref([]);
 
 const commentID = ref();
 const likesID = ref();
 
-const commentResponse = ref(lang ? "Comentar" : "Comment");
+const commentResponse = ref(lang === "pt-br" ? "Comentar" : "Comment");
 
 const isComment = ref(false);
 
@@ -98,7 +99,7 @@ async function getReview() {
 			document.title =
 				res.data.story_id.title +
 				", review " +
-				(lang ? "por " : "by ") +
+				(lang === "pt-br" ? "por " : "by ") +
 				res.data.user_id.name +
 				" / LetterWHO";
 
@@ -145,14 +146,14 @@ async function editReview() {
 			userpicture.value = res.data[0].user_id.picture;
 			userid.value = res.data[0].user_id.id;
 
-			responseEdit.value = lang ? "Feito!" : "Done!";
+			responseEdit.value = lang === "pt-br" ? "Feito!" : "Done!";
 
 			editing.value = false;
 		});
 }
 
 async function deleteReview() {
-	responseDelete.value = lang ? "Deletando..." : "Deleting...";
+	responseDelete.value = lang === "pt-br" ? "Deletando..." : "Deleting...";
 
 	if (data.value.rewatch === true) {
 		console.log("remove watch");
@@ -163,42 +164,45 @@ async function deleteReview() {
 				qval: 1,
 			})
 			.then(() => {
-				supabase
-					.from("diary")
-					.delete()
-					.match({review_id: id})
-					.then(res => {
-						supabase
-							.from("reviews")
-							.delete()
-							.match({id: id})
-							.then(res => {
-								console.log(res);
-								console.log("deleted!");
-
-								responseDelete.value = lang ? "Deletado!" : "Deleted!";
-
-								push({name: "story", params: {type: type, range: range, story: story}});
-							});
-					});
+				deleteEverything();
 			});
 	} else {
 		console.log("vida que segue");
+
+		deleteEverything();
+	}
+
+	function deleteEverything() {
 		supabase
 			.from("diary")
 			.delete()
 			.match({review_id: id})
-			.then(res => {
+			.then(() => {
+				console.log("diary deleted");
 				supabase
-					.from("reviews")
+					.from("likes")
 					.delete()
-					.match({id: id})
-					.then(res => {
-						console.log("deleted!");
+					.match({review_id: likesID.value})
+					.then(() => {
+						console.log("likes deleted");
+						supabase
+							.from("comments")
+							.delete()
+							.match({review_id: commentID.value})
+							.then(() => {
+								console.log("comments deleted");
+								supabase
+									.from("reviews")
+									.delete()
+									.match({id: id})
+									.then(() => {
+										console.log("review deleted");
 
-						responseDelete.value = lang ? "Deletado!" : "Deleted!";
+										responseDelete.value = lang === "pt-br" ? "Deletado!" : "Deleted!";
 
-						push({name: "story", params: {type: type, range: range, story: story}});
+										push({name: "story", params: {type: type, range: range, story: story}});
+									});
+							});
 					});
 			});
 	}
@@ -207,8 +211,8 @@ async function deleteReview() {
 async function shareReview() {
 	try {
 		await navigator.share({
-			title: `${media.value.title} review, ${lang ? "por" : "by"} ${data.value.name}`,
-			text: `${media.value.title} review, ${lang ? "por" : "by"} ${data.value.name}`,
+			title: `${media.value.title} review, ${lang === "pt-br" ? "por" : "by"} ${data.value.name}`,
+			text: `${media.value.title} review, ${lang === "pt-br" ? "por" : "by"} ${data.value.name}`,
 			url: window.location.href,
 		});
 	} catch (error) {
@@ -252,25 +256,43 @@ async function getLikes() {
 }
 
 async function addComment() {
-	commentResponse.value = lang ? "Postando..." : "Posting...";
-	supabase
-		.from("comments")
-		.insert({
-			user_id: user.id,
-			review_id: commentID.value,
-			comment: comment.value,
-			created: new Date().toISOString(),
-		})
-		.select("comment,created,updated,id,user_id(id,name,picture)")
-		.then(res => {
-			console.log(res);
-			comments.value.unshift(res.data[0]);
-			commentResponse.value = lang ? "Postado!" : "Posted!";
-			comment.value = "";
-			isComment.value = false;
-			commentResponse.value = lang ? "Comentar" : "Comment";
-			data.value.comments += 1;
-		});
+	if (isEditingComment.value === true) {
+		commentResponse.value = lang === "pt-br" ? "Atualizando..." : "Updating...";
+		supabase
+			.from("comments")
+			.update({
+				comment: commentData.value,
+				updated: new Date().toISOString(),
+			})
+			.match({id: editingCommentID.value})
+			.then(res => {
+				console.log(res);
+				commentResponse.value = lang === "pt-br" ? "Atualizado!" : "Updated!";
+				commentData.value = "";
+				isEditingComment.value = false;
+				getComments();
+			});
+	} else {
+		commentResponse.value = lang === "pt-br" ? "Postando..." : "Posting...";
+		supabase
+			.from("comments")
+			.insert({
+				user_id: user.id,
+				review_id: commentID.value,
+				comment: commentData.value,
+				created: new Date().toISOString(),
+			})
+			.select("comment,created,updated,id,user_id(id,name,picture)")
+			.then(res => {
+				console.log(res);
+				comments.value.unshift(res.data[0]);
+				commentResponse.value = lang === "pt-br" ? "Postado!" : "Posted!";
+				commentData.value = "";
+				isComment.value = false;
+				commentResponse.value = lang === "pt-br" ? "Comentar" : "Comment";
+				data.value.comments += 1;
+			});
+	}
 }
 
 async function getComments() {
@@ -286,6 +308,13 @@ async function getComments() {
 	return;
 }
 
+async function editComment(CommentId, commentDataEdit) {
+	commentResponse.value = lang === "pt-br" ? "Atualizar!" : "Update!";
+	isEditingComment.value = true;
+	commentData.value = commentDataEdit;
+	editingCommentID.value = CommentId;
+}
+
 async function deleteComment(commentId) {
 	supabase
 		.from("comments")
@@ -296,18 +325,6 @@ async function deleteComment(commentId) {
 			data.value.comments -= 1;
 			getComments();
 		});
-}
-
-async function likeComment(state, commentId) {}
-
-function quickLikeCheck(map) {
-	if (logged) {
-		if (map) {
-			return map.some(e => e === user.id);
-		} else {
-			return false;
-		}
-	}
 }
 
 onMounted(() => {
@@ -370,7 +387,7 @@ onMounted(() => {
 				<div class="reviewDate">
 					<div>
 						{{ new Date(data.created).toLocaleDateString() }}
-						<!-- &sdot; {{ (lang ? "Publicado " : "Published") + useTime(lang, data.created) }} -->
+						<!-- &sdot; {{ (lang === 'pt-br' ? "Publicado " : "Published") + useTime(lang, data.created) }} -->
 					</div>
 					<div
 						class="reviewEdit"
@@ -422,7 +439,7 @@ onMounted(() => {
 						</div>
 
 						<div v-if="data.updated">
-							{{ (lang ? "editado " : "edited ") + useTime(lang, data.updated) }}
+							{{ (lang === "pt-br" ? "editado " : "edited ") + useTime(lang, data.updated) }}
 						</div>
 					</div>
 
@@ -484,9 +501,7 @@ onMounted(() => {
 								</ConfirmButton>
 								<ConfirmButton
 									:hoverColor="'var(--blue)'"
-									:state="
-										reviewtext === data.review && rating === data.rating && isUpdatingUser === false
-									"
+									:state="reviewtext === data.review && rating === data.rating"
 									@click="editReview"
 								>
 									<iconify-icon
@@ -542,7 +557,11 @@ onMounted(() => {
 							}}
 						</span>
 						<span v-else>
-							{{ lang ? "Sem comentários... Seja o primeiro!" : "No comments... Be the first!" }}
+							{{
+								lang === "pt-br"
+									? "Sem comentários... Seja o primeiro!"
+									: "No comments... Be the first!"
+							}}
 						</span>
 					</div>
 					<div
@@ -556,7 +575,7 @@ onMounted(() => {
 					</div>
 				</div>
 				<div
-					v-if="isComment"
+					v-if="isComment || isEditingComment"
 					class="commentBox"
 				>
 					<textarea
@@ -566,12 +585,12 @@ onMounted(() => {
 						cols="25"
 						maxlength="280"
 						rows="3"
-						v-model.trim="comment"
+						v-model.trim="commentData"
 					/>
 					<div class="commentButtons">
 						<ConfirmButton
 							:hoverColor="'var(--blue)'"
-							@click="isComment = false"
+							@click="(isComment = false), (isEditingComment = false)"
 						>
 							<iconify-icon
 								class="buttonEdit"
@@ -580,7 +599,7 @@ onMounted(() => {
 						</ConfirmButton>
 						<ConfirmButton
 							@click="addComment"
-							:state="comment === ''"
+							:state="commentData === ''"
 							:hoverColor="'var(--blue)'"
 						>
 							<iconify-icon
@@ -631,33 +650,25 @@ onMounted(() => {
 							</div>
 
 							<div class="commentBot">
-								<div
-									v-if="false"
-									@click="likeComment(quickLikeCheck(data.wholiked), id)"
-									class="commentLike"
+								<span>
+									{{ useTime(lang, created) }}
+								</span>
+								<span
+									class="actions"
+									v-if="user.id === user_id.id"
 								>
 									<iconify-icon
-										class="commentLikeIcon"
-										:icon="'ri:heart-' + (quickLikeCheck(data.wholiked) ? 'fill' : 'line')"
-										:style="quickLikeCheck(data.wholiked) ? 'color: var(--red);' : ''"
+										@click="editComment(id, comment)"
+										class="commentDelete"
+										icon="ri:edit-2-fill"
 									/>
-									<span v-if="data.likes">
-										{{ data.likes }}
-									</span>
-								</div>
-
-								<div class="commentDate">
+									-
 									<iconify-icon
-										v-if="user.id === user_id.id"
 										@click="deleteComment(id)"
 										class="commentDelete"
 										icon="ri:delete-bin-2-fill"
 									/>
-									<span>
-										<span v-if="user.id === user_id.id"> &sdot; </span>
-										{{ useTime(lang, created) }}
-									</span>
-								</div>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -676,6 +687,11 @@ onMounted(() => {
 /* * {
 	outline: 0px dotted rgba(0, 255, 0, 0);
 } */
+
+.actions {
+	display: flex;
+	gap: 0.5rem;
+}
 .commentNew {
 	display: flex;
 	align-items: center;

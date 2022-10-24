@@ -1,12 +1,14 @@
 <script setup>
 import setTitle from "@/stores/title";
+import {useUser} from "@/stores/user";
+const {id} = useUser();
 setTitle("Home");
 </script>
 
 <template>
 	<div>
 		<br />
-		<!-- <RouterLink :to="{name: 'profile'}">Profile</RouterLink> -->
+		<RouterLink :to="{name: 'user', params: {id}}">Profile</RouterLink>
 		<br />
 		<RouterLink :to="{name: 'register'}">Login</RouterLink>
 		<br />

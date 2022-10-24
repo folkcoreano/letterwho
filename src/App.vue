@@ -1,8 +1,7 @@
 <script setup>
-import {ref, onMounted} from "vue";
+import {ref, onMounted, watchEffect} from "vue";
 import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
-import {watchEffect} from "@vue/runtime-core";
 import {RouterLink, RouterView} from "vue-router";
 
 const init = ref(false);
@@ -12,46 +11,11 @@ const user = useUser();
 const {lang} = useUser();
 
 onMounted(() => {
-	watchEffect(async () => {
-		supabase.auth.onAuthStateChange((e, s) => {
-			if (e === "USER_UPDATED" && s) {
-				user.logged = true;
-				user.id = s.user.id;
-				user.email = s.user.email ? s.user.email : "";
-				user.created = s.user.created_at;
-				user.lang = s.user.user_metadata.language;
-			}
-
-			if (e === "SIGNED_IN" && s) {
-				user.logged = true;
-				user.id = s.user.id;
-				user.email = s.user.email ? s.user.email : "";
-				user.created = s.user.created_at;
-				user.lang = s.user.user_metadata.language;
-			}
-
-			if (e === "SIGNED_OUT") {
-				user.logged = false;
-				user.id = "";
-				user.email = "";
-				user.created = "";
-				user.lang = "en";
-				user.name = "";
-				user.picture = "";
-			}
-
-			if (e === "TOKEN_REFRESHED" && s) {
-				user.logged = true;
-				user.id = s.user.id;
-				user.email = s.user.email ? s.user.email : "";
-				user.created = s.user.created_at;
-				user.lang = s.user.user_metadata.language;
-			}
-		});
-	});
-
+	console.log("mounted");
 	supabase.auth.getSession().then(res => {
+		console.log("check session");
 		if (res.data.session) {
+			console.log("has session");
 			user.logged = true;
 
 			user.id = res.data.session.user.id;
@@ -83,6 +47,8 @@ onMounted(() => {
 					}
 				});
 		} else {
+			console.log("no session");
+			localStorage.clear();
 			user.logged = false;
 			user.id = "";
 			user.email = "";
@@ -93,6 +59,49 @@ onMounted(() => {
 
 			init.value = true;
 		}
+	});
+	watchEffect(async () => {
+		console.log("watching");
+		supabase.auth.onAuthStateChange((e, s) => {
+			if (e === "USER_UPDATED" && s) {
+				console.log(e);
+				user.logged = true;
+				user.id = s.user.id;
+				user.email = s.user.email ? s.user.email : "";
+				user.created = s.user.created_at;
+				user.lang = s.user.user_metadata.language;
+			}
+
+			if (e === "SIGNED_IN" && s) {
+				console.log(e);
+				user.logged = true;
+				user.id = s.user.id;
+				user.email = s.user.email ? s.user.email : "";
+				user.created = s.user.created_at;
+				user.lang = s.user.user_metadata.language;
+			}
+
+			if (e === "SIGNED_OUT") {
+				console.log(e);
+				localStorage.clear();
+				user.logged = false;
+				user.id = "";
+				user.email = "";
+				user.created = "";
+				user.lang = "en";
+				user.name = "";
+				user.picture = "";
+			}
+
+			if (e === "TOKEN_REFRESHED" && s) {
+				console.log(e);
+				user.logged = true;
+				user.id = s.user.id;
+				user.email = s.user.email ? s.user.email : "";
+				user.created = s.user.created_at;
+				user.lang = s.user.user_metadata.language;
+			}
+		});
 	});
 });
 </script>

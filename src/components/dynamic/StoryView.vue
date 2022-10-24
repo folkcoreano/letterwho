@@ -37,10 +37,15 @@ try {
 		range_id(range),
 		story_id(role,type,crew_id(crew_id,name),character_id(character_id,name)),
 		parts(title,story,released,length),
-		diary_id(*)`
+		reviews_id(id),
+		diary_id(*)
+		`
 		)
-		// .limit(3, {foreignTable: "reviews_id"})
-		// .order("created", {foreignTable: "reviews_id", ascending: false})
+		.order("id", {foreignTable: "reviews_id", ascending: false})
+		.limit(3, {foreignTable: "reviews_id"})
+		.filter("reviews_id.user_id", "neq", id)
+		.order("id", {foreignTable: "diary_id", ascending: true})
+		.limit(1, {foreignTable: "diary_id"})
 		.filter("diary_id.user_id", "eq", id)
 		.single()
 		.match({type: type, range_id: range, url: story})
@@ -50,8 +55,29 @@ try {
 
 				setTitle(res.data.title);
 
+				if (res.data.diary_id.length > 0) {
+					if (
+						res.data.diary_id[0].watched === null &&
+						res.data.diary_id[0].saved === null &&
+						res.data.diary_id[0].liked === null &&
+						res.data.diary_id[0].review === false &&
+						res.data.diary_id[0].rewatch === false
+					) {
+						supabase
+							.from("diary")
+							.delete()
+							.match({
+								id: res.data.diary_id[0].id,
+							})
+							.then(() => {
+								console.log("deleting dull data");
+							});
+					}
+				}
+
 				data.value = {
-					diary: res.data.diary_id,
+					diary: res.data.diary_id.length > 0 ? res.data.diary_id[0] : null,
+					hasData: res.data.diary_id.length > 0 ? true : false,
 					code: res.data.code,
 					title: res.data.title,
 					length:

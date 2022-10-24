@@ -1,9 +1,10 @@
 <script setup>
-import {folder} from "@/stores/images";
-import setTitle from "@/stores/title";
-import supabase from "@/supabase";
 import {ref} from "vue";
+import supabase from "@/supabase";
 import {useRoute} from "vue-router";
+import setTitle from "@/stores/title";
+import {folder} from "@/stores/images";
+import {useUser} from "@/stores/user";
 
 const {
 	params: {id},
@@ -13,6 +14,7 @@ const data = ref();
 const load = ref(false);
 const tabs = ref([]);
 const actTab = ref("CHARACTER");
+const user = useUser();
 
 const filtered = ref([]);
 
@@ -22,13 +24,17 @@ const getData = () => {
 			.from("characters")
 			.select(
 				`*,
-			character_id(story_id(title,code,released,range_id,type,url)),
+			character_id(story_id(title,code,released,range_id,type,url,diary_id(*))),
 			quotes(id,pt,en,story_id(title,code,url,type,range_id))`
 			)
 			.match({character_id: id})
-			.limit(1)
+			.filter("character_id.story_id.diary_id.user_id", "eq", user.id)
+			.limit(1, {foreignTable: "character_id.story_id.diary_id"})
+			.order("id", {foreignTable: "character_id.story_id.diary_id", ascending: true})
 			.single()
 			.then(res => {
+				console.log(res.data);
+				console.log(res.error);
 				data.value = res.data;
 
 				let alltabs = res.data.character_id.flatMap(e => e.story_id.type);
@@ -55,6 +61,22 @@ const select = tab => {
 
 function size(tab) {
 	return data.value.character_id.filter(e => e.story_id.type === tab).length;
+}
+
+function checkStatus(array) {
+	if (array.length > 0) {
+		if (array[0].watched) {
+			if (array[0].watched.status === true) {
+				return "var(--blue)";
+			}
+		}
+		if (array[0].saved) {
+			if (array[0].saved.status === true) {
+				return "var(--green)";
+			}
+		}
+	}
+	return "transparent";
 }
 </script>
 
@@ -113,7 +135,10 @@ function size(tab) {
 			>
 				<RouterLink
 					class="item"
-					v-for="({story_id: {title, code, released, range_id, type, url}}, i) in filtered"
+					:style="`border: 2px solid ${checkStatus(diary_id)}`"
+					v-for="(
+						{story_id: {title, diary_id, code, released, range_id, type, url}}, i
+					) in filtered"
 					:key="i"
 					:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
 				>

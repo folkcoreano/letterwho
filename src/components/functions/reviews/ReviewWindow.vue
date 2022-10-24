@@ -19,7 +19,7 @@ const {
 	params: {type, range, story},
 } = useRoute();
 
-const hasData = ref(props.data.diary.length > 0);
+const hasData = ref(props.data.hasData);
 
 const {name, picture, id, lang} = useUser();
 
