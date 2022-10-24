@@ -15,7 +15,7 @@ setTitle("Home");
 		>
 		<br />
 		<RouterLink
-			v-if="logged"
+			v-if="false"
 			:to="{name: 'profile'}"
 			>Profile</RouterLink
 		>

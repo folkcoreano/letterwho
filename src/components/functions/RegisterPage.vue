@@ -36,6 +36,12 @@ async function signUP() {
 		.signUp({
 			email: credentials.value.email,
 			password: credentials.value.password,
+			options: {
+				data: {
+					beta: true,
+					language: "en",
+				},
+			},
 		})
 		.then(res => {
 			console.log(res);
@@ -48,8 +54,6 @@ async function signUP() {
 					.insert({
 						name: names[random],
 						picture: propics[randompics],
-						beta: true,
-						language: "en",
 						id: res.data.user.id,
 						diary_id: res.data.user.id,
 						reviews_id: res.data.user.id,
