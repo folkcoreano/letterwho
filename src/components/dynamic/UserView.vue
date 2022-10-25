@@ -11,12 +11,14 @@ import Activity from "../user/Activity.vue";
 import Reviews from "../user/Reviews.vue";
 import Likes from "../user/Likes.vue";
 import Comments from "../user/Comments.vue";
+import Settings from "../templates/Settings.vue";
 
 const {
 	params: {id},
 } = useRoute();
 
-const {lang} = useUser();
+const {lang, logged} = useUser();
+const userStore = useUser();
 
 const user = ref();
 const data = ref();
@@ -29,7 +31,7 @@ const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
 
 const load = ref(false);
 
-const tab = shallowRef(Activity);
+const tab = shallowRef(Reviews);
 
 onMounted(() => {
 	supabase
@@ -57,7 +59,7 @@ onMounted(() => {
 			diary.value = res.data.diary_id;
 			reviews.value = res.data.reviews_id;
 			likes.value = res.data.likes_id;
-			data.value = diary.value;
+			data.value = reviews.value;
 
 			load.value = true;
 
@@ -76,7 +78,7 @@ onUnmounted(() => {
 			<div class="profile">
 				<div class="side">
 					<img
-						:src="folder(user.picture, '150')"
+						:src="folder(user.picture, '200')"
 						:alt="user.name"
 						class="pic"
 					/>
@@ -87,26 +89,34 @@ onUnmounted(() => {
 			</div>
 			<div class="tabs">
 				<div
-					@click="(tab = Activity), (data = diary)"
-					class="tab"
-					:style="tab === Activity ? 'border-bottom: 2px solid var(--yellow)' : ''"
-				>
-					{{ lang === "pt-br" ? "Atividade" : "Activity" }}
-				</div>
-				<div
-					@click="(tab = Reviews), (data = reviews)"
+					@click="(data = reviews), (tab = Reviews)"
 					:style="tab === Reviews ? 'border-bottom: 2px solid var(--yellow)' : ''"
 					class="tab"
 				>
 					Reviews
 				</div>
 				<div
+					@click="(data = diary), (tab = Activity)"
+					class="tab"
+					:style="tab === Activity ? 'border-bottom: 2px solid var(--yellow)' : ''"
+				>
+					{{ lang === "pt-br" ? "Atividade" : "Activity" }}
+				</div>
+				<div
 					v-if="false"
-					@click="(tab = Likes), (data = likes)"
+					@click="(data = likes), (tab = Likes)"
 					:style="tab === Likes ? 'border-bottom: 2px solid var(--yellow)' : ''"
 					class="tab"
 				>
 					Likes
+				</div>
+				<div
+					v-if="logged && userStore.id === id"
+					:style="tab === Settings ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
+					@click="tab = Settings"
+					class="tab"
+				>
+					<iconify-icon icon="ri:settings-3-fill" />
 				</div>
 			</div>
 			<div class="activeTab">
@@ -135,6 +145,11 @@ onUnmounted(() => {
 	border-bottom: 2px solid #444;
 }
 
+/* .activeTab { */
+/* overflow: auto; */
+/* height: 70vh; */
+/* } */
+
 .tab {
 	padding: 0.55rem;
 	cursor: pointer;
@@ -157,6 +172,7 @@ onUnmounted(() => {
 
 .pic {
 	border-radius: 50%;
+	max-width: 5rem;
 }
 .user {
 	max-width: 40rem;

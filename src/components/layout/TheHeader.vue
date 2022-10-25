@@ -2,14 +2,21 @@
 import UserHead from "../user/UserHead.vue";
 import {useUser} from "@/stores/user";
 import {useRoute} from "vue-router";
+import {ref} from "vue";
 
-const {lang, logged} = useUser();
+const {lang, logged, id} = useUser();
 
 const route = useRoute();
 
 function handleRoute(rota: string) {
 	return route.path.includes(rota);
 }
+
+const isPC = ref(window.matchMedia("(min-width: 35rem)").matches);
+
+window.matchMedia("(min-width: 35rem)").onchange = e => {
+	isPC.value = e.matches;
+};
 </script>
 
 <template>
@@ -24,8 +31,20 @@ function handleRoute(rota: string) {
 				alt="LetterWHO - Logo"
 			/>
 		</RouterLink>
+		<RouterLink
+			v-if="!isPC"
+			class="u"
+			:to="logged ? {name: 'user', params: {id}} : {name: 'register'}"
+		>
+			<UserHead />
+		</RouterLink>
 		<div class="navArea">
-			<UserHead v-if="logged" />
+			<RouterLink
+				class="u"
+				:to="logged ? {name: 'user', params: {id}} : {name: 'register'}"
+			>
+				<UserHead />
+			</RouterLink>
 			<RouterLink
 				:class="handleRoute('audios') ? 'navLink active' : 'navLink'"
 				to="/audios"
@@ -51,8 +70,12 @@ function handleRoute(rota: string) {
 </template>
 
 <style scoped>
-* {
-	outline: 0px dotted deeppink;
+/* * {
+	outline: 1px dotted deeppink;
+} */
+
+.u {
+	display: flex;
 }
 
 .navArea {

@@ -7,6 +7,7 @@ const {lang} = useUser();
 
 const props = defineProps({
 	data: Object,
+	context: String,
 });
 </script>
 
@@ -29,13 +30,14 @@ const props = defineProps({
 			class="item"
 		>
 			<RouterLink
+				v-if="context !== 'story'"
 				class="itemIcon"
 				:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
 			>
 				<img
 					class="img"
 					:src="folder(`${type}/${range_id}/${code}`, '150')"
-					alt=""
+					:alt="title"
 				/>
 			</RouterLink>
 			<RouterLink

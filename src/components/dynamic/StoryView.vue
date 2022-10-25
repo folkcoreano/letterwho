@@ -9,6 +9,7 @@ import Tabs from "@/components/templates/Tabs.vue";
 import StoryStyle from "@/components/templates/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import ReviewBox from "@/components/functions/reviews/ReviewBox.vue";
+import ActivityTabs from "../templates/ActivityTabs.vue";
 
 const {
 	params: {type, range, story},
@@ -25,6 +26,10 @@ const parts = ref();
 const doctors = ref();
 const characters = ref();
 const code = ref();
+const activity = ref();
+const reviews = ref();
+
+const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
 
 const load = ref(false);
 
@@ -37,21 +42,22 @@ try {
 		range_id(range),
 		story_id(role,type,crew_id(crew_id,name),character_id(character_id,name)),
 		parts(title,story,released,length),
-		reviews_id(id),
-		diary_id(*)
+		reviews_id(id,created,text,loved,rating,rewatch,${storyQuery.value}),
+		diary_id(id,created,watched,saved,liked,rating,review,review_id(id,rating,loved),rewatch,${storyQuery.value})
 		`
 		)
 		.order("id", {foreignTable: "reviews_id", ascending: false})
-		.limit(3, {foreignTable: "reviews_id"})
-		.filter("reviews_id.user_id", "neq", id)
-		.order("id", {foreignTable: "diary_id", ascending: true})
-		.limit(1, {foreignTable: "diary_id"})
+		// .limit(3, {foreignTable: "reviews_id"})
+		.filter("reviews_id.user_id", "eq", id)
+		.order("id", {foreignTable: "diary_id", ascending: false})
+		// .limit(1, {foreignTable: "diary_id"})
 		.filter("diary_id.user_id", "eq", id)
 		.single()
 		.match({type: type, range_id: range, url: story})
 		.then(res => {
 			if (res.data) {
-				load.value = true;
+				activity.value = res.data.diary_id.length > 0 ? res.data.diary_id : null;
+				reviews.value = res.data.reviews_id.length > 0 ? res.data.reviews_id : null;
 
 				setTitle(res.data.title);
 
@@ -76,8 +82,13 @@ try {
 				}
 
 				data.value = {
-					diary: res.data.diary_id.length > 0 ? res.data.diary_id[0] : null,
-					hasData: res.data.diary_id.length > 0 ? true : false,
+					// diary: res.data.diary_id.length > 0 ? res.data.diary_id[0] : null,
+					// hasData: res.data.diary_id.length > 0 ? true : false,
+					diary:
+						res.data.diary_id.length > 0
+							? res.data.diary_id.filter(e => !e.review && !e.rewatch)[0]
+							: null,
+					hasData: res.data.diary_id.some(e => !e.review && !e.rewatch),
 					code: res.data.code,
 					title: res.data.title,
 					length:
@@ -149,6 +160,8 @@ try {
 				doctors.value = res.data.story_id
 					.filter(e => e.type === "DOCTOR")
 					.flatMap(e => e.character_id.character_id);
+
+				load.value = true;
 			} else {
 				console.table(res.error);
 				push({name: "home"});
@@ -162,9 +175,6 @@ try {
 <template>
 	<template v-if="load">
 		<div>
-			<router-link :to="{name: 'reviews', params: {type: type, range: range, story: story}}"
-				>REVIEWS</router-link
-			>
 			<StoryStyle
 				v-if="load"
 				:data="data"
@@ -183,6 +193,11 @@ try {
 						:parts="parts"
 						:crew="crew"
 						:characters="characters"
+					/>
+					<ActivityTabs
+						:context="'story'"
+						:diary="activity"
+						:reviews="reviews"
 					/>
 				</template>
 			</StoryStyle>
