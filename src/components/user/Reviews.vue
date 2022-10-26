@@ -3,7 +3,7 @@ import {folder} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
 
-const {lang} = useUser();
+const user = useUser();
 
 const props = defineProps({
 	data: Object,
@@ -74,7 +74,7 @@ const props = defineProps({
 					{{ text }}
 				</div>
 				<div class="bot">
-					{{ useTime(lang, created) }} &sdot; {{ new Date(created).toLocaleDateString() }}
+					{{ useTime(user.lang, created) }} &sdot; {{ new Date(created).toLocaleDateString() }}
 				</div>
 			</RouterLink>
 		</div>

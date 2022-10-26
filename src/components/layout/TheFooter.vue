@@ -4,7 +4,7 @@ import {useRoute} from "vue-router";
 
 const route = useRoute();
 
-const {lang} = useUser();
+const user = useUser();
 
 function handleRoute(rota: string) {
 	return route.path.includes(rota);
@@ -42,7 +42,7 @@ function handleRoute(rota: string) {
 				v-show="handleRoute('audios')"
 				class="title"
 			>
-				{{ lang === "pt-br" ? "Áudios" : "Audios" }}
+				{{ user.lang === "pt-br" ? "Áudios" : "Audios" }}
 			</div>
 		</RouterLink>
 		<RouterLink
@@ -58,7 +58,7 @@ function handleRoute(rota: string) {
 				v-show="handleRoute('books')"
 				class="title"
 			>
-				{{ lang === "pt-br" ? "Livros" : "Books" }}
+				{{ user.lang === "pt-br" ? "Livros" : "Books" }}
 			</div>
 		</RouterLink>
 		<RouterLink
@@ -73,7 +73,7 @@ function handleRoute(rota: string) {
 				v-show="handleRoute('comics')"
 				class="title"
 			>
-				{{ lang === "pt-br" ? "HQs" : "Comics" }}
+				{{ user.lang === "pt-br" ? "HQs" : "Comics" }}
 			</div>
 		</RouterLink>
 		<RouterLink

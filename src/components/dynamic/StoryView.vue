@@ -17,7 +17,7 @@ const {
 
 const {push} = useRouter();
 
-const {lang, id, logged} = useUser();
+const user = useUser();
 
 const data = ref();
 const crew = ref();
@@ -48,10 +48,10 @@ try {
 		)
 		.order("id", {foreignTable: "reviews_id", ascending: false})
 		// .limit(3, {foreignTable: "reviews_id"})
-		.filter("reviews_id.user_id", "eq", id)
+		.filter("reviews_id.user_id", "eq", user.id)
 		.order("id", {foreignTable: "diary_id", ascending: false})
 		// .limit(1, {foreignTable: "diary_id"})
-		.filter("diary_id.user_id", "eq", id)
+		.filter("diary_id.user_id", "eq", user.id)
 		.single()
 		.match({type: type, range_id: range, url: story})
 		.then(res => {
@@ -82,8 +82,6 @@ try {
 				}
 
 				data.value = {
-					// diary: res.data.diary_id.length > 0 ? res.data.diary_id[0] : null,
-					// hasData: res.data.diary_id.length > 0 ? true : false,
 					diary:
 						res.data.diary_id.length > 0
 							? res.data.diary_id.filter(e => !e.review && !e.rewatch)[0]
@@ -98,7 +96,7 @@ try {
 					range: res.data.range_id.range,
 					type: res.data.type,
 					released: res.data.released,
-					time: useTime(lang, res.data.released),
+					time: useTime(user.lang, res.data.released),
 					url: res.data.url,
 					writer: res.data.story_id.some(e => e.role === "Writer")
 						? res.data.story_id.filter(e => e.role === "Writer").flatMap(e => e.crew_id)[0]
@@ -115,13 +113,13 @@ try {
 					rating: res.data.rating,
 					saved: res.data.watchlist,
 					resume: res.data.resume
-						? lang === "pt-br"
+						? user.lang === "pt-br"
 							? res.data.resume.pt
 							: res.data.resume.en
 						: null,
 					quote:
 						res.data.quote.length > 0
-							? lang === "pt-br"
+							? user.lang === "pt-br"
 								? res.data.quote[Math.floor(Math.random() * res.data.quote.length)].pt
 								: res.data.quote[Math.floor(Math.random() * res.data.quote.length)].en
 							: null,
@@ -181,7 +179,7 @@ try {
 			>
 				<template #review>
 					<ReviewBox
-						v-if="logged"
+						v-if="user.logged"
 						:doctors="doctors"
 						:data="data"
 					/>

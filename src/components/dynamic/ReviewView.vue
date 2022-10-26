@@ -6,13 +6,11 @@ import {useTime} from "@/stores/time";
 import {folder} from "@/stores/images";
 import {useRoute, useRouter} from "vue-router";
 
-const {lang, picture, name, logged} = useUser();
-
-const user = useUser();
-
 const {
 	params: {type, range, story, id},
 } = useRoute();
+
+const user = useUser();
 
 const {push} = useRouter();
 
@@ -31,8 +29,8 @@ const userpicture = ref();
 
 const userid = ref();
 
-const responseEdit = ref(lang === "pt-br" ? "Editar" : "Edit");
-const responseDelete = ref(lang === "pt-br" ? "Deletar" : "Delete");
+const responseEdit = ref(user.lang === "pt-br" ? "Editar" : "Edit");
+const responseDelete = ref(user.lang === "pt-br" ? "Deletar" : "Delete");
 
 const userliked = ref(false);
 const likes = ref(0);
@@ -45,7 +43,7 @@ const comments = ref([]);
 const commentID = ref();
 const likesID = ref();
 
-const commentResponse = ref(lang === "pt-br" ? "Comentar" : "Comment");
+const commentResponse = ref(user.lang === "pt-br" ? "Comentar" : "Comment");
 
 const isComment = ref(false);
 
@@ -101,7 +99,7 @@ async function getReview() {
 			document.title =
 				res.data.story_id.title +
 				", review " +
-				(lang === "pt-br" ? "por " : "by ") +
+				(user.lang === "pt-br" ? "por " : "by ") +
 				res.data.user_id.name +
 				" / LetterWHO";
 
@@ -155,7 +153,7 @@ async function editReview() {
 }
 
 async function deleteReview() {
-	responseDelete.value = lang === "pt-br" ? "Deletando..." : "Deleting...";
+	responseDelete.value = user.lang === "pt-br" ? "Deletando..." : "Deleting...";
 
 	if (data.value.rewatch === true) {
 		console.log("remove watch");
@@ -200,7 +198,7 @@ async function deleteReview() {
 									.then(() => {
 										console.log("review deleted");
 
-										responseDelete.value = lang === "pt-br" ? "Deletado!" : "Deleted!";
+										responseDelete.value = user.lang === "pt-br" ? "Deletado!" : "Deleted!";
 
 										push({name: "story", params: {type: type, range: range, story: story}});
 									});
@@ -213,8 +211,12 @@ async function deleteReview() {
 async function shareReview() {
 	try {
 		await navigator.share({
-			title: `${media.value.title} review, ${lang === "pt-br" ? "por" : "by"} ${data.value.name}`,
-			text: `${media.value.title} review, ${lang === "pt-br" ? "por" : "by"} ${data.value.name}`,
+			title: `${media.value.title} review, ${user.lang === "pt-br" ? "por" : "by"} ${
+				data.value.name
+			}`,
+			text: `${media.value.title} review, ${user.lang === "pt-br" ? "por" : "by"} ${
+				data.value.name
+			}`,
 			url: window.location.href,
 		});
 	} catch (error) {
@@ -259,7 +261,7 @@ async function getLikes() {
 
 async function addComment() {
 	if (isEditingComment.value === true) {
-		commentResponse.value = lang === "pt-br" ? "Atualizando..." : "Updating...";
+		commentResponse.value = user.lang === "pt-br" ? "Atualizando..." : "Updating...";
 		supabase
 			.from("comments")
 			.update({
@@ -269,13 +271,13 @@ async function addComment() {
 			.match({id: editingCommentID.value})
 			.then(res => {
 				console.log(res);
-				commentResponse.value = lang === "pt-br" ? "Atualizado!" : "Updated!";
+				commentResponse.value = user.lang === "pt-br" ? "Atualizado!" : "Updated!";
 				commentData.value = "";
 				isEditingComment.value = false;
 				getComments();
 			});
 	} else {
-		commentResponse.value = lang === "pt-br" ? "Postando..." : "Posting...";
+		commentResponse.value = user.lang === "pt-br" ? "Postando..." : "Posting...";
 		supabase
 			.from("comments")
 			.insert({
@@ -288,10 +290,10 @@ async function addComment() {
 			.then(res => {
 				console.log(res);
 				comments.value.unshift(res.data[0]);
-				commentResponse.value = lang === "pt-br" ? "Postado!" : "Posted!";
+				commentResponse.value = user.lang === "pt-br" ? "Postado!" : "Posted!";
 				commentData.value = "";
 				isComment.value = false;
-				commentResponse.value = lang === "pt-br" ? "Comentar" : "Comment";
+				commentResponse.value = user.lang === "pt-br" ? "Comentar" : "Comment";
 				data.value.comments += 1;
 			});
 	}
@@ -311,7 +313,7 @@ async function getComments() {
 }
 
 async function editComment(CommentId, commentDataEdit) {
-	commentResponse.value = lang === "pt-br" ? "Atualizar!" : "Update!";
+	commentResponse.value = user.lang === "pt-br" ? "Atualizar!" : "Update!";
 	isEditingComment.value = true;
 	commentData.value = commentDataEdit;
 	editingCommentID.value = CommentId;
@@ -341,7 +343,7 @@ onMounted(() => {
 				<router-link
 					class="userCover"
 					:to="
-						logged
+						user.logged
 							? {name: 'user', params: {id: userid}}
 							: {name: 'register', query: {from: 'user', id: userid}}
 					"
@@ -397,7 +399,7 @@ onMounted(() => {
 				<div class="reviewDate">
 					<div>
 						{{ new Date(data.created).toLocaleDateString() }}
-						<!-- &sdot; {{ (lang === 'pt-br' ? "Publicado " : "Published") + useTime(lang, data.created) }} -->
+						<!-- &sdot; {{ (user.lang === 'pt-br' ? "Publicado " : "Published") + useTime(user.lang, data.created) }} -->
 					</div>
 					<div
 						class="reviewEdit"
@@ -449,7 +451,9 @@ onMounted(() => {
 						</div>
 
 						<div v-if="data.updated">
-							{{ (lang === "pt-br" ? "editado " : "edited ") + useTime(lang, data.updated) }}
+							{{
+								(user.lang === "pt-br" ? "editado " : "edited ") + useTime(user.lang, data.updated)
+							}}
 						</div>
 					</div>
 
@@ -558,24 +562,24 @@ onMounted(() => {
 							{{ data.comments }}
 							{{
 								data.comments > 1
-									? lang
+									? user.lang
 										? "Comentários"
 										: "Comments"
-									: lang
+									: user.lang
 									? "Comentário"
 									: "Comment"
 							}}
 						</span>
 						<span v-else>
 							{{
-								lang === "pt-br"
+								user.lang === "pt-br"
 									? "Sem comentários... Seja o primeiro!"
 									: "No comments... Be the first!"
 							}}
 						</span>
 					</div>
 					<div
-						@click="logged ? (isComment = !isComment) : push({name: 'register'})"
+						@click="user.logged ? (isComment = !isComment) : push({name: 'register'})"
 						class="commentNew"
 					>
 						<iconify-icon
@@ -630,7 +634,7 @@ onMounted(() => {
 					>
 						<router-link
 							:to="
-								logged
+								user.logged
 									? {name: 'user', params: {id: user_id.id}}
 									: {name: 'register', query: {from: 'user', id: user_id.id}}
 							"
@@ -646,7 +650,7 @@ onMounted(() => {
 						<div class="commentData">
 							<router-link
 								:to="
-									logged
+									user.logged
 										? {name: 'user', params: {id: user_id.id}}
 										: {name: 'register', query: {from: 'user', id: user_id.id}}
 								"
@@ -661,7 +665,7 @@ onMounted(() => {
 
 							<div class="commentBot">
 								<span>
-									{{ useTime(lang, created) }}
+									{{ useTime(user.lang, created) }}
 								</span>
 								<span
 									class="actions"

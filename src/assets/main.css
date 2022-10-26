@@ -67,8 +67,51 @@ a:visited {
   transition: all 150ms ease-in;
 }
 
+.tabs {
+  display: flex;
+  overflow: auto;
+  border-bottom: 2px solid #444;
+  padding: 0.15rem;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 0px;
+}
+
+.tab {
+  padding: 0.45rem;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  transition: all 150ms linear;
+  border-bottom: 2px solid transparent;
+  translate: 0 2px;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  transition: all 150ms linear;
+  border-bottom: 2px solid #666;
+}
+
 @media (min-width: 35rem) {
   #foot {
     display: none;
   }
+
+  section {
+    justify-content: flex-start;
+  }
+
+  .tabs {
+    overflow: unset;
+    padding: 0;
+    width: fit-content;
+  }
+
+  .tab {
+    flex: unset;
+    text-align: unset;
+  }
+
 }

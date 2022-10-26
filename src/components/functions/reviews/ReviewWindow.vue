@@ -13,15 +13,15 @@ const props = defineProps({
 	status: Object,
 });
 
-const days = dayjs;
-
 const {
 	params: {type, range, story},
 } = useRoute();
 
+const days = dayjs;
+
 const hasData = ref(props.data.hasData);
 
-const {name, picture, id, lang} = useUser();
+const user = useUser();
 
 const {released, length, title, code} = props.data;
 
@@ -35,7 +35,7 @@ const review = ref("");
 const rating = ref(0);
 const daySet = ref();
 
-const response = ref(lang === "pt-br" ? "Publicar" : "Publish");
+const response = ref(user.lang === "pt-br" ? "Publicar" : "Publish");
 
 const isDaySet = ref(false);
 const isRewatch = ref(false);
@@ -49,12 +49,12 @@ async function postReview() {
 		today = daySet.value;
 	}
 
-	response.value = lang ? "Publicando..." : "Publishing...";
+	response.value = user.lang ? "Publicando..." : "Publishing...";
 
 	supabase
 		.from("reviews")
 		.insert({
-			user_id: id,
+			user_id: user.id,
 			story_id: story,
 			text: review.value,
 			rating: rating.value,
@@ -73,7 +73,7 @@ async function postReview() {
 					.from("diary")
 					.insert([
 						{
-							user_id: id,
+							user_id: user.id,
 							story_id: story,
 							rewatch: false,
 							review: false,
@@ -91,7 +91,7 @@ async function postReview() {
 									: null,
 						},
 						{
-							user_id: id,
+							user_id: user.id,
 							story_id: story,
 							rewatch: isRewatch.value,
 							review: true,
@@ -110,7 +110,7 @@ async function postReview() {
 				supabase
 					.from("diary")
 					.insert({
-						user_id: id,
+						user_id: user.id,
 						story_id: story,
 						rewatch: isRewatch.value,
 						review: true,
@@ -131,7 +131,7 @@ async function postReview() {
 									  },
 							})
 							.match({
-								user_id: id,
+								user_id: user.id,
 								story_id: story,
 								review: false,
 								rewatch: false,
@@ -141,7 +141,7 @@ async function postReview() {
 					});
 			}
 
-			response.value = lang ? "Publicado!" : "Published!";
+			response.value = user.lang ? "Publicado!" : "Published!";
 
 			setTimeout(() => {
 				dialog.isReview = false;

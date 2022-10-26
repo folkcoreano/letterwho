@@ -10,11 +10,11 @@ const props = defineProps({
 	code: String,
 });
 
-const {lang} = useUser();
-
 const {
 	params: {type, range, story},
 } = useRoute();
+
+const user = useUser();
 
 const characters = ref(props.characters.flatMap(e => e.character_id));
 
@@ -141,7 +141,7 @@ function editQuote(quoteData) {
 				:key="i"
 			>
 				<q>
-					{{ lang === "pt-br" ? pt : en }}
+					{{ user.lang === "pt-br" ? pt : en }}
 				</q>
 				<i> {{ character_id ? character_id.name : "" }}</i>
 				<button

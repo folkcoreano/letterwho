@@ -12,7 +12,7 @@ const {
 	query: {from, id},
 } = useRoute();
 
-const response = ref(user.lang ? "Vamos lá!" : "Let's go!");
+const response = ref(user.lang === "pt-br" ? "Vamos lá!" : "Let's go!");
 
 const color = ref("var(--blue)");
 
@@ -59,6 +59,8 @@ async function signUP() {
 						reviews_id: res.data.user.id,
 						likes_id: res.data.user.id,
 						comments_id: res.data.user.id,
+						follower_id: res.data.user.id,
+						following_id: res.data.user.id,
 					})
 					.then(res => {
 						console.log(res);

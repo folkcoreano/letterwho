@@ -2,18 +2,18 @@
 import {folder} from "@/stores/images";
 import {useUser} from "@/stores/user";
 
-const {picture, name, logged} = useUser();
+const user = useUser();
 </script>
 
 <template>
 	<div class="user">
-		<div v-if="logged">{{ name }}</div>
+		<div v-if="user.logged && user.name">{{ user.name }}</div>
 		<div v-else>Login</div>
 		<img
-			v-if="logged"
+			v-if="user.logged && user.name && user.picture"
 			class="head"
-			:src="folder(picture, '100')"
-			:alt="name"
+			:src="folder(user.picture, '100')"
+			:alt="user.name"
 		/>
 		<img
 			v-else

@@ -3,12 +3,11 @@ import {ref, onMounted, watchEffect} from "vue";
 import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
 import {RouterLink, RouterView} from "vue-router";
+import {useTime} from "./stores/time";
 
 const init = ref(false);
 
 const user = useUser();
-
-const {lang} = useUser();
 
 const data = ref();
 
@@ -21,19 +20,11 @@ onMounted(() => {
 		if (res.data.session) {
 			console.log("has session");
 
-			// let fold = {
-			// 	logged: true,
-			// 	id: res.data.session.user.id,
-			// 	language: res.data.session.user.user_metadata.language,
-			// 	created: res.data.session.user.created_at,
-			// 	email: res.data.session.user.email ? res.data.session.user.email : "",
-			// };
-
-			user.data.logged = true;
 			user.data.id = res.data.session.user.id;
-			user.data.email = res.data.session.user.email ? res.data.session.user.email : "";
+			user.data.email = res.data.session.user.email ? res.data.session.user.email : null;
 			user.data.created = res.data.session.user.created_at;
 			user.data.language = res.data.session.user.user_metadata.language;
+			user.data.logged = true;
 
 			if (res.data.session.user.user_metadata.language === "pt-br") {
 				document.documentElement.setAttribute("lang", "pt-BR");
@@ -54,16 +45,6 @@ onMounted(() => {
 						user.data.name = res.data.name;
 						user.data.picture = res.data.picture;
 
-						// let file = {
-						// 	name: res.data.name,
-						// 	picture: res.data.picture,
-						// };
-
-						// user.data = {
-						// 	...fold,
-						// 	...file,
-						// };
-
 						init.value = true;
 					} else {
 						init.value = true;
@@ -72,95 +53,70 @@ onMounted(() => {
 		} else {
 			console.log("no session");
 
-			user.data = {
-				logged: false,
-				language: "en",
-				id: "",
-				name: "",
-				email: "",
-				picture: "",
-				created: "",
-			};
-
-			// user.logged = false;
-			// user.id = "";
-			// user.email = "";
-			// user.created = "";
-			// user.lang = "en";
-			// user.name = "";
-			// user.picture = "";
+			user.data.language = "en";
+			user.data.id = null;
+			user.data.name = null;
+			user.data.email = null;
+			user.data.picture = null;
+			user.data.created = null;
+			user.data.logged = false;
 
 			init.value = true;
 		}
 	});
+
 	watchEffect(async () => {
 		console.log("watching");
-		supabase.auth.onAuthStateChange((e, s) => {
-			if (e === "USER_UPDATED") {
+		supabase.auth.onAuthStateChange(async (e, s) => {
+			if (e === "USER_UPDATED" && s) {
 				console.log(e);
 
-				// user.data = {
-				// 	logged: true,
-				// 	id: s.user.id,
-				// 	email: s.user.email ? s.user.email : "",
-				// 	created: s.user.created_at,
-				// 	language: s.user.user_metadata.language,
-				// };
-
-				user.data.logged = true;
 				user.data.id = s.user.id;
-				user.data.email = s.user.email ? s.user.email : "";
+				user.data.email = s.user.email ? s.user.email : null;
 				user.data.created = s.user.created_at;
 				user.data.language = s.user.user_metadata.language;
+				user.data.logged = true;
 			}
 
-			if (e === "SIGNED_IN") {
+			if (e === "SIGNED_IN" && s) {
 				console.log(e);
-				// user.data = {
-				// 	logged: true,
-				// 	id: s.user.id,
-				// 	email: s.user.email ? s.user.email : "",
-				// 	created: s.user.created_at,
-				// 	language: s.user.user_metadata.language,
-				// };
 
-				user.data.logged = true;
 				user.data.id = s.user.id;
-				user.data.email = s.user.email ? s.user.email : "";
+				user.data.email = s.user.email ? s.user.email : null;
 				user.data.created = s.user.created_at;
 				user.data.language = s.user.user_metadata.language;
+
+				if (!user.name && !user.picture) {
+					console.log("a");
+					supabase
+						.from("users")
+						.select("name,picture")
+						.limit(1)
+						.single()
+						.match({id: s.user.id})
+						.then(res => {
+							user.data.name = res.data.name;
+							user.data.picture = res.data.picture;
+						});
+				}
+
+				user.data.logged = true;
 			}
 
 			if (e === "SIGNED_OUT") {
 				console.log(e);
 
-				user.data = {
-					logged: false,
-					language: "en",
-					id: "",
-					name: "",
-					email: "",
-					picture: "",
-					created: "",
-				};
+				user.data.language = "en";
+				user.data.id = null;
+				user.data.name = null;
+				user.data.email = null;
+				user.data.picture = null;
+				user.data.created = null;
+				user.data.logged = false;
 			}
 
-			if (e === "TOKEN_REFRESHED") {
+			if (e === "TOKEN_REFRESHED" && s) {
 				console.log(e);
-
-				// user.data = {
-				// 	logged: true,
-				// 	id: s.user.id,
-				// 	email: s.user.email ? s.user.email : "",
-				// 	created: s.user.created_at,
-				// 	language: s.user.user_metadata.language,
-				// };
-
-				user.data.logged = true;
-				user.data.id = s.user.id;
-				user.data.email = s.user.email ? s.user.email : "";
-				user.data.created = s.user.created_at;
-				user.data.language = s.user.user_metadata.language;
 			}
 		});
 	});

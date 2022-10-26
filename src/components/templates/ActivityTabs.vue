@@ -4,7 +4,7 @@ import {ref, shallowRef} from "vue";
 import Activity from "../user/Activity.vue";
 import Reviews from "../user/Reviews.vue";
 
-const {lang} = useUser();
+const user = useUser();
 
 const props = defineProps({
 	diary: Object,
@@ -45,13 +45,13 @@ if (props.reviews) {
 				:style="tab === Activity ? 'border-bottom: 2px solid var(--yellow)' : ''"
 				class="tab"
 			>
-				{{ lang === "pt-br" ? "Sua atividade" : "Your activity" }}
+				{{ user.lang === "pt-br" ? "Sua atividade" : "Your activity" }}
 			</div>
 			<RouterLink
 				:to="{name: 'reviews'}"
 				class="tab"
 			>
-				{{ lang === "pt-br" ? "Ver todas as reviews" : "See all reviews" }}
+				{{ user.lang === "pt-br" ? "Ver todas as reviews" : "See all reviews" }}
 			</RouterLink>
 		</div>
 

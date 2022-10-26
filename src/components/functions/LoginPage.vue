@@ -32,13 +32,6 @@ async function login() {
 	supabase.auth.signInWithPassword({email: email.value, password: password.value}).then(res => {
 		response.value = props.user.lang ? "Sucesso!" : "Success!";
 
-		user.data.logged = true;
-		user.data.id = res.data.user.id;
-		user.data.id = res.data.user.id;
-		user.data.email = res.data.user.email ? res.data.user.email : "";
-		user.data.created = res.data.user.created_at;
-		user.data.language = res.data.user.user_metadata.language;
-
 		setTimeout(() => {
 			if (from === "user") {
 				push({name: "user", params: {id: id}});

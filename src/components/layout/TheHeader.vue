@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import UserHead from "../user/UserHead.vue";
 import {useUser} from "@/stores/user";
-import {useRoute} from "vue-router";
+import {RouterLink, useRoute} from "vue-router";
 import {ref} from "vue";
+import supabase from "@/supabase";
 
-const {lang, logged, id} = useUser();
+const user = useUser();
 
 const route = useRoute();
 
@@ -34,31 +35,31 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 		<RouterLink
 			v-if="!isPC"
 			class="u"
-			:to="logged ? {name: 'user', params: {id}} : {name: 'register'}"
+			:to="user.logged && user.id ? {name: 'user', params: {id: user.id}} : {name: 'register'}"
 		>
 			<UserHead />
 		</RouterLink>
 		<div class="navArea">
 			<RouterLink
 				class="u"
-				:to="logged ? {name: 'user', params: {id}} : {name: 'register'}"
+				:to="user.logged && user.id ? {name: 'user', params: {id: user.id}} : {name: 'register'}"
 			>
 				<UserHead />
 			</RouterLink>
 			<RouterLink
 				:class="handleRoute('audios') ? 'navLink active' : 'navLink'"
 				to="/audios"
-				v-text="lang === 'pt-br' ? 'ÁUDIOS' : 'AUDIOS'"
+				v-text="user.lang === 'pt-br' ? 'ÁUDIOS' : 'AUDIOS'"
 			/>
 			<RouterLink
 				:class="handleRoute('books') ? 'navLink active' : 'navLink'"
 				to="/books"
-				v-text="lang === 'pt-br' ? 'LIVROS' : 'BOOKS'"
+				v-text="user.lang === 'pt-br' ? 'LIVROS' : 'BOOKS'"
 			/>
 			<RouterLink
 				:class="handleRoute('comics') ? 'navLink active' : 'navLink'"
 				to="/comics"
-				v-text="lang === 'pt-br' ? 'QUADRINHOS' : 'COMICS'"
+				v-text="user.lang === 'pt-br' ? 'QUADRINHOS' : 'COMICS'"
 			/>
 			<RouterLink
 				:class="handleRoute('tv') ? 'navLink active' : 'navLink'"

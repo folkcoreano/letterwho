@@ -2,28 +2,16 @@ import {ref} from "vue";
 import {useStorage} from "@vueuse/core";
 import {defineStore} from "pinia";
 
-// export const useUser = defineStore("userN", () => {
-// 	const logged = ref(useStorage("logged", false));
-// 	const lang = ref(useStorage("lang", ""));
-// 	const id = ref(useStorage("id", ""));
-// 	const name = ref("");
-// 	const email = ref("");
-// 	const picture = ref("");
-// 	const created = ref("");
-
-// 	return {created, email, id, picture, name, lang, logged};
-// });
-
 export const useUser = defineStore("newUserStore", {
 	state: () => ({
 		data: {
 			logged: false,
 			language: "en",
-			id: "",
-			name: "",
-			email: "",
-			picture: "",
-			created: "",
+			id: null,
+			name: null,
+			email: null,
+			picture: null,
+			created: null,
 		},
 	}),
 	getters: {

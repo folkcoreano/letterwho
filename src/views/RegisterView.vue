@@ -6,11 +6,10 @@ import {ref, shallowRef} from "vue";
 
 import SignOUT from "@/components/functions/SignOUT.vue";
 
-const {lang, logged} = useUser();
-
 const user = useUser();
 
 const tab = ref(0);
+
 const activeTab = shallowRef(LoginPage);
 
 function changeTab(n) {
@@ -26,31 +25,31 @@ function changeTab(n) {
 
 <template>
 	<div>
-		<SignOUT v-if="logged" />
+		<SignOUT v-if="user.logged" />
 		<div
 			class="register"
-			v-if="!logged"
+			v-if="!user.logged"
 		>
 			<div class="choices">
 				<span
 					:class="tab == 0 ? 'tab active' : 'tab'"
 					@click="changeTab(0)"
 				>
-					{{ lang ? "Entrar" : "Login" }}
+					{{ user.lang ? "Entrar" : "Login" }}
 				</span>
 				<span
 					:class="tab == 1 ? 'tab active' : 'tab'"
 					@click="changeTab(1)"
 				>
-					{{ lang ? "Criar conta" : "Create an account" }}
+					{{ user.lang ? "Criar conta" : "Create an account" }}
 				</span>
 			</div>
-			<!-- <keep-alive> -->
-			<component
-				:user="user"
-				:is="activeTab"
-			></component>
-			<!-- </keep-alive> -->
+			<keep-alive>
+				<component
+					:user="user"
+					:is="activeTab"
+				></component>
+			</keep-alive>
 		</div>
 	</div>
 </template>

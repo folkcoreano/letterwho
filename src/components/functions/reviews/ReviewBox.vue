@@ -15,7 +15,7 @@ const {
 	params: {type, range, story},
 } = useRoute();
 
-const {id, lang} = useUser();
+const user = useUser();
 
 const dialog = useDialog();
 
@@ -103,7 +103,7 @@ async function rateContent(rating) {
 							},
 						})
 						.match({
-							user_id: id,
+							user_id: user.id,
 							story_id: story,
 							rewatch: false,
 							review: false,
@@ -115,7 +115,7 @@ async function rateContent(rating) {
 					supabase
 						.from("diary")
 						.insert({
-							user_id: id,
+							user_id: user.id,
 							story_id: story,
 							rewatch: false,
 							review: false,
@@ -161,7 +161,7 @@ async function removeRate() {
 							rating: null,
 						})
 						.match({
-							user_id: id,
+							user_id: user.id,
 							story_id: story,
 							rewatch: false,
 							review: false,
@@ -187,7 +187,7 @@ async function setWatch(state) {
 					},
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -209,7 +209,7 @@ async function setWatch(state) {
 					watched: null,
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					review: false,
 					rewatch: false,
@@ -226,7 +226,7 @@ async function setWatch(state) {
 			supabase
 				.from("diary")
 				.insert({
-					user_id: id,
+					user_id: user.id,
 					rewatch: false,
 					review: false,
 					story_id: story,
@@ -253,7 +253,7 @@ async function setWatch(state) {
 					watched: null,
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -282,7 +282,7 @@ async function setLike(state) {
 					},
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -299,7 +299,7 @@ async function setLike(state) {
 					liked: null,
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -316,7 +316,7 @@ async function setLike(state) {
 			supabase
 				.from("diary")
 				.insert({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -339,7 +339,7 @@ async function setLike(state) {
 					liked: null,
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					review: false,
 					rewatch: false,
@@ -366,7 +366,7 @@ async function setSave(state) {
 					},
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -383,7 +383,7 @@ async function setSave(state) {
 					saved: null,
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -400,7 +400,7 @@ async function setSave(state) {
 			supabase
 				.from("diary")
 				.insert({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -424,7 +424,7 @@ async function setSave(state) {
 					saved: null,
 				})
 				.match({
-					user_id: id,
+					user_id: user.id,
 					story_id: story,
 					rewatch: false,
 					review: false,
@@ -520,7 +520,7 @@ async function setSave(state) {
 			@click="dialog.isReview = !dialog.isReview"
 			class="reviewText"
 		>
-			{{ lang ? "Escreva algo!" : "Write something!" }}
+			{{ user.lang ? "Escreva algo!" : "Write something!" }}
 		</div>
 		<div
 			v-if="false"

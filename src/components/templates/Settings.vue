@@ -6,7 +6,7 @@ import SignOUT from "../functions/SignOUT.vue";
 
 const user = useUser();
 
-const language = ref(user.lang);
+const language = ref(user.lang === "pt-br" ? "en" : "pt-br");
 
 function changeLanguage() {
 	supabase.auth

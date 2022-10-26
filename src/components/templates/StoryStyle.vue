@@ -8,8 +8,6 @@ const props = defineProps({
 	data: Object,
 });
 
-const {lang} = useUser();
-
 const {
 	code,
 	title,
@@ -30,6 +28,8 @@ const {
 	quote,
 	cover,
 } = props.data;
+
+const user = useUser();
 
 const isPC = ref(window.matchMedia("(min-width: 35rem)").matches);
 
@@ -127,7 +127,7 @@ onClickOutside(target, e => {
 					</div>
 
 					<div class="pageWriter">
-						{{ lang === "pt-br" ? "Escrito por " : "Written by " }}
+						{{ user.lang === "pt-br" ? "Escrito por " : "Written by " }}
 						<RouterLink
 							class="writerLink"
 							:to="{name: 'person', params: {id: writer.crew_id}}"
@@ -168,8 +168,9 @@ onClickOutside(target, e => {
 							:icon="icon"
 						/>
 						<span>
-							{{ length }}{{ type === "books" ? (lang === "pt-br" ? " páginas" : " pages") : ""
-							}}{{ type === "comics" ? (lang === "pt-br" ? " edições" : " issues") : ""
+							{{ length
+							}}{{ type === "books" ? (user.lang === "pt-br" ? " páginas" : " pages") : ""
+							}}{{ type === "comics" ? (user.lang === "pt-br" ? " edições" : " issues") : ""
 							}}{{ type === "tv" || type === "audios" ? "min" : "" }}</span
 						>
 					</div>
@@ -232,8 +233,9 @@ onClickOutside(target, e => {
 							:icon="icon"
 						/>
 						<span>
-							{{ length }}{{ type === "books" ? (lang === "pt-br" ? " páginas" : " pages") : ""
-							}}{{ type === "comics" ? (lang === "pt-br" ? " edições" : " issues") : ""
+							{{ length
+							}}{{ type === "books" ? (user.lang === "pt-br" ? " páginas" : " pages") : ""
+							}}{{ type === "comics" ? (user.lang === "pt-br" ? " edições" : " issues") : ""
 							}}{{ type === "tv" || type === "audios" ? "min" : "" }}</span
 						>
 					</div>

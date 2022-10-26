@@ -10,7 +10,7 @@ const {
 	params: {type, range, story},
 } = useRoute();
 
-const {lang} = useUser();
+const user = useUser();
 
 const datas = ref();
 
@@ -74,7 +74,7 @@ getReviews();
 						</RouterLink>
 					</div>
 					<div class="bot">
-						{{ useTime(lang, created) }}
+						{{ useTime(user.lang, created) }}
 					</div>
 				</div>
 			</div>

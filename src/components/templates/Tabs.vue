@@ -19,7 +19,7 @@ const {
 	params: {type},
 } = useRoute();
 
-const {lang} = useUser();
+const user = useUser();
 
 const data = ref(props.characters);
 
@@ -34,7 +34,7 @@ const tab = shallowRef(Characters);
 				:style="tab === Characters ? 'border-bottom: 2px solid var(--yellow)' : ''"
 				class="tab"
 			>
-				{{ lang === "pt-br" ? "Personagens" : "Characters" }}
+				{{ user.lang === "pt-br" ? "Personagens" : "Characters" }}
 			</div>
 			<div
 				v-if="parts"
@@ -42,7 +42,7 @@ const tab = shallowRef(Characters);
 				:style="tab === Parts ? 'border-bottom: 2px solid var(--yellow)' : ''"
 				class="tab"
 			>
-				{{ lang === "pt-br" ? "Episódios" : "Episodes" }}
+				{{ user.lang === "pt-br" ? "Episódios" : "Episodes" }}
 			</div>
 			<div
 				@click="(data = crew), (tab = Crew)"
@@ -50,7 +50,7 @@ const tab = shallowRef(Characters);
 				class="tab"
 			>
 				{{
-					lang === "pt-br"
+					user.lang === "pt-br"
 						? type === "books" || type === "comics"
 							? "Equipe"
 							: "Elenco e Equipe"
@@ -64,7 +64,7 @@ const tab = shallowRef(Characters);
 				:style="tab === Quotes ? 'border-bottom: 2px solid var(--yellow)' : ''"
 				class="tab"
 			>
-				{{ lang === "pt-br" ? "Citações" : "Quotes" }}
+				{{ user.lang === "pt-br" ? "Citações" : "Quotes" }}
 			</div>
 		</div>
 		<div class="content">
@@ -86,49 +86,10 @@ const tab = shallowRef(Characters);
 </template>
 
 <style scoped>
-.tabs {
-	display: flex;
-	overflow: auto;
-	border-bottom: 2px solid #444;
-	padding: 0.15rem;
-}
-
-.tabs::-webkit-scrollbar {
-	height: 0px;
-}
-
-.tab {
-	padding: 0.45rem;
-	cursor: pointer;
-	flex: 1;
-	text-align: center;
-	transition: all 150ms linear;
-	border-bottom: 2px solid transparent;
-	translate: 0 2px;
-	white-space: nowrap;
-}
-
-.tab:hover {
-	transition: all 150ms linear;
-	border-bottom: 2px solid #666;
-}
-
 .main {
 	padding: 0.25rem 0;
 	display: flex;
 	flex-flow: column;
 	gap: 0.55rem;
-}
-@media (min-width: 35rem) {
-	.tabs {
-		overflow: unset;
-		padding: 0;
-		width: fit-content;
-	}
-
-	.tab {
-		flex: unset;
-		text-align: unset;
-	}
 }
 </style>
