@@ -8,8 +8,10 @@ const data = ref();
 
 supabase
 	.from("users")
-	.select()
+	.select("quotes!id(*),name,picture")
 	.then(res => {
+		console.log(res);
+
 		data.value = res.data;
 		load.value = true;
 	});
@@ -17,7 +19,10 @@ supabase
 <template>
 	<template v-if="load">
 		<div>
+			<pre>{{ data }}</pre>
+
 			<RouterLink
+				v-if="false"
 				:to="{name: 'user', params: {id}}"
 				class="item"
 				:key="i"
