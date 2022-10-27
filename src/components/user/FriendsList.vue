@@ -21,7 +21,9 @@ const props = defineProps({
 					:alt="name"
 				/>
 			</div>
-			<div class="side">{{ name }}</div>
+			<div class="side">
+				{{ name }}
+			</div>
 		</router-link>
 	</div>
 </template>

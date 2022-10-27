@@ -6,12 +6,12 @@ import supabase from "@/supabase";
 import {useFavicon} from "@vueuse/core";
 import {ref, onMounted, shallowRef, onUnmounted} from "vue";
 import {useRoute} from "vue-router";
-import Activity from "../user/Activity.vue";
-import Comments from "../user/Comments.vue";
-import Friends from "../user/Friends.vue";
-import Likes from "../user/Likes.vue";
-import Reviews from "../user/Reviews.vue";
-import Settings from "./Settings.vue";
+import Activity from "./Activity.vue";
+import Comments from "./Comments.vue";
+import Friends from "./Friends.vue";
+import Likes from "./Likes.vue";
+import Reviews from "./Reviews.vue";
+import Settings from "../templates/Settings.vue";
 
 const props = defineProps({
 	id: String,
@@ -57,11 +57,14 @@ function getUser() {
 		.match({id: id.value})
 		.single()
 		.then(res => {
-			let followers = [];
+			let raw_followers = [];
+			let raw_following = [];
+			let mutuals = [];
 			let following = [];
+			let followers = [];
 
 			for (const person of res.data.follower_id) {
-				following.push({
+				raw_following.push({
 					id: person.following_id.id,
 					name: person.following_id.name,
 					picture: person.following_id.picture,
@@ -69,14 +72,34 @@ function getUser() {
 			}
 
 			for (const person of res.data.following_id) {
-				followers.push({
+				raw_followers.push({
 					id: person.user_id.id,
 					name: person.user_id.name,
 					picture: person.user_id.picture,
 				});
 			}
 
-			friends.value = {following, followers};
+			for (const person of raw_following) {
+				if (raw_followers.some(e => e.id === person.id)) {
+					mutuals.push(person);
+				}
+			}
+
+			for (const person of raw_following) {
+				if (mutuals.some(e => e.id === person.id)) {
+				} else {
+					following.push(person);
+				}
+			}
+
+			for (const person of raw_followers) {
+				if (mutuals.some(e => e.id === person.id)) {
+				} else {
+					followers.push(person);
+				}
+			}
+
+			friends.value = {following, followers, mutuals};
 
 			user.value = res.data;
 			diary.value = res.data.diary_id;
@@ -90,15 +113,6 @@ function getUser() {
 			load.value = true;
 		});
 }
-
-onUnmounted(() => {
-	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
-});
-
-onMounted(() => {
-	checkFollow();
-	getUser();
-});
 
 function follow() {
 	if (isFollowing.value === false) {
@@ -155,10 +169,17 @@ function checkFollow() {
 					friendStatus.value = "ri:user-add-line";
 				}
 			});
-	} else {
-		console.log(":p");
 	}
 }
+
+onMounted(() => {
+	checkFollow();
+	getUser();
+});
+
+onUnmounted(() => {
+	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
+});
 </script>
 
 <template>
@@ -182,7 +203,6 @@ function checkFollow() {
 							:icon="friendStatus"
 						/>
 					</div>
-					<!-- seguindo {{ social.following }}, {{ social.followers }} seguidores -->
 				</div>
 			</div>
 			<div class="tabs">

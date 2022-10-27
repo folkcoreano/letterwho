@@ -1,17 +1,20 @@
-<script setup lang="ts">
+<script setup>
 import {folder} from "@/stores/images";
+import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {ref} from "vue";
 
 const load = ref(false);
 const data = ref();
+const user = useUser();
 
 supabase
 	.from("users")
-	.select("quotes!id(*),name,picture")
+	.select("id,name,picture,follower_id(count),following_id(count)")
+	.filter("follower_id.following_id", "eq", user.id)
+	.filter("following_id.user_id", "eq", user.id)
+	.filter("id", "neq", user.id)
 	.then(res => {
-		console.log(res);
-
 		data.value = res.data;
 		load.value = true;
 	});
@@ -19,14 +22,11 @@ supabase
 <template>
 	<template v-if="load">
 		<div>
-			<pre>{{ data }}</pre>
-
 			<RouterLink
-				v-if="false"
 				:to="{name: 'user', params: {id}}"
 				class="item"
 				:key="i"
-				v-for="({id, name, picture}, i) in data"
+				v-for="({id, name, picture, follower_id, following_id}, i) in data"
 			>
 				<div class="side">
 					<img
@@ -35,19 +35,44 @@ supabase
 						:alt="name"
 					/>
 				</div>
-				<div class="side">
+				<div class="side aaa">
 					{{ name }}
+					&sdot;
+
+					<span
+						:style="follower_id[0].count ? 'color:var(--green)' : 'color:var(--red)'"
+						v-text="follower_id[0].count ? 'segue vc' : 'n te segue ihhh'"
+					/>
+					&sdot;
+					<span
+						:style="following_id[0].count ? 'color:var(--green)' : 'color:var(--red)'"
+						v-text="following_id[0].count ? 'tu segue' : 'tu num segue'"
+					/>
+					&sdot;
+					<img
+						style="width: 4rem"
+						:src="
+							follower_id[0].count && following_id[0].count
+								? 'https://steamuserimages-a.akamaihd.net/ugc/1020570173245289665/1FE233451BBA38C85B3F20768511C0CAFF0E7FBC/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false'
+								: 'https://goodschoolhunting.org/wp-content/uploads/2017/08/bad-emoji.png'
+						"
+					/>
 				</div>
-			</RouterLink>
-		</div></template
+			</RouterLink></div></template
 	><template v-else><LoadingState /></template>
 </template>
 
 <style scoped>
+.aaa {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
 .item {
 	display: flex;
 	gap: 0.45rem;
 	align-items: center;
+	padding-top: 0.55rem;
 }
 
 .ico {

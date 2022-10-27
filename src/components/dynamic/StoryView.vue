@@ -47,10 +47,8 @@ try {
 		`
 		)
 		.order("id", {foreignTable: "reviews_id", ascending: false})
-		// .limit(3, {foreignTable: "reviews_id"})
 		.filter("reviews_id.user_id", "eq", user.id)
 		.order("id", {foreignTable: "diary_id", ascending: false})
-		// .limit(1, {foreignTable: "diary_id"})
 		.filter("diary_id.user_id", "eq", user.id)
 		.single()
 		.match({type: type, range_id: range, url: story})

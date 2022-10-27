@@ -7,8 +7,12 @@ const user = useUser();
 
 <template>
 	<div class="user">
-		<div v-if="user.logged && user.name">{{ user.name }}</div>
-		<div v-else>Login</div>
+		<div
+			class="name"
+			v-if="user.logged && user.name"
+		>
+			{{ user.name }}
+		</div>
 		<img
 			v-if="user.logged && user.name && user.picture"
 			class="head"
@@ -30,11 +34,19 @@ const user = useUser();
 	border-radius: 50%;
 	cursor: pointer;
 }
+.name {
+	display: none;
+}
 
 .user {
 	display: flex;
 	flex-flow: row;
 	gap: 0.45rem;
 	align-items: center;
+}
+@media (min-width: 35rem) {
+	.name {
+		display: block;
+	}
 }
 </style>

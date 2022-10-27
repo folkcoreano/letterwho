@@ -724,7 +724,6 @@ onMounted(() => {
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
-	font-size: 1.15rem;
 	font-weight: bold;
 }
 .commentsHeader {

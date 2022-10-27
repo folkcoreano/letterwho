@@ -9,21 +9,17 @@ const props = defineProps({
 });
 
 const {
-	code,
 	title,
 	length,
-	range,
 	type,
 	released,
 	time,
-	url,
 	writer,
 	frame,
 	liked,
 	watched,
 	rated,
 	rating,
-	saved,
 	resume,
 	quote,
 	cover,
