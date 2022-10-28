@@ -27,7 +27,6 @@ function getFeed() {
 		.limit(1, {foreignTable: "following_id.reviews_id"})
 		.order("id", {foreignTable: "following_id.reviews_id", ascending: false})
 		.then(res => {
-			console.log(res.data);
 			feed.value = res.data;
 			for (const rev of res.data) {
 				if (rev.following_id.reviews_id.length > 0) {

@@ -320,7 +320,7 @@ onClickOutside(rev, () => {
 	position: fixed;
 	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), black);
 	width: 100%;
-	height: 50%;
+	height: 100%;
 	z-index: 5;
 	left: 0;
 	right: 0;

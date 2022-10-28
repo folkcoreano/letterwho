@@ -175,18 +175,14 @@ document.onkeydown = e => {
 	if (e.key === "Escape") {
 		dialog.isReview = false;
 	}
+	if (e.key === "Back") {
+		console.log(e);
+	}
 };
-
-onClickOutside(target, () => {
-	dialog.isReview = false;
-});
 </script>
 
 <template>
-	<div
-		ref="target"
-		class="window"
-	>
+	<div class="window">
 		<div class="mediaData">
 			<div class="mediaCoverPC">
 				<img
