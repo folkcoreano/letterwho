@@ -14,7 +14,7 @@ function handleRoute(rota: string) {
 <template>
 	<section>
 		<RouterLink
-			to="/"
+			:to="{name: 'home'}"
 			class="footerLink"
 			:class="route.name === 'home' ? 'footerLink active' : 'footerLink'"
 		>
@@ -30,7 +30,7 @@ function handleRoute(rota: string) {
 			</div>
 		</RouterLink>
 		<RouterLink
-			to="/audios"
+			:to="{name: 'audios'}"
 			:class="handleRoute('audios') ? 'footerLink active' : 'footerLink'"
 			class="footerLink"
 		>
@@ -46,7 +46,7 @@ function handleRoute(rota: string) {
 			</div>
 		</RouterLink>
 		<RouterLink
-			to="/books"
+			:to="{name: 'books'}"
 			class="footerLink"
 			:class="handleRoute('books') ? 'footerLink active' : 'footerLink'"
 		>
@@ -62,7 +62,7 @@ function handleRoute(rota: string) {
 			</div>
 		</RouterLink>
 		<RouterLink
-			to="/comics"
+			:to="{name: 'comics'}"
 			:class="handleRoute('comics') ? 'footerLink active' : 'footerLink'"
 		>
 			<iconify-icon
@@ -77,7 +77,7 @@ function handleRoute(rota: string) {
 			</div>
 		</RouterLink>
 		<RouterLink
-			to="/tv"
+			:to="{name: 'tv'}"
 			:class="handleRoute('tv') ? 'footerLink active' : 'footerLink'"
 		>
 			<iconify-icon
@@ -103,37 +103,34 @@ section {
 	gap: 0.25rem;
 	justify-content: space-around;
 	overflow: auto;
+	background-color: #0f0f0f;
 }
-
 .title {
 	font-size: 0.85rem;
 	font-weight: bold;
 }
-
 .footerLink {
 	display: flex;
 	flex-flow: column;
 	align-items: center;
 	justify-content: center;
 	gap: 0.25rem;
-	padding: 0.5rem;
+	padding: 0.35rem 0;
+	flex: 1;
 	cursor: pointer;
 	transition: all 150ms ease;
 	color: #888;
 }
-
 .footerLink:hover {
 	translate: 0 -0.25rem;
 	transition: all 150ms ease;
 	color: var(--yellow);
 }
-
 .active {
 	translate: 0 -0.25rem;
 	transition: all 150ms ease;
 	color: var(--yellow);
 }
-
 .footerIcon {
 	font-size: 2.15rem;
 }

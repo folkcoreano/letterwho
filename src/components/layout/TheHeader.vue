@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import UserHead from "../user/UserHead.vue";
-import {useUser} from "@/stores/user";
-import {RouterLink, useRoute} from "vue-router";
 import {ref} from "vue";
-import supabase from "@/supabase";
+import {useUser} from "@/stores/user";
+import UserHead from "../user/UserHead.vue";
+import {RouterLink, useRoute} from "vue-router";
 
 const user = useUser();
-
 const route = useRoute();
 
 function handleRoute(rota: string) {
@@ -24,7 +22,7 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 	<header>
 		<RouterLink
 			class="logoArea"
-			to="/"
+			:to="{name: 'home'}"
 		>
 			<img
 				class="logo"
@@ -48,22 +46,22 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 			</RouterLink>
 			<RouterLink
 				:class="handleRoute('audios') ? 'navLink active' : 'navLink'"
-				to="/audios"
+				:to="{name: 'audios'}"
 				v-text="user.lang === 'pt-br' ? 'ÁUDIOS' : 'AUDIOS'"
 			/>
 			<RouterLink
 				:class="handleRoute('books') ? 'navLink active' : 'navLink'"
-				to="/books"
+				:to="{name: 'books'}"
 				v-text="user.lang === 'pt-br' ? 'LIVROS' : 'BOOKS'"
 			/>
 			<RouterLink
 				:class="handleRoute('comics') ? 'navLink active' : 'navLink'"
-				to="/comics"
+				:to="{name: 'comics'}"
 				v-text="user.lang === 'pt-br' ? 'QUADRINHOS' : 'COMICS'"
 			/>
 			<RouterLink
 				:class="handleRoute('tv') ? 'navLink active' : 'navLink'"
-				to="/tv"
+				:to="{name: 'tv'}"
 				v-text="'TV'"
 			/>
 		</div>
@@ -71,21 +69,25 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 </template>
 
 <style scoped>
-/* * {
-	outline: 1px dotted deeppink;
-} */
-
+* {
+	outline: 0px dotted deeppink;
+}
+header {
+	display: flex;
+	justify-content: space-between;
+	padding: 0.55rem;
+	overflow: auto;
+	background-color: #0f0f0f;
+}
 .u {
 	display: flex;
 }
-
 .navArea {
 	display: none;
 	align-items: center;
 	gap: 1rem;
 	font-size: 1.055rem;
 }
-
 .navLink {
 	padding: 0.3rem;
 	font-weight: bold;
@@ -105,22 +107,12 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 	color: #eee;
 	translate: 0 -0.1rem;
 }
-
-header {
-	display: flex;
-	justify-content: space-between;
-	padding: 0.65rem;
-
-	overflow: auto;
-}
-
 .logoArea {
 	display: flex;
 }
 .logo {
 	max-height: 2.35rem;
 }
-
 @media (min-width: 35rem) {
 	.navArea {
 		display: flex;

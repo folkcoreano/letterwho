@@ -6,6 +6,7 @@ import {onClickOutside} from "@vueuse/core";
 
 const props = defineProps({
 	data: Object,
+	watched: Boolean,
 });
 
 const {
@@ -27,6 +28,8 @@ const {
 
 const user = useUser();
 
+const isWatched = ref(props.watched);
+
 const isPC = ref(window.matchMedia("(min-width: 35rem)").matches);
 
 window.matchMedia("(min-width: 35rem)").onchange = e => {
@@ -47,12 +50,19 @@ if (type === "books") {
 	icon.value = "ri:file-copy-2-fill";
 }
 
-const target = ref();
+const menu = ref(true);
+
+const target = ref(null);
+const rev = ref(null);
 
 const open = ref(false);
 
-onClickOutside(target, e => {
+onClickOutside(target, () => {
 	open.value = false;
+});
+
+onClickOutside(rev, () => {
+	menu.value = true;
 });
 </script>
 
@@ -62,7 +72,7 @@ onClickOutside(target, e => {
 		:style="frame ? `background-image: url(${folder(frame)})` : ''"
 	>
 		<dialog
-			v-if="open"
+			v-show="open"
 			class="dialog"
 		>
 			<img
@@ -83,7 +93,7 @@ onClickOutside(target, e => {
 						:src="folder(cover, '500')"
 					/>
 					<div
-						v-if="false"
+						v-show="false"
 						class="coverStatus"
 					>
 						<div class="coverStatusItem">
@@ -138,14 +148,14 @@ onClickOutside(target, e => {
 				</span>
 
 				<div
-					v-if="isPC"
+					v-show="isPC"
 					class="pageResume"
 				>
 					{{ resume }}
 				</div>
 
 				<div
-					v-if="isPC"
+					v-show="isPC"
 					class="pageDetails"
 				>
 					<div class="pageDetailsItem">
@@ -181,7 +191,7 @@ onClickOutside(target, e => {
 					</div>
 				</div>
 				<div
-					v-if="isPC"
+					v-show="isPC"
 					class="slots"
 				>
 					<div class="cast">
@@ -193,24 +203,24 @@ onClickOutside(target, e => {
 				</div>
 			</div>
 			<div
-				v-if="isPC"
+				v-show="isPC"
 				class="reviewBox"
 			>
 				<slot name="review" />
 			</div>
 			<div
-				v-if="!isPC"
+				v-show="!isPC"
 				class="pageData mobile"
 			>
 				<div
-					v-if="!isPC"
+					v-show="!isPC"
 					class="pageResume"
 				>
 					{{ resume }}
 				</div>
 
 				<div
-					v-if="!isPC"
+					v-show="!isPC"
 					class="pageDetails"
 				>
 					<div class="pageDetailsItem">
@@ -247,7 +257,7 @@ onClickOutside(target, e => {
 				</div>
 			</div>
 			<div
-				v-if="!isPC"
+				v-show="!isPC"
 				class="slots"
 			>
 				<div class="cast">
@@ -259,30 +269,85 @@ onClickOutside(target, e => {
 			</div>
 		</div>
 	</div>
+	<div
+		v-show="!isPC"
+		:class="menu ? 'mobileReview' : 'mobileReview show'"
+	>
+		<div ref="rev">
+			<slot name="review" />
+		</div>
+	</div>
+	<div
+		v-show="!isPC"
+		@click="menu = false"
+		class="button"
+		:style="isWatched ? 'background-color: var(--blue)' : 'background-color: var(--yellow)'"
+	>
+		<iconify-icon
+			class="butIcon"
+			icon="ri:add-fill"
+		/>
+	</div>
 </template>
 
 <style scoped>
-/* * {
-	outline: 0px solid rgba(255, 0, 135, 0.5);
-} */
-
+* {
+	outline: 0 dotted rgba(255, 0, 135, 0.5);
+}
+.button {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	padding: 0.55rem;
+	margin: 5.55rem 1.55rem;
+	cursor: pointer;
+	border-radius: 50%;
+	color: #fff;
+	border-radius: 50%;
+	transition: all 150ms linear;
+}
+.butIcon {
+	font-size: 3rem;
+	display: flex;
+	transition: all 150ms linear;
+}
+.butIcon:hover {
+	rotate: 45deg;
+	transition: all 150ms linear;
+}
+.mobileReview {
+	translate: 0 100%;
+	position: fixed;
+	background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), black);
+	width: 100%;
+	height: 50%;
+	z-index: 5;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-flow: column;
+	justify-content: flex-end;
+	transition: all 150ms linear;
+}
+.show {
+	transition: all 150ms linear;
+	translate: 0 0;
+}
 .writerLink {
 	border-bottom: 1px solid #555;
 	padding: 0 0.15rem;
 	color: #fff;
 	font-weight: bold;
 }
-
 .reviewBox {
 	grid-column: 3;
 	grid-row: 1;
 }
-
 .coverDialog {
 	max-width: 90%;
 	max-height: 90%;
 }
-
 .dialog {
 	transition: all 150ms linear;
 	display: flex;
@@ -296,7 +361,6 @@ onClickOutside(target, e => {
 	height: 100%;
 	width: 100%;
 }
-
 .slots {
 	display: flex;
 	flex-flow: column;
@@ -407,16 +471,13 @@ onClickOutside(target, e => {
 	color: #eaeaea;
 	line-height: 1.2;
 }
-
 .mobile {
 	grid-column: 1 /3;
 	grid-row: 2;
 }
-
 .mobileHeader {
 	justify-content: center;
 }
-
 @media (min-width: 35rem) {
 	.pageMain {
 		margin: auto;

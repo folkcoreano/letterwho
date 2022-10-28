@@ -1,15 +1,15 @@
 <script setup>
-import {ref} from "vue";
 import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
 import {useTime} from "@/stores/time";
 import setTitle from "@/stores/title";
+import {ref, onBeforeMount} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import Tabs from "@/components/templates/Tabs.vue";
+import ActivityTabs from "../templates/ActivityTabs.vue";
 import StoryStyle from "@/components/templates/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import ReviewBox from "@/components/functions/reviews/ReviewBox.vue";
-import ActivityTabs from "../templates/ActivityTabs.vue";
 
 const {
 	params: {type, range, story},
@@ -18,7 +18,6 @@ const {
 const {push} = useRouter();
 
 const user = useUser();
-
 const data = ref();
 const crew = ref();
 const quotes = ref();
@@ -28,12 +27,11 @@ const characters = ref();
 const code = ref();
 const activity = ref();
 const reviews = ref();
-
 const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
-
 const load = ref(false);
+const watched = ref(false);
 
-try {
+function getStory() {
 	supabase
 		.from("story")
 		.select(
@@ -54,24 +52,34 @@ try {
 		.match({type: type, range_id: range, url: story})
 		.then(res => {
 			if (res.data) {
+				const status = res.data.diary_id.find(e => !e.review && !e.rewatch);
+
+				if (res.data.diary_id.some(e => !e.review && !e.rewatch)) {
+					status.watched && status.watched.status
+						? (watched.value = true)
+						: (watched.value = false);
+				}
+
 				activity.value = res.data.diary_id.length > 0 ? res.data.diary_id : null;
+
 				reviews.value = res.data.reviews_id.length > 0 ? res.data.reviews_id : null;
 
 				setTitle(res.data.title);
 
 				if (res.data.diary_id.length > 0) {
 					if (
-						res.data.diary_id[0].watched === null &&
-						res.data.diary_id[0].saved === null &&
-						res.data.diary_id[0].liked === null &&
-						res.data.diary_id[0].review === false &&
-						res.data.diary_id[0].rewatch === false
+						status.watched === null &&
+						status.saved === null &&
+						status.liked === null &&
+						status.review === false &&
+						status.rewatch === false
 					) {
 						supabase
 							.from("diary")
 							.delete()
 							.match({
-								id: res.data.diary_id[0].id,
+								id: status.id,
+								user_id: user.id,
 							})
 							.then(() => {
 								console.log("deleting dull data");
@@ -80,10 +88,7 @@ try {
 				}
 
 				data.value = {
-					diary:
-						res.data.diary_id.length > 0
-							? res.data.diary_id.filter(e => !e.review && !e.rewatch)[0]
-							: null,
+					diary: res.data.diary_id.length > 0 ? status : null,
 					hasData: res.data.diary_id.some(e => !e.review && !e.rewatch),
 					code: res.data.code,
 					title: res.data.title,
@@ -163,24 +168,29 @@ try {
 				push({name: "home"});
 			}
 		});
-} catch (e) {
-	console.log(e);
 }
+
+onBeforeMount(() => {
+	getStory();
+});
 </script>
 
 <template>
 	<template v-if="load">
-		<div>
+		<div class="template">
 			<StoryStyle
 				v-if="load"
 				:data="data"
+				:watched="watched"
 			>
 				<template #review>
-					<ReviewBox
-						v-if="user.logged"
-						:doctors="doctors"
-						:data="data"
-					/>
+					<keep-alive>
+						<ReviewBox
+							v-if="user.logged"
+							:doctors="doctors"
+							:data="data"
+						/>
+					</keep-alive>
 				</template>
 				<template #cast>
 					<Tabs

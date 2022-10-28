@@ -542,10 +542,14 @@ async function setSave(state) {
 </template>
 
 <style scoped>
-/* * {
-	outline: 1px solid rgba(255, 0, 135, 0);
+* {
+	outline: 0 solid rgb(255, 0, 136);
 	user-select: none;
-} */
+}
+
+.starsBox {
+	display: flex;
+}
 .ratingBox {
 	gap: 0.5rem;
 	padding: 0.8rem;
@@ -577,7 +581,6 @@ async function setSave(state) {
 	color: var(--red);
 }
 .reviewBox {
-	border-radius: 0.15rem;
 	display: flex;
 	flex-flow: column;
 	background-color: #1f1f1f;
@@ -586,7 +589,7 @@ async function setSave(state) {
 	display: flex;
 }
 .reviewText {
-	padding: 0.5rem;
+	padding: 1rem;
 
 	border-top: 0.01rem #555 solid;
 	text-align: center;
@@ -604,6 +607,7 @@ async function setSave(state) {
 	padding: 1rem 2.55rem;
 
 	display: flex;
+	justify-content: center;
 }
 
 .reviewItem {
