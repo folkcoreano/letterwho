@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from "vue";
+import {ref, onBeforeMount} from "vue";
 import supabase from "@/supabase";
 import {useRoute} from "vue-router";
 import setTitle from "@/stores/title";
@@ -17,42 +17,6 @@ const actTab = ref("CHARACTER");
 const user = useUser();
 
 const filtered = ref([]);
-
-const getData = () => {
-	try {
-		supabase
-			.from("characters")
-			.select(
-				`*,
-			character_id(story_id(title,code,released,range_id,type,url,diary_id(*))),
-			quotes(id,pt,en,story_id(title,code,url,type,range_id))`
-			)
-			.match({character_id: id})
-			.filter("character_id.story_id.diary_id.user_id", "eq", user.id)
-			.limit(1, {foreignTable: "character_id.story_id.diary_id"})
-			.order("id", {foreignTable: "character_id.story_id.diary_id", ascending: true})
-			.single()
-			.then(res => {
-				console.log(res.data);
-				console.log(res.error);
-				data.value = res.data;
-
-				let alltabs = res.data.character_id.flatMap(e => e.story_id.type);
-
-				const filteredtabs = [...new Set(alltabs)];
-
-				tabs.value = filteredtabs;
-
-				setTitle(res.data.name);
-
-				load.value = true;
-			});
-	} catch (error) {
-		console.log(error);
-	}
-};
-
-getData();
 
 const select = tab => {
 	actTab.value = tab;
@@ -78,6 +42,34 @@ function checkStatus(array) {
 	}
 	return "transparent";
 }
+
+onBeforeMount(() => {
+	supabase
+		.from("characters")
+		.select(
+			`*,
+			character_id(story_id(title,code,released,range_id,type,url,diary_id(*))),
+			quotes(id,pt,en,story_id(title,code,url,type,range_id))`
+		)
+		.match({character_id: id})
+		.filter("character_id.story_id.diary_id.user_id", "eq", user.id)
+		.limit(1, {foreignTable: "character_id.story_id.diary_id"})
+		.order("id", {foreignTable: "character_id.story_id.diary_id", ascending: true})
+		.single()
+		.then(res => {
+			data.value = res.data;
+
+			let alltabs = res.data.character_id.flatMap(e => e.story_id.type);
+
+			const filteredtabs = [...new Set(alltabs)];
+
+			tabs.value = filteredtabs;
+
+			setTitle(res.data.name);
+
+			load.value = true;
+		});
+});
 </script>
 
 <template>

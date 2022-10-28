@@ -1,8 +1,11 @@
 <script setup>
 import supabase from "@/supabase";
-import {ref} from "vue";
+import axios from "axios";
+import {ref, watchEffect} from "vue";
 
 const ranges = ref([]);
+const supcrew = ref([]);
+const catcrew = ref([]);
 
 const list = [
 	"Two",
@@ -203,19 +206,51 @@ for (const ep of episodes) {
 		resume: ep.resume,
 	});
 }
-
-console.log(epBatch.value);
+const load = ref(false);
+const crew = ref([]);
+const crewBatch = ref([]);
 
 function addRange() {
 	supabase
-		.from("story")
-		.insert(epBatch.value)
-		.select()
+		.from("crew")
+		.insert(crewBatch.value)
 		.then(res => {
 			console.log(res);
 		});
 }
+
+function organize() {
+	for (const director of catcrew.value) {
+		if (supcrew.value.some(e => e.crew_id === director.crew_id)) {
+		} else {
+			crewBatch.value.push({
+				crew_id: director.crew_id,
+				name: director.name,
+				updated: new Date().toISOString(),
+			});
+		}
+	}
+	console.log(crewBatch.value);
+}
+
+supabase
+	.from("crew")
+	.select("crew_id")
+	.then(res => {
+		supcrew.value = res.data;
+	});
+
+// axios.get("https://api.catalogopolis.xyz/v1/writers").then(res => {
+// 	for (const dir of res.data) {
+// 		catcrew.value.push({
+// 			crew_id: dir.name.toLowerCase().replaceAll(" ", "-").replaceAll("'", ""),
+// 			name: dir.name,
+// 			updated: new Date().toISOString(),
+// 		});
+// 	}
+// });
 </script>
 <template>
 	<button @click="addRange">add</button>
+	<button @click="organize">organize</button>
 </template>

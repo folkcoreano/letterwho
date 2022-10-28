@@ -1,5 +1,5 @@
 <script setup>
-import {ref} from "vue";
+import {ref, onBeforeMount} from "vue";
 import {useRoute} from "vue-router";
 import {folder} from "@/stores/images";
 import supabase from "@/supabase";
@@ -10,24 +10,20 @@ const data = ref();
 
 const load = ref(false);
 
-async function getRanges() {
+onBeforeMount(() => {
 	supabase
 		.from("ranges")
-		.select(`range_id(released),title,type,range`)
+		.select(`order,range_id(released),title,type,range`)
 		.match({type: name})
 		.limit(1, {foreignTable: "range_id"})
-		.order("released", {ascending: true, foreignTable: "range_id"})
-		// .order("", {ascending: true})
+		.order("order", {ascending: true})
 		.then(res => {
-			console.log(res);
 			if (res.data) {
 				data.value = res.data;
 			}
 			load.value = true;
 		});
-}
-
-getRanges();
+});
 </script>
 <template>
 	<template v-if="load">
@@ -41,7 +37,7 @@ getRanges();
 				<img
 					class="cover"
 					:src="folder(`${type}/${range}/${range}`, '200')"
-					alt=""
+					:alt="title"
 				/>
 			</RouterLink>
 		</div>
@@ -59,14 +55,12 @@ getRanges();
 	max-width: 50rem;
 	margin: auto;
 }
-
 .item {
 	align-items: center;
 	gap: 1rem;
 	display: flex;
 	flex-flow: column;
 }
-
 .cover {
 	max-width: 100%;
 }

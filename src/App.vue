@@ -87,7 +87,6 @@ onMounted(() => {
 				user.data.language = s.user.user_metadata.language;
 
 				if (!user.name && !user.picture) {
-					console.log("a");
 					supabase
 						.from("users")
 						.select("name,picture")

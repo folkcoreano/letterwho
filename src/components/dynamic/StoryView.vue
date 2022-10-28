@@ -31,7 +31,7 @@ const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
 const load = ref(false);
 const watched = ref(false);
 
-function getStory() {
+onBeforeMount(() => {
 	supabase
 		.from("story")
 		.select(
@@ -66,7 +66,7 @@ function getStory() {
 
 				setTitle(res.data.title);
 
-				if (res.data.diary_id.length > 0) {
+				if (res.data.diary_id.some(e => !e.review && !e.rewatch)) {
 					if (
 						status.watched === null &&
 						status.saved === null &&
@@ -168,10 +168,6 @@ function getStory() {
 				push({name: "home"});
 			}
 		});
-}
-
-onBeforeMount(() => {
-	getStory();
 });
 </script>
 
@@ -184,13 +180,13 @@ onBeforeMount(() => {
 				:watched="watched"
 			>
 				<template #review>
-					<keep-alive>
-						<ReviewBox
-							v-if="user.logged"
-							:doctors="doctors"
-							:data="data"
-						/>
-					</keep-alive>
+					<!-- <keep-alive> -->
+					<ReviewBox
+						v-if="user.logged"
+						:doctors="doctors"
+						:data="data"
+					/>
+					<!-- </keep-alive> -->
 				</template>
 				<template #cast>
 					<Tabs

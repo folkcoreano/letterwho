@@ -5,9 +5,7 @@ import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {useFavicon} from "@vueuse/core";
 import {ref, onMounted, shallowRef, onUnmounted} from "vue";
-import {useRoute} from "vue-router";
 import Activity from "./Activity.vue";
-import Comments from "./Comments.vue";
 import Friends from "./Friends.vue";
 import Likes from "./Likes.vue";
 import Reviews from "./Reviews.vue";
@@ -25,7 +23,6 @@ const data = ref();
 const diary = ref();
 const reviews = ref();
 const likes = ref();
-const comments = ref();
 const friends = ref();
 const isFollowing = ref(false);
 const friendStatus = ref("ri:user-add-line");
@@ -158,10 +155,10 @@ function checkFollow() {
 						.match({user_id: id.value, following_id: userStore.id})
 						.then(res => {
 							if (res.count) {
-								console.log("mutual");
+								// console.log("mutual");
 								friendStatus.value = "ri:user-heart-fill";
 							} else {
-								console.log("not mutual");
+								// console.log("not mutual");
 							}
 						});
 				} else {

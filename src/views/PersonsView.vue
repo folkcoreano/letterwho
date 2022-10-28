@@ -67,14 +67,14 @@ getCrew();
 
 <style scoped>
 .per {
-	width: fit-content;
+	/* width: fit-content; */
 	display: flex;
-	flex-flow: column;
+	flex-flow: row wrap;
 	gap: 0.25rem;
 }
 
-.item:hover {
+.item {
 	font-weight: bold;
-	font-size: 1.15rem;
+	border-bottom: 2px #aaa solid;
 }
 </style>

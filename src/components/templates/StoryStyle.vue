@@ -72,7 +72,7 @@ onClickOutside(rev, () => {
 		:style="frame ? `background-image: url(${folder(frame)})` : ''"
 	>
 		<dialog
-			v-show="open"
+			v-if="open"
 			class="dialog"
 		>
 			<img
@@ -92,10 +92,7 @@ onClickOutside(rev, () => {
 						class="coverPicture"
 						:src="folder(cover, '500')"
 					/>
-					<div
-						v-show="false"
-						class="coverStatus"
-					>
+					<div class="coverStatus">
 						<div class="coverStatusItem">
 							<iconify-icon
 								style="color: var(--yellow)"
@@ -148,14 +145,14 @@ onClickOutside(rev, () => {
 				</span>
 
 				<div
-					v-show="isPC"
+					v-if="isPC"
 					class="pageResume"
 				>
 					{{ resume }}
 				</div>
 
 				<div
-					v-show="isPC"
+					v-if="isPC"
 					class="pageDetails"
 				>
 					<div class="pageDetailsItem">
@@ -191,7 +188,7 @@ onClickOutside(rev, () => {
 					</div>
 				</div>
 				<div
-					v-show="isPC"
+					v-if="isPC"
 					class="slots"
 				>
 					<div class="cast">
@@ -203,24 +200,24 @@ onClickOutside(rev, () => {
 				</div>
 			</div>
 			<div
-				v-show="isPC"
+				v-if="isPC"
 				class="reviewBox"
 			>
 				<slot name="review" />
 			</div>
 			<div
-				v-show="!isPC"
+				v-if="!isPC"
 				class="pageData mobile"
 			>
 				<div
-					v-show="!isPC"
+					v-if="!isPC"
 					class="pageResume"
 				>
 					{{ resume }}
 				</div>
 
 				<div
-					v-show="!isPC"
+					v-if="!isPC"
 					class="pageDetails"
 				>
 					<div class="pageDetailsItem">
@@ -257,7 +254,7 @@ onClickOutside(rev, () => {
 				</div>
 			</div>
 			<div
-				v-show="!isPC"
+				v-if="!isPC"
 				class="slots"
 			>
 				<div class="cast">
@@ -270,7 +267,7 @@ onClickOutside(rev, () => {
 		</div>
 	</div>
 	<div
-		v-show="!isPC"
+		v-if="!isPC"
 		:class="menu ? 'mobileReview' : 'mobileReview show'"
 	>
 		<div ref="rev">
@@ -278,7 +275,7 @@ onClickOutside(rev, () => {
 		</div>
 	</div>
 	<div
-		v-show="!isPC"
+		v-if="!isPC"
 		@click="menu = false"
 		class="button"
 		:style="isWatched ? 'background-color: var(--blue)' : 'background-color: var(--yellow)'"
