@@ -136,9 +136,9 @@ onClickOutside(rev, () => {
 						{{ user.lang === "pt-br" ? "Escrito por " : "Written by " }}
 						<RouterLink
 							class="writerLink"
-							:to="{name: 'person', params: {id: writer.crew_id}}"
+							:to="{name: 'person', params: {id: writer ? writer.crew_id : 'aaa'}}"
 						>
-							{{ writer.name }}
+							{{ writer ? writer.name : "aaa" }}
 						</RouterLink>
 					</div>
 				</div>

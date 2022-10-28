@@ -13,9 +13,13 @@ const load = ref(false);
 async function getRanges() {
 	supabase
 		.from("ranges")
-		.select("title, type, range")
+		.select(`range_id(released),title,type,range`)
 		.match({type: name})
+		.limit(1, {foreignTable: "range_id"})
+		.order("released", {ascending: true, foreignTable: "range_id"})
+		// .order("", {ascending: true})
 		.then(res => {
+			console.log(res);
 			if (res.data) {
 				data.value = res.data;
 			}

@@ -1,11 +1,11 @@
 <script setup>
+import AddRange from "@/components/data/AddRange.vue";
 import Reviews from "@/components/user/Reviews.vue";
 import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {onBeforeMount, ref} from "vue";
 setTitle("Home");
-
 const user = useUser();
 const feed = ref();
 const reviews = ref([]);
@@ -47,7 +47,8 @@ onBeforeMount(() => {
 
 <template>
 	<div>
-		<!-- <pre>{{ feed }}</pre> -->
+		<!-- <AddRange /> -->
+
 		<Reviews
 			v-if="load"
 			:data="reviews"
