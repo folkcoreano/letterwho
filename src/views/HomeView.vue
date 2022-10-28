@@ -4,7 +4,6 @@ import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {onBeforeMount, ref} from "vue";
-import {onBeforeRouteLeave} from "vue-router";
 setTitle("Home");
 
 const user = useUser();
