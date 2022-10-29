@@ -10,7 +10,7 @@ const user = useUser();
 
 supabase
 	.from("users")
-	.select("id,name,picture,follower_id(count),following_id(count)")
+	.select("id,user,name,picture,follower_id(count),following_id(count)")
 	.filter("follower_id.following_id", "eq", user.id)
 	.filter("following_id.user_id", "eq", user.id)
 	.filter("id", "neq", user.id)
@@ -23,10 +23,10 @@ supabase
 	<template v-if="load">
 		<div>
 			<RouterLink
-				:to="{name: 'user', params: {id}}"
+				:to="{name: 'user', params: {id: user}}"
 				class="item"
 				:key="i"
-				v-for="({id, name, picture, follower_id, following_id}, i) in data"
+				v-for="({id, name, user, picture, follower_id, following_id}, i) in data"
 			>
 				<div class="side">
 					<img

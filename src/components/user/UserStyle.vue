@@ -9,7 +9,7 @@ import Activity from "./Activity.vue";
 import Friends from "./Friends.vue";
 import Likes from "./Likes.vue";
 import Reviews from "./Reviews.vue";
-import Settings from "../templates/Settings.vue";
+import Settings from "./Settings.vue";
 
 const props = defineProps({
 	id: String,
@@ -29,7 +29,8 @@ const isFollowing = ref(false);
 const friendStatus = ref("ri:user-add-line");
 const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
 const load = ref(false);
-const tab = shallowRef(Settings); //Reviews
+const tab = shallowRef(Reviews);
+const found = ref(false);
 
 onBeforeMount(() => {
 	supabase
@@ -56,64 +57,71 @@ onBeforeMount(() => {
 		.match({user: username.value})
 		.single()
 		.then(res => {
-			id.value = res.data.id;
-			let raw_followers = [];
-			let raw_following = [];
-			let mutuals = [];
-			let following = [];
-			let followers = [];
+			if (res.data) {
+				found.value = true;
 
-			for (const person of res.data.follower_id) {
-				raw_following.push({
-					id: person.following_id.id,
-					user: person.following_id.user,
-					name: person.following_id.name,
-					picture: person.following_id.picture,
-				});
-			}
+				id.value = res.data.id;
+				checkFollow();
+				let raw_followers = [];
+				let raw_following = [];
+				let mutuals = [];
+				let following = [];
+				let followers = [];
 
-			for (const person of res.data.following_id) {
-				raw_followers.push({
-					id: person.user_id.id,
-					user: person.user_id.user,
-					name: person.user_id.name,
-					picture: person.user_id.picture,
-				});
-			}
-
-			for (const person of raw_following) {
-				if (raw_followers.some(e => e.id === person.id)) {
-					mutuals.push(person);
+				for (const person of res.data.follower_id) {
+					raw_following.push({
+						id: person.following_id.id,
+						user: person.following_id.user,
+						name: person.following_id.name,
+						picture: person.following_id.picture,
+					});
 				}
-			}
 
-			for (const person of raw_following) {
-				if (mutuals.some(e => e.id === person.id)) {
-				} else {
-					following.push(person);
+				for (const person of res.data.following_id) {
+					raw_followers.push({
+						id: person.user_id.id,
+						user: person.user_id.user,
+						name: person.user_id.name,
+						picture: person.user_id.picture,
+					});
 				}
-			}
 
-			for (const person of raw_followers) {
-				if (mutuals.some(e => e.id === person.id)) {
-				} else {
-					followers.push(person);
+				for (const person of raw_following) {
+					if (raw_followers.some(e => e.id === person.id)) {
+						mutuals.push(person);
+					}
 				}
+
+				for (const person of raw_following) {
+					if (mutuals.some(e => e.id === person.id)) {
+					} else {
+						following.push(person);
+					}
+				}
+
+				for (const person of raw_followers) {
+					if (mutuals.some(e => e.id === person.id)) {
+					} else {
+						followers.push(person);
+					}
+				}
+
+				friends.value = {following, followers, mutuals};
+
+				user.value = res.data;
+				diary.value = res.data.diary_id;
+				reviews.value = res.data.reviews_id;
+				likes.value = res.data.likes_id;
+				data.value = reviews.value;
+
+				setTitle(res.data.name);
+				useFavicon(favicon(res.data.picture, "50"));
+
+				load.value = true;
+			} else {
+				found.value = false;
+				load.value = true;
 			}
-
-			friends.value = {following, followers, mutuals};
-
-			user.value = res.data;
-			diary.value = res.data.diary_id;
-			reviews.value = res.data.reviews_id;
-			likes.value = res.data.likes_id;
-			data.value = reviews.value;
-
-			setTitle(res.data.name);
-			useFavicon(favicon(res.data.picture, "50"));
-
-			checkFollow();
-			load.value = true;
 		});
 });
 
@@ -182,84 +190,113 @@ onBeforeUnmount(() => {
 
 <template>
 	<template v-if="load">
-		<div class="user">
-			<div class="profile">
-				<div class="side">
-					<img
-						:src="folder(user.picture, '200')"
-						:alt="user.name"
-						class="pic"
-					/>
-				</div>
-				<div class="side">
-					<div class="add">
-						{{ user.name }}
-						<iconify-icon
-							v-if="id !== userStore.id"
-							@click="follow"
-							class="addicon"
-							:icon="friendStatus"
-						/>
+		<div>
+			<template v-if="found">
+				<div class="user">
+					<div
+						v-if="userStore.id !== id"
+						class="profile"
+					>
+						<div class="side">
+							<img
+								:src="folder(user.picture, '200')"
+								:alt="user.name"
+								class="pic"
+							/>
+						</div>
+						<div class="side">
+							<div class="add">
+								{{ user.name }}
+								<iconify-icon
+									@click="follow"
+									class="addicon"
+									:icon="friendStatus"
+								/>
+							</div>
+						</div>
+					</div>
+					<div
+						v-else
+						class="profile"
+					>
+						<div class="side">
+							<img
+								:src="folder(userStore.picture, '200')"
+								:alt="userStore.name"
+								class="pic"
+							/>
+						</div>
+						<div class="side">
+							<div class="add">
+								{{ userStore.name }}
+							</div>
+						</div>
+					</div>
+					<div class="tabs">
+						<div
+							@click="(data = reviews), (tab = Reviews)"
+							:style="
+								tab === Reviews ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+							"
+							class="tab"
+						>
+							Reviews
+						</div>
+						<div
+							@click="(data = diary), (tab = Activity)"
+							class="tab"
+							:style="
+								tab === Activity ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+							"
+						>
+							{{ userStore.lang === "pt-br" ? "Atividade" : "Activity" }}
+						</div>
+						<div
+							v-if="false"
+							@click="(data = likes), (tab = Likes)"
+							:style="
+								tab === Likes ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+							"
+							class="tab"
+						>
+							Likes
+						</div>
+						<div
+							@click="(data = friends), (tab = Friends)"
+							:style="
+								tab === Friends ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+							"
+							class="tab"
+						>
+							Social
+						</div>
+						<div
+							v-if="userStore.logged && userStore.id === id"
+							@click="tab = Settings"
+							:style="tab === Settings ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
+							class="tab"
+						>
+							<iconify-icon icon="ri:settings-3-fill" />
+						</div>
+					</div>
+					<div class="activeTab">
+						<Transition
+							name="comp"
+							mode="out-in"
+						>
+							<KeepAlive>
+								<Component
+									:data="data"
+									:is="tab"
+								></Component>
+							</KeepAlive>
+						</Transition>
 					</div>
 				</div>
-			</div>
-			<div class="tabs">
-				<div
-					@click="(data = reviews), (tab = Reviews)"
-					:style="tab === Reviews ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'"
-					class="tab"
-				>
-					Reviews
-				</div>
-				<div
-					@click="(data = diary), (tab = Activity)"
-					class="tab"
-					:style="tab === Activity ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'"
-				>
-					{{ userStore.lang === "pt-br" ? "Atividade" : "Activity" }}
-				</div>
-				<div
-					v-if="false"
-					@click="(data = likes), (tab = Likes)"
-					:style="tab === Likes ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'"
-					class="tab"
-				>
-					Likes
-				</div>
-				<div
-					@click="(data = friends), (tab = Friends)"
-					:style="tab === Friends ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'"
-					class="tab"
-				>
-					Social
-				</div>
-				<div
-					v-if="userStore.logged && userStore.id === id"
-					@click="tab = Settings"
-					:style="tab === Settings ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
-					class="tab"
-				>
-					<iconify-icon icon="ri:settings-3-fill" />
-				</div>
-			</div>
-			<div class="activeTab">
-				<transition
-					name="route"
-					mode="out-in"
-				>
-					<!-- <keep-alive> -->
-					<suspense>
-						<template #default>
-							<component
-								:data="data"
-								:is="tab"
-							/>
-						</template>
-						<template #fallback> seios </template>
-					</suspense>
-					<!-- </keep-alive> -->
-				</transition>
-			</div>
+			</template>
+			<template v-else>
+				<h1>User not found :/</h1>
+			</template>
 		</div>
 	</template>
 	<template v-else>

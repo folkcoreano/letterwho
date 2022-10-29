@@ -42,7 +42,7 @@ if (props.data.mutuals.length > 0) {
 				v-if="data.mutuals.length > 0"
 				@click="(tab = 0), (friends = data.mutuals)"
 				class="tab"
-				:style="tab === 0 ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
+				:style="tab === 0 ? 'border-bottom: 2px solid var(--yellow)' : ''"
 			>
 				Mutuals ({{ data.mutuals.length }})
 			</div>
@@ -50,7 +50,7 @@ if (props.data.mutuals.length > 0) {
 				v-if="data.following.length > 0"
 				@click="(tab = 1), (friends = data.following)"
 				class="tab"
-				:style="tab === 1 ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
+				:style="tab === 1 ? 'border-bottom: 2px solid var(--yellow)' : ''"
 			>
 				{{ user.lang === "pt-br" ? "Seguindo" : "Following" }} ({{ data.following.length }})
 			</div>
@@ -58,23 +58,23 @@ if (props.data.mutuals.length > 0) {
 				v-if="data.followers.length > 0"
 				@click="(tab = 2), (friends = data.followers)"
 				class="tab"
-				:style="tab === 2 ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
+				:style="tab === 2 ? 'border-bottom: 2px solid var(--yellow)' : ''"
 			>
 				{{ user.lang === "pt-br" ? "Seguidores" : "Followers" }} ({{ data.followers.length }})
 			</div>
 		</div>
 		<div class="persons">
-			<transition
+			<Transition
 				name="route"
 				mode="out-in"
 			>
-				<keep-alive>
+				<KeepAlive>
 					<FriendsList
 						:key="tab"
 						:data="friends"
 					/>
-				</keep-alive>
-			</transition>
+				</KeepAlive>
+			</Transition>
 		</div>
 	</div>
 </template>
@@ -92,6 +92,7 @@ if (props.data.mutuals.length > 0) {
 
 	.tab {
 		text-align: center;
+		flex: 0;
 	}
 }
 </style>

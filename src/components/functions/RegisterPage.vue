@@ -3,11 +3,12 @@ import {ref} from "vue";
 import {useUser} from "@/stores/user";
 import {useRoute, useRouter} from "vue-router";
 import supabase from "@/supabase";
+import setTitle from "@/stores/title";
 
 const user = useUser();
 
 const {push} = useRouter();
-
+setTitle("Register");
 const {
 	query: {from, id},
 } = useRoute();

@@ -1,45 +1,49 @@
 <script setup>
+import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
-const props = defineProps({
-	user: Object,
-});
-
 const {push, back} = useRouter();
 
 const user = useUser();
+
+setTitle("Login");
 
 const {
 	query: {from, id},
 } = useRoute();
 
-const email = ref();
+const email = ref("");
 
-const password = ref();
+const password = ref("");
 
 const isPass = ref(false);
 
 const color = ref("var(--blue)");
 
-const response = ref(props.user.lang ? "Deixa eu entrar!" : "Let me in!");
+const response = ref(user.lang === "pt-br" ? "Deixa eu entrar!" : "Let me in!");
 
-async function login() {
-	response.value = props.user.lang ? "Trabalhando..." : "Working...";
+function login() {
+	response.value = user.lang === "pt-br" ? "Trabalhando..." : "Working...";
 
-	supabase.auth.signInWithPassword({email: email.value, password: password.value}).then(res => {
-		response.value = props.user.lang ? "Sucesso!" : "Success!";
+	supabase.auth
+		.signInWithPassword({
+			email: email.value,
+			password: password.value,
+		})
+		.then(res => {
+			response.value = props.user.lang ? "Sucesso!" : "Success!";
 
-		setTimeout(() => {
-			if (from === "user") {
-				push({name: "user", params: {id: id}});
-			} else {
-				back();
-			}
-		}, 500);
-	});
+			// setTimeout(() => {
+			// 	if (from === "user") {
+			// 		push({name: "user", params: {id: id}});
+			// 	} else {
+			// 		back();
+			// 	}
+			// }, 500);
+		});
 }
 </script>
 

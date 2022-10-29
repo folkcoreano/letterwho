@@ -44,12 +44,9 @@ function changeTab(n) {
 					{{ user.lang ? "Criar conta" : "Create an account" }}
 				</span>
 			</div>
-			<keep-alive>
-				<component
-					:user="user"
-					:is="activeTab"
-				></component>
-			</keep-alive>
+			<KeepAlive>
+				<Component :is="activeTab"> </Component>
+			</KeepAlive>
 		</div>
 	</div>
 </template>
