@@ -49,7 +49,7 @@ const router = createRouter({
 			component: () => import("@/components/dynamic/RangeView.vue"),
 		},
 		{
-			path: "/characters/:id",
+			path: "/c/:id",
 			name: "character",
 			component: () => import("@/components/dynamic/CharacterView.vue"),
 		},
@@ -59,7 +59,7 @@ const router = createRouter({
 			component: () => import("@/views/CharactersView.vue"),
 		},
 		{
-			path: "/persons/:id",
+			path: "/p/:id",
 			name: "person",
 			component: () => import("@/components/dynamic/PersonView.vue"),
 		},
@@ -94,7 +94,7 @@ const router = createRouter({
 			component: () => import("@/views/RegisterView.vue"),
 		},
 		{
-			path: "/user/:id",
+			path: "/u/:id",
 			name: "user",
 			component: () => import("@/components/dynamic/UserView.vue"),
 		},

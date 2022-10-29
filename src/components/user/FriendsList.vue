@@ -9,9 +9,9 @@ const props = defineProps({
 <template>
 	<div class="persons">
 		<router-link
-			:to="{name: 'user', params: {id}}"
+			:to="{name: 'user', params: {id: user}}"
 			:key="i"
-			v-for="({id, name, picture}, i) in data"
+			v-for="({user, name, picture}, i) in data"
 			class="person"
 		>
 			<div class="side">

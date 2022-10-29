@@ -12,6 +12,7 @@ export const useUser = defineStore("newUserStore", {
 			email: null,
 			picture: null,
 			created: null,
+			user: null,
 		},
 	}),
 	getters: {
@@ -19,6 +20,7 @@ export const useUser = defineStore("newUserStore", {
 		logged: state => state.data.logged,
 		id: state => state.data.id,
 		name: state => state.data.name,
+		user: state => state.data.user,
 		email: state => state.data.email,
 		picture: state => state.data.picture,
 		created: state => state.data.created,

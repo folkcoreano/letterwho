@@ -4,7 +4,7 @@ import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {useFavicon} from "@vueuse/core";
-import {ref, onMounted, shallowRef, onUnmounted} from "vue";
+import {ref, onMounted, shallowRef, onBeforeUnmount, onBeforeMount} from "vue";
 import Activity from "./Activity.vue";
 import Friends from "./Friends.vue";
 import Likes from "./Likes.vue";
@@ -16,7 +16,8 @@ const props = defineProps({
 });
 
 const userStore = useUser();
-const id = ref(props.id);
+const username = ref(props.id);
+const id = ref("");
 
 const user = ref();
 const data = ref();
@@ -28,21 +29,22 @@ const isFollowing = ref(false);
 const friendStatus = ref("ri:user-add-line");
 const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
 const load = ref(false);
-const tab = shallowRef(Reviews);
+const tab = shallowRef(Settings); //Reviews
 
-function getUser() {
+onBeforeMount(() => {
 	supabase
 		.from("users")
 		.select(
 			`
 			id,
 			name,
+			user,
 			picture,
 			diary_id(id,created,watched,saved,liked,rating,review,review_id(id,rating,loved),rewatch,${storyQuery.value}),
 			reviews_id(id,created,text,loved,rating,rewatch,${storyQuery.value}),
-			likes_id(id,review_id(id,created,user_id(name,picture),text,rating,rewatch,${storyQuery.value})),
-			follower_id(following_id(id,name,picture)),
-			following_id(user_id(id,name,picture))
+			likes_id(id,review_id(id,created,user_id(name,user,picture),text,rating,rewatch,${storyQuery.value})),
+			follower_id(following_id(id,user,name,picture)),
+			following_id(user_id(id,name,user,picture))
 			`
 		)
 		.limit(1)
@@ -51,9 +53,10 @@ function getUser() {
 		.order("id", {foreignTable: "likes_id", ascending: false})
 		.order("id", {foreignTable: "follower_id", ascending: false})
 		.order("id", {foreignTable: "following_id", ascending: false})
-		.match({id: id.value})
+		.match({user: username.value})
 		.single()
 		.then(res => {
+			id.value = res.data.id;
 			let raw_followers = [];
 			let raw_following = [];
 			let mutuals = [];
@@ -63,6 +66,7 @@ function getUser() {
 			for (const person of res.data.follower_id) {
 				raw_following.push({
 					id: person.following_id.id,
+					user: person.following_id.user,
 					name: person.following_id.name,
 					picture: person.following_id.picture,
 				});
@@ -71,6 +75,7 @@ function getUser() {
 			for (const person of res.data.following_id) {
 				raw_followers.push({
 					id: person.user_id.id,
+					user: person.user_id.user,
 					name: person.user_id.name,
 					picture: person.user_id.picture,
 				});
@@ -107,9 +112,10 @@ function getUser() {
 			setTitle(res.data.name);
 			useFavicon(favicon(res.data.picture, "50"));
 
+			checkFollow();
 			load.value = true;
 		});
-}
+});
 
 function follow() {
 	if (isFollowing.value === false) {
@@ -169,12 +175,7 @@ function checkFollow() {
 	}
 }
 
-onMounted(() => {
-	checkFollow();
-	getUser();
-});
-
-onUnmounted(() => {
+onBeforeUnmount(() => {
 	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
 });
 </script>
@@ -246,12 +247,17 @@ onUnmounted(() => {
 					name="route"
 					mode="out-in"
 				>
-					<keep-alive>
-						<component
-							:data="data"
-							:is="tab"
-						/>
-					</keep-alive>
+					<!-- <keep-alive> -->
+					<suspense>
+						<template #default>
+							<component
+								:data="data"
+								:is="tab"
+							/>
+						</template>
+						<template #fallback> seios </template>
+					</suspense>
+					<!-- </keep-alive> -->
 				</transition>
 			</div>
 		</div>

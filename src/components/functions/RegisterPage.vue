@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import {ref} from "vue";
 import {useUser} from "@/stores/user";
 import {useRoute, useRouter} from "vue-router";
@@ -68,7 +68,7 @@ async function signUP() {
 						console.log("user added to the table!");
 						setTimeout(() => {
 							if (from === "user") {
-								push({name: "user", params: {id: `${id}`}});
+								push({name: "user", params: {id}});
 							} else {
 								push({name: "home"});
 							}

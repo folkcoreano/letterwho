@@ -22,7 +22,7 @@ async function getReviews() {
 	let item;
 	supabase
 		.from("reviews")
-		.select("*,story_id(title,url,released),user_id(name,picture,id)")
+		.select("*,story_id(title,url,released),user_id(user,name,picture,id)")
 		.match({story_id: story})
 		.then(res => {
 			datas.value = res.data;
@@ -44,7 +44,7 @@ getReviews();
 				class="review"
 			>
 				<div class="icon">
-					<RouterLink :to="{name: 'user', params: {id: user_id.id}}">
+					<RouterLink :to="{name: 'user', params: {id: user_id.user}}">
 						<img
 							class="reviewIcon"
 							:src="folder(user_id.picture, '50')"

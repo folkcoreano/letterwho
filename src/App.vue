@@ -1,24 +1,22 @@
 <script setup>
-import {ref, onMounted, watchEffect} from "vue";
+import {ref, onBeforeMount, watchEffect} from "vue";
 import supabase from "@/supabase";
 import {useUser} from "@/stores/user";
-import {RouterLink, RouterView} from "vue-router";
+import {RouterView} from "vue-router";
 import {useTime} from "./stores/time";
 
 const init = ref(false);
 
 const user = useUser();
 
-const data = ref();
-
-onMounted(() => {
-	console.log("mounted");
+onBeforeMount(() => {
+	// console.log("mounted");
 
 	supabase.auth.getSession().then(res => {
-		console.log("check session");
+		// console.log("check session");
 
 		if (res.data.session) {
-			console.log("has session");
+			// console.log("has session");
 
 			user.data.id = res.data.session.user.id;
 			user.data.email = res.data.session.user.email ? res.data.session.user.email : null;
@@ -36,12 +34,13 @@ onMounted(() => {
 
 			supabase
 				.from("users")
-				.select()
+				.select("name,picture,user")
 				.limit(1)
 				.single()
 				.match({id: res.data.session.user.id})
 				.then(res => {
 					if (res.data) {
+						user.data.user = res.data.user;
 						user.data.name = res.data.name;
 						user.data.picture = res.data.picture;
 
@@ -56,6 +55,7 @@ onMounted(() => {
 			user.data.language = "en";
 			user.data.id = null;
 			user.data.name = null;
+			user.data.user = null;
 			user.data.email = null;
 			user.data.picture = null;
 			user.data.created = null;
@@ -66,10 +66,10 @@ onMounted(() => {
 	});
 
 	watchEffect(async () => {
-		console.log("watching");
+		// console.log("watching");
 		supabase.auth.onAuthStateChange(async (e, s) => {
 			if (e === "USER_UPDATED" && s) {
-				console.log(e);
+				// console.log(e);
 
 				user.data.id = s.user.id;
 				user.data.email = s.user.email ? s.user.email : null;
@@ -79,7 +79,7 @@ onMounted(() => {
 			}
 
 			if (e === "SIGNED_IN" && s) {
-				console.log(e);
+				// console.log(e);
 
 				user.data.id = s.user.id;
 				user.data.email = s.user.email ? s.user.email : null;
@@ -89,11 +89,12 @@ onMounted(() => {
 				if (!user.name && !user.picture) {
 					supabase
 						.from("users")
-						.select("name,picture")
+						.select("name,picture,user")
 						.limit(1)
 						.single()
 						.match({id: s.user.id})
 						.then(res => {
+							user.data.user = res.data.user;
 							user.data.name = res.data.name;
 							user.data.picture = res.data.picture;
 						});
@@ -103,10 +104,11 @@ onMounted(() => {
 			}
 
 			if (e === "SIGNED_OUT") {
-				console.log(e);
+				// console.log(e);
 
 				user.data.language = "en";
 				user.data.id = null;
+				user.data.user = null;
 				user.data.name = null;
 				user.data.email = null;
 				user.data.picture = null;
@@ -115,7 +117,7 @@ onMounted(() => {
 			}
 
 			if (e === "TOKEN_REFRESHED" && s) {
-				console.log(e);
+				// console.log(e);
 			}
 		});
 	});

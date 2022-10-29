@@ -28,6 +28,7 @@ const username = ref();
 const userpicture = ref();
 
 const userid = ref();
+const useruser = ref();
 
 const responseEdit = ref(user.lang === "pt-br" ? "Editar" : "Edit");
 const responseDelete = ref(user.lang === "pt-br" ? "Deletar" : "Delete");
@@ -60,7 +61,7 @@ async function getReview() {
 		loved,
 		text,
 		story_id(title,released,url,code),
-		user_id(id,name,picture),
+		user_id(id,user,name,picture),
 		likes_id,
 		comments_id
 		`
@@ -80,6 +81,7 @@ async function getReview() {
 
 			data.value = {
 				id: res.data.user_id.id,
+				user: res.data.user_id.user,
 				name: res.data.user_id.name,
 				picture: res.data.user_id.picture,
 				rating: res.data.rating,
@@ -95,6 +97,7 @@ async function getReview() {
 			username.value = res.data.user_id.name;
 			userpicture.value = res.data.user_id.picture;
 			userid.value = res.data.user_id.id;
+			useruser.value = res.data.user_id.user;
 
 			document.title =
 				res.data.story_id.title +
@@ -125,7 +128,7 @@ async function editReview() {
 		updated,
 		text,
 		story_id(title,released,url,code),
-		user_id(id,name,picture)
+		user_id(id,name,user,picture)
 		`
 		)
 		.then(res => {
@@ -145,6 +148,7 @@ async function editReview() {
 			username.value = res.data[0].user_id.name;
 			userpicture.value = res.data[0].user_id.picture;
 			userid.value = res.data[0].user_id.id;
+			useruser.value = res.data[0].user_id.user;
 
 			responseEdit.value = lang === "pt-br" ? "Feito!" : "Done!";
 
@@ -251,7 +255,7 @@ async function likeReview(state) {
 async function getLikes() {
 	supabase
 		.from("likes")
-		.select("user_id(id,name,picture)", {count: "exact", head: false})
+		.select("user_id(id,name,user,picture)", {count: "exact", head: false})
 		.match({review_id: likesID.value})
 		.then(res => {
 			likes.value = res.count;
@@ -302,7 +306,7 @@ async function addComment() {
 async function getComments() {
 	supabase
 		.from("comments")
-		.select("comment,created,updated,id,user_id(id,name,picture)", {count: "exact"})
+		.select("comment,created,updated,id,user_id(id,name,user,picture)", {count: "exact"})
 		.order("created", {ascending: false})
 		.match({review_id: commentID.value})
 		.then(res => {
@@ -344,8 +348,8 @@ onMounted(() => {
 					class="userCover"
 					:to="
 						user.logged
-							? {name: 'user', params: {id: userid}}
-							: {name: 'register', query: {from: 'user', id: userid}}
+							? {name: 'user', params: {id: useruser}}
+							: {name: 'register', query: {from: 'user', id: useruser}}
 					"
 				>
 					<picture>
@@ -635,8 +639,8 @@ onMounted(() => {
 						<router-link
 							:to="
 								user.logged
-									? {name: 'user', params: {id: user_id.id}}
-									: {name: 'register', query: {from: 'user', id: user_id.id}}
+									? {name: 'user', params: {id: user_id.user}}
+									: {name: 'register', query: {from: 'user', id: user_id.user}}
 							"
 							class="commentPicture"
 						>
@@ -651,8 +655,8 @@ onMounted(() => {
 							<router-link
 								:to="
 									user.logged
-										? {name: 'user', params: {id: user_id.id}}
-										: {name: 'register', query: {from: 'user', id: user_id.id}}
+										? {name: 'user', params: {id: user_id.user}}
+										: {name: 'register', query: {from: 'user', id: user_id.user}}
 								"
 								class="commentName"
 							>
