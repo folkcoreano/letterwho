@@ -34,15 +34,15 @@ function login() {
 			password: password.value,
 		})
 		.then(res => {
-			response.value = props.user.lang ? "Sucesso!" : "Success!";
+			response.value = user.lang ? "Sucesso!" : "Success!";
 
-			// setTimeout(() => {
-			// 	if (from === "user") {
-			// 		push({name: "user", params: {id: id}});
-			// 	} else {
-			// 		back();
-			// 	}
-			// }, 500);
+			setTimeout(() => {
+				if (from === "user") {
+					push({name: "user", params: {id: id}});
+				} else {
+					back();
+				}
+			}, 500);
 		});
 }
 </script>

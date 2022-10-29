@@ -56,6 +56,7 @@ async function signUP() {
 						name: names[random],
 						picture: propics[randompics],
 						id: res.data.user.id,
+						user: res.data.user.id,
 						diary_id: res.data.user.id,
 						reviews_id: res.data.user.id,
 						likes_id: res.data.user.id,
