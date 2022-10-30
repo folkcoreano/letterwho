@@ -1,10 +1,12 @@
 <script setup>
-import {ref, onBeforeMount} from "vue";
+import {ref, onBeforeMount, shallowRef} from "vue";
 import supabase from "@/supabase";
 import {useRoute} from "vue-router";
 import setTitle from "@/stores/title";
 import {folder} from "@/stores/images";
 import {useUser} from "@/stores/user";
+import CharacterBio from "../templates/CharacterBio.vue";
+import StoriesList from "../templates/StoriesList.vue";
 
 const {
 	params: {id},
@@ -16,11 +18,15 @@ const tabs = ref([]);
 const actTab = ref("CHARACTER");
 const user = useUser();
 
+const activeTab = shallowRef(CharacterBio);
+const tabData = ref();
+
 const filtered = ref([]);
 
 const select = tab => {
-	actTab.value = tab;
-	filtered.value = data.value.character_id.filter(e => e.story_id.type === tab);
+	// actTab.value = tab;
+	// filtered.value = data.value.character_id.filter(e => e.story_id.type === tab);
+	tabData.value = data.value.character_id.filter(e => e.story_id.type === tab);
 };
 
 function size(tab) {
@@ -29,18 +35,21 @@ function size(tab) {
 
 function checkStatus(array) {
 	if (array.length > 0) {
-		if (array[0].watched) {
-			if (array[0].watched.status === true) {
-				return "var(--blue)";
-			}
+		const arr = array.find(e => !e.rewatch && !e.review);
+
+		if (arr.saved && arr.watched) {
+			return "both";
 		}
-		if (array[0].saved) {
-			if (array[0].saved.status === true) {
-				return "var(--green)";
-			}
+
+		if (arr.watched) {
+			return "watched";
+		}
+
+		if (arr.saved) {
+			return "saved";
 		}
 	}
-	return "transparent";
+	return "nah";
 }
 
 onBeforeMount(() => {
@@ -59,11 +68,26 @@ onBeforeMount(() => {
 		.then(res => {
 			data.value = res.data;
 
+			tabData.value = res.data.quotes;
+
 			let alltabs = res.data.character_id.flatMap(e => e.story_id.type);
 
 			const filteredtabs = [...new Set(alltabs)];
 
-			tabs.value = filteredtabs;
+			for (const tb of filteredtabs) {
+				if (tb === "audios") {
+					tabs.value.push({tab: user.lang === "pt-br" ? "ÁUDIOS" : "AUDIOS", id: tb});
+				}
+				if (tb === "books") {
+					tabs.value.push({tab: user.lang === "pt-br" ? "LIVROS" : "BOOKS", id: tb});
+				}
+				if (tb === "comics") {
+					tabs.value.push({tab: user.lang === "pt-br" ? "HQS" : "COMICS", id: tb});
+				}
+				if (tb === "tv") {
+					tabs.value.push({tab: "TV", id: tb});
+				}
+			}
 
 			setTitle(res.data.name);
 
@@ -76,6 +100,30 @@ onBeforeMount(() => {
 	<template v-if="load">
 		<div class="char">
 			<div class="tabs">
+				<div class="tab">BIO</div>
+				<div
+					:key="i"
+					v-for="({tab, id}, i) in tabs"
+					class="tab"
+					@click="(tabData = select(id)), (activeTab = StoriesList)"
+				>
+					{{ tab }}
+				</div>
+			</div>
+			<div class="content">
+				<Transition
+					name="comp"
+					mode="out-in"
+				>
+					<KeepAlive>
+						<Component
+							:data="tabData"
+							:is="activeTab"
+						/>
+					</KeepAlive>
+				</Transition>
+			</div>
+			<!-- <div class="tabs">
 				<div
 					@click="select('CHARACTER')"
 					:class="actTab === 'CHARACTER' ? 'tab active' : 'tab'"
@@ -91,35 +139,7 @@ onBeforeMount(() => {
 				</div>
 			</div>
 
-			<div
-				class="character"
-				v-show="actTab === 'CHARACTER'"
-			>
-				<div>
-					<img
-						class="image"
-						:src="folder('p/' + id, '500')"
-						alt=""
-					/>
-				</div>
-				<div class="quotes">
-					<div
-						class="quote"
-						:key="id"
-						v-for="({id, pt, en, story_id: {title, url, type, range_id}}, i) in data.quotes"
-					>
-						<q>{{ pt }}</q>
-						<br />
-						<q>{{ en }}</q>
-						<br />
-						<router-link
-							class="auth"
-							:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
-							>{{ title }}</router-link
-						>
-					</div>
-				</div>
-			</div>
+		
 
 			<div
 				v-show="actTab !== 'CHARACTER'"
@@ -141,7 +161,7 @@ onBeforeMount(() => {
 					/>
 					<div>{{ title + " (" + new Date(released).getFullYear() + ")" }}</div>
 				</RouterLink>
-			</div>
+			</div> -->
 		</div>
 	</template>
 	<template v-else>
@@ -149,71 +169,4 @@ onBeforeMount(() => {
 	</template>
 </template>
 
-<style scoped>
-.items {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-}
-.item {
-	display: flex;
-	flex-flow: column;
-	width: fit-content;
-	max-width: 10rem;
-}
-.img {
-	max-width: 100%;
-}
-.character {
-	display: flex;
-	flex-flow: column;
-	gap: 1rem;
-}
-.quotes {
-	display: flex;
-	flex-flow: column;
-	gap: 1rem;
-}
-
-.quote {
-	color: #eee;
-	font-weight: bold;
-}
-
-.auth {
-	color: #aaa;
-	font-weight: normal;
-}
-.image {
-	max-width: 100%;
-	width: 20rem;
-}
-.char {
-	display: flex;
-	flex-flow: column;
-	max-width: 50rem;
-	margin: auto;
-	gap: 0.35rem;
-}
-
-.tabs {
-	display: flex;
-	flex: 1;
-}
-
-.tab {
-	flex: 1;
-	padding: 0.35rem;
-	background-color: #0f0f0f;
-	text-align: center;
-	transition: all 150ms linear;
-	cursor: pointer;
-}
-
-.tab:hover {
-	background-color: #1f1f1f;
-}
-
-.active {
-	background-color: #1f1f1f;
-}
-</style>
+<style scoped></style>

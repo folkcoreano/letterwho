@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {folder} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";

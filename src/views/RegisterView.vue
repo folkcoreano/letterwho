@@ -1,90 +1,62 @@
-<script setup>
-import LoginPage from "@/components/functions/LoginPage.vue";
+<script setup lang="ts">
+import {shallowRef} from "vue";
 import {useUser} from "@/stores/user";
+import LoginPage from "@/components/functions/LoginPage.vue";
 import RegisterPage from "@/components/functions/RegisterPage.vue";
-import {ref, shallowRef} from "vue";
-
-import SignOUT from "@/components/functions/SignOUT.vue";
 
 const user = useUser();
-
-const tab = ref(0);
-
-const activeTab = shallowRef(LoginPage);
-
-function changeTab(n) {
-	tab.value = n;
-	if (n === 0) {
-		activeTab.value = LoginPage;
-	}
-	if (n === 1) {
-		activeTab.value = RegisterPage;
-	}
-}
+const tab = shallowRef(LoginPage);
 </script>
 
 <template>
-	<div>
-		<SignOUT v-if="user.logged" />
-		<div
-			class="register"
-			v-if="!user.logged"
-		>
-			<div class="choices">
-				<span
-					:class="tab == 0 ? 'tab active' : 'tab'"
-					@click="changeTab(0)"
-				>
-					{{ user.lang ? "Entrar" : "Login" }}
-				</span>
-				<span
-					:class="tab == 1 ? 'tab active' : 'tab'"
-					@click="changeTab(1)"
-				>
-					{{ user.lang ? "Criar conta" : "Create an account" }}
-				</span>
+	<div class="register">
+		<div class="tabs">
+			<div
+				@click="tab = LoginPage"
+				:style="tab === LoginPage ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'"
+				class="tab"
+			>
+				{{ user.lang ? "Entrar" : "Login" }}
 			</div>
-			<KeepAlive>
-				<Component :is="activeTab"> </Component>
-			</KeepAlive>
+			<div
+				@click="tab = RegisterPage"
+				:style="
+					tab === RegisterPage ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+				"
+				class="tab"
+			>
+				{{ user.lang ? "Criar conta" : "Create an account" }}
+			</div>
+		</div>
+		<div class="actab">
+			<Transition
+				name="comp"
+				mode="out-in"
+			>
+				<KeepAlive>
+					<Component :is="tab"> </Component>
+				</KeepAlive>
+			</Transition>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-/* * {
-	outline: 1px dotted rgba(255, 20, 145, 0);
-} */
-.choices {
-	display: flex;
-	gap: 1rem;
-}
 .register {
+	max-width: 35rem;
+	margin: auto;
 	display: flex;
 	flex-flow: column;
 	gap: 1rem;
-	max-width: 35rem;
-	margin: auto;
 }
-.tab {
-	flex: 1;
-	font-weight: bold;
-	padding: 0.5rem;
-	cursor: pointer;
-	border: 0.001rem solid #333;
-	border-radius: 0.3rem;
-	text-align: center;
-	background-color: #111;
-	color: #aaa;
-	transition: all 150ms linear;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-.active {
-	transition: all 150ms linear;
-	color: #eee;
-	background-color: #2f2f2f;
-	border: 0.001rem solid #444;
+
+@media (min-width: 35rem) {
+	.tabs {
+		width: auto;
+	}
+
+	.tab {
+		text-align: center;
+	}
 }
 </style>

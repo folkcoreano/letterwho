@@ -34,7 +34,7 @@ onBeforeMount(() => {
 
 			supabase
 				.from("users")
-				.select("name,picture,user")
+				.select("id,name,picture,user")
 				.limit(1)
 				.single()
 				.match({id: res.data.session.user.id})
@@ -89,7 +89,7 @@ onBeforeMount(() => {
 				if (!user.name && !user.picture) {
 					supabase
 						.from("users")
-						.select("name,picture,user")
+						.select("id,name,picture,user")
 						.limit(1)
 						.single()
 						.match({id: s.user.id})
@@ -129,12 +129,12 @@ onBeforeMount(() => {
 		<TheHeader />
 		<main>
 			<RouterView v-slot="{Component}">
-				<transition
+				<Transition
 					name="route"
 					mode="out-in"
 				>
-					<component :is="Component" />
-				</transition>
+					<Component :is="Component"></Component>
+				</Transition>
 			</RouterView>
 		</main>
 		<TheFooter id="foot" />

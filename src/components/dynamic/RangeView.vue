@@ -1,6 +1,7 @@
 <script setup>
 import {folder} from "@/stores/images";
 import setTitle from "@/stores/title";
+import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {ref, onBeforeMount} from "vue";
 import {useRoute} from "vue-router";
@@ -8,6 +9,8 @@ import {useRoute} from "vue-router";
 const {
 	params: {type, range},
 } = useRoute();
+
+const user = useUser();
 
 const data = ref();
 const load = ref(false);
@@ -35,17 +38,42 @@ function addChar() {
 onBeforeMount(() => {
 	supabase
 		.from("ranges")
-		.select("title,range_id(title,released,url,code)")
+		.select("title,range_id(title,released,url,code,diary_id(watched,saved))")
 		.order("released", {foreignTable: "range_id", ascending: true})
 		.match({type: type, range: range})
+		.filter("range_id.diary_id.user_id", "eq", user.id)
+		.order("id", {foreignTable: "range_id.diary_id", ascending: true})
+		.limit(1, {foreignTable: "range_id.diary_id"})
 		.limit(1)
 		.single()
 		.then(res => {
-			data.value = res.data;
-			setTitle(res.data.title);
+			console.log(res.data);
+			if (res.data) {
+				data.value = res.data;
+				setTitle(res.data.title);
+			}
 			load.value = true;
 		});
 });
+
+function checkStatus(array) {
+	if (array.length > 0) {
+		const arr = array.find(e => !e.rewatch && !e.review);
+
+		if (arr.saved && arr.watched) {
+			return "both";
+		}
+
+		if (arr.watched) {
+			return "watched";
+		}
+
+		if (arr.saved) {
+			return "saved";
+		}
+	}
+	return "nah";
+}
 </script>
 
 <template>
@@ -54,17 +82,31 @@ onBeforeMount(() => {
 			<!-- <button @click="addChar">add</button> -->
 			<div class="range">
 				<RouterLink
-					v-for="({title, code, url}, i) in data.range_id"
+					v-for="({title, code, url, diary_id}, i) in data.range_id"
 					:key="i"
-					class="story"
-					:to="{name: 'story', params: {type: type, range: range, story: url}}"
+					class="item"
+					:to="{name: 'story', params: {type, range, story: url}}"
 				>
 					<img
 						class="image"
-						:src="folder(`${type}/${range}/${code}`, '150')"
+						:style="'outline: 0.15rem solid ' + checkStatus(diary_id)"
+						:src="folder(`${type}/${range}/${code}`, '400')"
 						:alt="title"
 					/>
-					<!-- {{ title }} -->
+					<div class="status">
+						<iconify-icon
+							class="watch"
+							v-if="checkStatus(diary_id) === 'watched' || checkStatus(diary_id) === 'both'"
+							style="color: var(--blue); font-size: 2rem"
+							icon="ri:bookmark-3-fill"
+						/>
+						<iconify-icon
+							class="saved"
+							v-if="checkStatus(diary_id) === 'saved' || checkStatus(diary_id) === 'both'"
+							style="color: var(--green); font-size: 2rem"
+							icon="ri:bookmark-2-fill"
+						/>
+					</div>
 				</RouterLink>
 			</div>
 		</div>
@@ -75,20 +117,39 @@ onBeforeMount(() => {
 </template>
 
 <style scoped>
-.image {
-	max-width: 100%;
+.item {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-columns: 1fr;
 }
+
+.status {
+	grid-row: 1;
+	grid-column: 1;
+	place-self: start end;
+	margin: -0.25rem -0.15rem;
+}
+
 .range {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: 0.35rem;
-	max-width: 50rem;
+	grid-template-rows: 1fr;
+	gap: 0.75rem;
+	max-width: 45rem;
 	margin: auto;
 }
+.image {
+	grid-column: 1;
+	grid-row: 1;
 
-.story {
-	align-items: center;
-	flex-flow: column;
-	display: flex;
+	max-width: 100%;
+	outline: 0.001rem #2f2f2f solid;
+	border-radius: 0.15rem;
+	transition: all 150ms linear;
+}
+
+.image:hover {
+	transition: all 150ms linear;
+	outline: 0.001rem #3f3f3f solid;
 }
 </style>

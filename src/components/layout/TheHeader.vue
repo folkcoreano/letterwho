@@ -33,14 +33,16 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 		<RouterLink
 			v-if="!isPC"
 			class="u"
-			:to="user.logged ? {name: 'user', params: {id: user.user}} : {name: 'register'}"
+			:to="user.logged && user.user ? {name: 'user', params: {id: user.user}} : {name: 'register'}"
 		>
 			<UserHead />
 		</RouterLink>
 		<div class="navArea">
 			<RouterLink
 				class="u"
-				:to="user.logged ? {name: 'user', params: {id: user.user}} : {name: 'register'}"
+				:to="
+					user.logged && user.user ? {name: 'user', params: {id: user.user}} : {name: 'register'}
+				"
 			>
 				<UserHead />
 			</RouterLink>

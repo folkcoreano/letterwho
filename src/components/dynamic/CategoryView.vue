@@ -13,9 +13,8 @@ const load = ref(false);
 onBeforeMount(() => {
 	supabase
 		.from("ranges")
-		.select(`order,range_id(released),title,type,range`)
+		.select(`order,title,type,range`)
 		.match({type: name})
-		.limit(1, {foreignTable: "range_id"})
 		.order("order", {ascending: true})
 		.then(res => {
 			if (res.data) {
@@ -28,18 +27,18 @@ onBeforeMount(() => {
 <template>
 	<template v-if="load">
 		<div class="ranges">
-			<RouterLink
-				v-for="({title, range, type}, i) in data"
-				:key="i"
-				class="item"
-				:to="{name: 'range', params: {type: type, range: range}}"
-			>
-				<img
-					class="cover"
-					:src="folder(`${type}/${range}/${range}`, '200')"
-					:alt="title"
-				/>
-			</RouterLink>
+			<div v-for="({title, range, type}, i) in data">
+				<RouterLink
+					:key="i"
+					:to="{name: 'range', params: {type: type, range: range}}"
+				>
+					<img
+						class="cover"
+						:src="folder(`${type}/${range}/${range}`, '500')"
+						:alt="title"
+					/>
+				</RouterLink>
+			</div>
 		</div>
 	</template>
 	<template v-else>
@@ -51,17 +50,19 @@ onBeforeMount(() => {
 .ranges {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: 0.35rem;
-	max-width: 50rem;
+	gap: 0.75rem;
+	max-width: 45rem;
 	margin: auto;
-}
-.item {
-	align-items: center;
-	gap: 1rem;
-	display: flex;
-	flex-flow: column;
 }
 .cover {
 	max-width: 100%;
+	outline: 0.001rem #2f2f2f solid;
+	border-radius: 0.15rem;
+	transition: all 150ms linear;
+}
+
+.cover:hover {
+	transition: all 150ms linear;
+	outline: 0.001rem #3f3f3f solid;
 }
 </style>

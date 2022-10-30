@@ -1,8 +1,8 @@
-<script setup>
+<script setup lang="ts">
+import {ref} from "vue";
+import supabase from "@/supabase";
 import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
-import supabase from "@/supabase";
-import {ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 const {push, back} = useRouter();
@@ -27,22 +27,27 @@ const response = ref(user.lang === "pt-br" ? "Deixa eu entrar!" : "Let me in!");
 
 function login() {
 	response.value = user.lang === "pt-br" ? "Trabalhando..." : "Working...";
-
 	supabase.auth
 		.signInWithPassword({
 			email: email.value,
 			password: password.value,
 		})
 		.then(res => {
-			response.value = user.lang ? "Sucesso!" : "Success!";
+			console.log(res);
+			if (res.data.session) {
+				response.value = user.lang === "pt-br" ? "Sucesso!" : "Success!";
 
-			setTimeout(() => {
+				push({name: "home"});
 				if (from === "user") {
-					push({name: "user", params: {id: id}});
+					setTimeout(() => {
+						push({name: "user", params: {id: `${id}`}});
+					}, 500);
 				} else {
 					back();
 				}
-			}, 500);
+			} else {
+				response.value = user.lang === "pt-br" ? "Erro!" : "Error!";
+			}
 		});
 }
 </script>
@@ -99,10 +104,6 @@ function login() {
 </template>
 
 <style scoped>
-* {
-	outline: 1px solid rgba(255, 0, 0, 0);
-}
-
 .content {
 	display: flex;
 	flex-flow: column;

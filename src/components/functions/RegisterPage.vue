@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import {ref} from "vue";
 import {useUser} from "@/stores/user";
 import {useRoute, useRouter} from "vue-router";
@@ -8,7 +8,9 @@ import setTitle from "@/stores/title";
 const user = useUser();
 
 const {push} = useRouter();
+
 setTitle("Register");
+
 const {
 	query: {from, id},
 } = useRoute();
@@ -31,7 +33,7 @@ async function signUP() {
 
 	const randompics = Math.floor(Math.random() * propics.length);
 
-	response.value = user.lang ? "Trabalhando..." : "Working...";
+	response.value = user.lang === "pt-br" ? "Trabalhando..." : "Working...";
 
 	supabase.auth
 		.signUp({
@@ -49,7 +51,6 @@ async function signUP() {
 
 			if (res.data.user) {
 				console.log("user created!");
-
 				supabase
 					.from("users")
 					.insert({
@@ -66,11 +67,10 @@ async function signUP() {
 					})
 					.then(res => {
 						console.log(res);
-
 						console.log("user added to the table!");
 						setTimeout(() => {
 							if (from === "user") {
-								push({name: "user", params: {id}});
+								push({name: "user", params: {id: `${id}`}});
 							} else {
 								push({name: "home"});
 							}
