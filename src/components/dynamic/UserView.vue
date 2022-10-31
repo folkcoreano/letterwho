@@ -1,7 +1,7 @@
 <script setup>
 import {ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
-import UserStyle from "../user/UserStyle.vue";
+import UserStyle from "../styles/UserStyle.vue";
 
 const route = useRoute();
 const router = useRouter();

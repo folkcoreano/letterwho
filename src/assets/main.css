@@ -41,7 +41,6 @@ body {
   display: flex;
   flex-flow: column;
   justify-content: space-between;
-  font-size: 0.85rem;
 }
 
 main {
@@ -201,10 +200,6 @@ a:visited {
 }
 
 @media (min-width: 35rem) {
-  body {
-    font-size: 1rem;
-  }
-
   #foot {
     display: none;
   }

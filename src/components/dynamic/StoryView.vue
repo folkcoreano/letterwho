@@ -7,7 +7,7 @@ import {ref, onBeforeMount} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import Tabs from "@/components/templates/Tabs.vue";
 import ActivityTabs from "../templates/ActivityTabs.vue";
-import StoryStyle from "@/components/templates/StoryStyle.vue";
+import StoryStyle from "@/components/styles/StoryStyle.vue";
 import LoadingState from "@/components/layout/LoadingState.vue";
 import ReviewBox from "@/components/functions/reviews/ReviewBox.vue";
 

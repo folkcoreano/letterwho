@@ -1,5 +1,5 @@
 <script setup>
-import CharacterStyle from "@/components/templates/CharacterStyle.vue";
+import CharacterStyle from "@/components/styles/CharacterStyle.vue";
 import {onErrorCaptured} from "vue";
 import {useRouter} from "vue-router";
 

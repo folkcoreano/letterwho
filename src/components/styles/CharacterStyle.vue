@@ -4,8 +4,8 @@ import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {watchEffect, shallowRef, ref} from "vue";
 import {useRoute} from "vue-router";
-import CharacterBio from "./CharacterBio.vue";
-import StoriesList from "./StoriesList.vue";
+import CharacterBio from "../templates/CharacterBio.vue";
+import StoriesList from "../templates/StoriesList.vue";
 
 const {
 	params: {id},
@@ -14,19 +14,20 @@ const {
 const user = useUser();
 
 const {data, error} = await supabase
-	.from("crew")
+	.from("characters")
 	.select(
 		`
-    name,
-    crew_id(character_id(name),role,story_id(title,code,released,range_id,type,url,diary_id(watched,saved)))
-    `
+		character_id(story_id(title,code,released,range_id,type,url,diary_id(watched,saved))),
+		name,
+		quotes(pt,en,by,story_id(title,released,type,range_id,url))
+		`
 	)
-	.limit(1, {foreignTable: "crew_id.story_id.diary_id"})
-	.order("id", {foreignTable: "crew_id.story_id.diary_id", ascending: true})
-	.filter("crew_id.story_id.diary_id.user_id", "eq", user.id)
+	.limit(1, {foreignTable: "character_id.story_id.diary_id"})
+	.order("id", {foreignTable: "character_id.story_id.diary_id", ascending: true})
+	.filter("character_id.story_id.diary_id.user_id", "eq", user.id)
 	.limit(1)
 	.single()
-	.match({crew_id: id});
+	.match({character_id: id});
 
 watchEffect(() => {
 	if (data) {
@@ -36,20 +37,20 @@ watchEffect(() => {
 
 const tab = shallowRef(CharacterBio);
 
-const tabData = ref(data.crew_id);
+const tabData = ref(data.quotes);
 </script>
 
 <template>
 	<div class="container">
 		<div class="tabs">
 			<div
-				@click="tab = CharacterBio"
+				@click="(tabData = data.quotes), (tab = CharacterBio)"
 				:class="tab === CharacterBio ? 'tab activeTab' : 'tab'"
 			>
 				BIO
 			</div>
 			<div
-				@click="tab = StoriesList"
+				@click="(tabData = data.character_id), (tab = StoriesList)"
 				:class="tab === StoriesList ? 'tab activeTab' : 'tab'"
 			>
 				{{ user.lang === "pt-br" ? "Histórias" : "Stories" }}
@@ -60,12 +61,12 @@ const tabData = ref(data.crew_id);
 				name="comp"
 				mode="out-in"
 			>
-				<!-- <KeepAlive> -->
-				<Component
-					:data="tabData"
-					:is="tab"
-				/>
-				<!-- </KeepAlive> -->
+				<KeepAlive>
+					<Component
+						:data="tabData"
+						:is="tab"
+					/>
+				</KeepAlive>
 			</Transition>
 		</div>
 	</div>

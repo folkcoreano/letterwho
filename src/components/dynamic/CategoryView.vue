@@ -1,7 +1,7 @@
 <script setup>
 import {onErrorCaptured} from "vue";
 import {useRouter} from "vue-router";
-import RangesList from "../templates/RangesList.vue";
+import RangesList from "../styles/RangesStyle.vue";
 
 const {back} = useRouter();
 

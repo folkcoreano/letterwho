@@ -5,11 +5,11 @@ import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {useFavicon} from "@vueuse/core";
 import {ref, shallowRef, onBeforeUnmount, onBeforeMount} from "vue";
-import Activity from "./Activity.vue";
-import Friends from "./Friends.vue";
-import Likes from "./Likes.vue";
-import Reviews from "./Reviews.vue";
-import Settings from "./Settings.vue";
+import Activity from "../user/Activity.vue";
+import Friends from "../user/Friends.vue";
+import Likes from "../user/Likes.vue";
+import Reviews from "../user/Reviews.vue";
+import Settings from "../user/Settings.vue";
 
 const props = defineProps({
 	id: String,
@@ -279,7 +279,7 @@ onBeforeUnmount(() => {
 							<iconify-icon icon="ri:settings-3-fill" />
 						</div>
 					</div>
-					<div class="activeTab">
+					<div class="content">
 						<Transition
 							name="comp"
 							mode="out-in"

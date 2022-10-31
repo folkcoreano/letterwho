@@ -1,7 +1,7 @@
 <script setup>
 import {onErrorCaptured} from "vue";
 import {useRouter} from "vue-router";
-import PersonStyle from "../templates/PersonStyle.vue";
+import PersonStyle from "../styles/PersonStyle.vue";
 
 const {push} = useRouter();
 

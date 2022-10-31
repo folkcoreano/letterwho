@@ -43,28 +43,10 @@ onBeforeMount(() => {
 
 <template>
 	<div>
-		<!-- <AddRange /> -->
-
 		<Reviews
 			v-if="load"
 			:data="reviews"
 		/>
 		<div v-else>logai</div>
-
-		<div v-if="false">
-			<br />
-			<RouterLink :to="{name: 'register'}">Login</RouterLink>
-			<br />
-			<RouterLink :to="{name: 'persons'}">Pessoas</RouterLink>
-			<br />
-			<RouterLink :to="{name: 'users'}">Users</RouterLink>
-			<br />
-			<RouterLink :to="{name: 'characters'}">Personagens</RouterLink>
-			<br />
-			<RouterLink :to="{name: 'quotes'}">Citações</RouterLink>
-			<br />
-			<RouterLink :to="{name: 'stories'}">Histórias</RouterLink>
-			<br />
-		</div>
 	</div>
 </template>
