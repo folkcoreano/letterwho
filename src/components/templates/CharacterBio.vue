@@ -3,6 +3,7 @@ import {folder} from "@/stores/images";
 import {useRoute} from "vue-router";
 
 const {
+	name,
 	params: {id},
 } = useRoute();
 
@@ -20,7 +21,10 @@ const props = defineProps({
 				alt=""
 			/>
 		</div>
-		<div class="quotes">
+		<div
+			v-if="name !== 'person'"
+			class="quotes"
+		>
 			<div
 				class="quote"
 				:key="id"
@@ -41,6 +45,12 @@ const props = defineProps({
 </template>
 
 <style scoped>
+.character {
+	padding: 1rem 0;
+}
+.image {
+	max-width: 100%;
+}
 .quotes {
 	display: flex;
 	flex-flow: column;

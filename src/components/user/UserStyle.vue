@@ -4,7 +4,7 @@ import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {useFavicon} from "@vueuse/core";
-import {ref, onMounted, shallowRef, onBeforeUnmount, onBeforeMount} from "vue";
+import {ref, shallowRef, onBeforeUnmount, onBeforeMount} from "vue";
 import Activity from "./Activity.vue";
 import Friends from "./Friends.vue";
 import Likes from "./Likes.vue";

@@ -102,7 +102,7 @@ a:visited {
 
 .tab:hover {
   transition: all 150ms linear;
-  border-bottom: 2px solid #666;
+  border-bottom: 2px solid var(--yellow);
 }
 
 .sections {
@@ -181,6 +181,23 @@ a:visited {
   transform: scale(1);
   color: #aaa;
   cursor: not-allowed;
+}
+
+.container {
+  max-width: 45rem;
+  margin: auto;
+  display: flex;
+  flex-flow: column;
+}
+
+.subcontainer {
+  display: flex;
+  flex-flow: column;
+  gap: 0.55rem;
+}
+
+.activeTab {
+  border-bottom: 2px solid var(--yellow);
 }
 
 @media (min-width: 35rem) {
