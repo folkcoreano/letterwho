@@ -128,14 +128,16 @@ onBeforeMount(() => {
 	<template v-if="init">
 		<TheHeader />
 		<main>
-			<RouterView v-slot="{Component}">
-				<Transition
-					name="route"
-					mode="out-in"
-				>
-					<Component :is="Component"></Component>
-				</Transition>
-			</RouterView>
+			<div class="main">
+				<RouterView v-slot="{Component}">
+					<Transition
+						name="route"
+						mode="out-in"
+					>
+						<Component :is="Component"></Component>
+					</Transition>
+				</RouterView>
+			</div>
 		</main>
 		<TheFooter id="foot" />
 	</template>

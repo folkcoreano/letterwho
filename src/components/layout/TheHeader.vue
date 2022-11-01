@@ -20,23 +20,27 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 
 <template>
 	<header>
-		<RouterLink
-			class="logoArea"
-			:to="{name: 'home'}"
-		>
-			<img
-				class="logo"
-				src="https://ik.imagekit.io/letterwho/logo.svg"
-				alt="LetterWHO - Logo"
-			/>
-		</RouterLink>
-		<RouterLink
-			v-if="!isPC"
-			class="u"
-			:to="user.logged && user.user ? {name: 'user', params: {id: user.user}} : {name: 'register'}"
-		>
-			<UserHead />
-		</RouterLink>
+		<div class="logoBlock">
+			<RouterLink
+				class="logoArea"
+				:to="{name: 'home'}"
+			>
+				<img
+					class="logo"
+					src="https://ik.imagekit.io/letterwho/logo.svg"
+					alt="LetterWHO - Logo"
+				/>
+			</RouterLink>
+			<RouterLink
+				v-if="!isPC"
+				class="u"
+				:to="
+					user.logged && user.user ? {name: 'user', params: {id: user.user}} : {name: 'register'}
+				"
+			>
+				<UserHead />
+			</RouterLink>
+		</div>
 		<div class="navArea">
 			<RouterLink
 				class="u"
@@ -71,20 +75,23 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 </template>
 
 <style scoped>
-* {
-	outline: 0px dotted deeppink;
-}
-header {
+/* * {
+	outline: 1px dotted deeppink;
+} */
+.logoBlock {
 	display: flex;
 	justify-content: space-between;
+}
+
+header {
 	padding: 0.55rem;
-	overflow: auto;
 	background-color: #0f0f0f;
 }
 .u {
 	display: flex;
 }
 .navArea {
+	flex: 1;
 	display: none;
 	align-items: center;
 	gap: 1rem;
@@ -111,6 +118,7 @@ header {
 }
 .logoArea {
 	display: flex;
+	flex: 0;
 }
 .logo {
 	max-height: 2.35rem;
@@ -118,6 +126,14 @@ header {
 @media (min-width: 35rem) {
 	.navArea {
 		display: flex;
+	}
+	header {
+		/* position: sticky;
+		top: 0;
+		overflow: unset; */
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		margin: auto;
 	}
 }
 </style>

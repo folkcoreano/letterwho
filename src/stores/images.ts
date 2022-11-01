@@ -17,6 +17,13 @@ export function folder(path: string, width?: string) {
 		  });
 }
 
+export function homeFolder(path: string, width: string, height: string) {
+	return imgkit.url({
+		path: `${path}.jpg`,
+		transformation: [{width, height, focus: "top", defaultImage: "/404a.jpg"}],
+	});
+}
+
 export function favicon(path: string) {
 	return imgkit.url({
 		path: `${path}.jpg`,

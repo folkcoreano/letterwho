@@ -66,26 +66,26 @@ onBeforeMount(() => {
 
 				setTitle(res.data.title);
 
-				if (res.data.diary_id.some(e => !e.review && !e.rewatch)) {
-					if (
-						status.watched === null &&
-						status.saved === null &&
-						status.liked === null &&
-						status.review === false &&
-						status.rewatch === false
-					) {
-						supabase
-							.from("diary")
-							.delete()
-							.match({
-								id: status.id,
-								user_id: user.id,
-							})
-							.then(() => {
-								console.log("deleting dull data");
-							});
-					}
-				}
+				// if (res.data.diary_id.some(e => !e.review && !e.rewatch)) {
+				// 	if (
+				// 		status.watched === null &&
+				// 		status.saved === null &&
+				// 		status.liked === null &&
+				// 		status.review === false &&
+				// 		status.rewatch === false
+				// 	) {
+				// 		supabase
+				// 			.from("diary")
+				// 			.delete()
+				// 			.match({
+				// 				id: status.id,
+				// 				user_id: user.id,
+				// 			})
+				// 			.then(() => {
+				// 				console.log("deleting dull data");
+				// 			});
+				// 	}
+				// }
 
 				data.value = {
 					diary: res.data.diary_id.length > 0 ? status : null,

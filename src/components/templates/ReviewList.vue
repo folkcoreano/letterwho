@@ -1,5 +1,5 @@
 <script setup>
-import {folder} from "@/stores/images";
+import {folder, homeFolder} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
@@ -50,11 +50,12 @@ if (name === "home" && user.logged) {
 <template>
 	<div class="reviews">
 		<div
+			:key="i"
 			v-for="({id, text, rating, loved, rewatch, created, story_id, user_id}, i) in datalist"
 			class="review"
 		>
+			<!-- v-if="name !== 'user'" -->
 			<RouterLink
-				v-if="name !== 'user'"
 				class="reviewUser"
 				:to="{name: 'user', params: {id: user_id.user}}"
 			>
@@ -64,7 +65,7 @@ if (name === "home" && user.logged) {
 					:alt="user_id.name"
 				/>
 			</RouterLink>
-			<RouterLink
+			<!-- <RouterLink
 				v-else
 				class="reviewUser"
 				:to="{
@@ -77,7 +78,7 @@ if (name === "home" && user.logged) {
 					:src="folder(`${story_id.type}/${story_id.range_id}/${story_id.code}`, '100')"
 					:alt="story_id.title"
 				/>
-			</RouterLink>
+			</RouterLink> -->
 
 			<RouterLink
 				:to="{
@@ -117,7 +118,14 @@ if (name === "home" && user.logged) {
 						</span>
 					</div>
 				</div>
-
+				<!-- v-if="name === 'user'" -->
+				<div class="reviewStory">
+					<img
+						class="reviewStoryPicture"
+						:src="folder(`${story_id.type}/${story_id.range_id}/${story_id.code}`, '500')"
+						:alt="story_id.title"
+					/>
+				</div>
 				<div class="reviewText">
 					{{ text }}
 				</div>
@@ -133,6 +141,13 @@ if (name === "home" && user.logged) {
 <style scoped>
 * {
 	transition: all 150ms linear;
+}
+
+.reviewStoryPicture {
+	width: 100%;
+	max-width: 25rem;
+	outline: 0.001rem #333 solid;
+	border-radius: 0.15rem;
 }
 .reviewText {
 	padding: 0.55rem 0;

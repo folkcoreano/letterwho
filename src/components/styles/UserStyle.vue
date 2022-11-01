@@ -191,9 +191,13 @@ onBeforeUnmount(() => {
 function storiesTab() {
 	supabase
 		.from("diary")
-		.select(`watched,story_id(title,code,released,range_id,type,url)`)
+		.select(`watched,story_id(title,code,released,range_id,type,url,diary_id(watched))`)
 		.not("watched", "is", null)
-		.match({user_id: userStore.id})
+		.is("review", false)
+		.limit(1, {foreignTable: "story_id.diary_id"})
+		.order("id", {foreignTable: "story_id.diary_id", ascending: true})
+		.filter("story_id.diary_id.user_id", "eq", userStore.id)
+		.match({user_id: id.value})
 		.then(res => {
 			data.value = res.data;
 			tab.value = StoriesList;

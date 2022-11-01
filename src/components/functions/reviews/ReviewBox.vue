@@ -106,7 +106,10 @@ async function rateContent(rating) {
 							rewatch: false,
 							review: false,
 						})
+
+						.select()
 						.then(res => {
+							checkData(res.data[0]);
 							console.log(res);
 						});
 				} else {
@@ -123,7 +126,10 @@ async function rateContent(rating) {
 								time: new Date().toISOString(),
 							},
 						})
+
+						.select()
 						.then(res => {
+							checkData(res.data[0]);
 							hasData.value = true;
 							console.log(res);
 							if (watched.value === false) {
@@ -164,7 +170,9 @@ async function removeRate() {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
+							checkData(res.data[0]);
 							console.log(res);
 						});
 				});
@@ -196,8 +204,9 @@ async function setWatch(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
 							watched.value = true;
 
 							if (saved.value === true) {
@@ -225,8 +234,10 @@ async function setWatch(state) {
 							review: false,
 							rewatch: false,
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							watched.value = false;
 						});
 				});
@@ -254,8 +265,10 @@ async function setWatch(state) {
 								time: new Date().toISOString(),
 							},
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							hasData.value = true;
 							watched.value = true;
 							if (saved.value === true) {
@@ -283,11 +296,12 @@ async function setWatch(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
+							checkData(res.data[0]);
 							hasData.value = true;
 
 							watched.value = false;
-							console.log(res);
 						});
 				});
 		}
@@ -319,8 +333,10 @@ async function setLike(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							liked.value = true;
 						});
 				});
@@ -343,8 +359,9 @@ async function setLike(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
 							liked.value = false;
 						});
 				});
@@ -372,8 +389,10 @@ async function setLike(state) {
 								time: new Date().toISOString(),
 							},
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							hasData.value = true;
 							liked.value = true;
 						});
@@ -397,9 +416,10 @@ async function setLike(state) {
 							review: false,
 							rewatch: false,
 						})
+						.select()
 						.then(res => {
+							checkData(res.data[0]);
 							liked.value = false;
-							console.log(res);
 						});
 				});
 		}
@@ -431,8 +451,10 @@ async function setSave(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							saved.value = true;
 						});
 				});
@@ -455,8 +477,10 @@ async function setSave(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							saved.value = false;
 						});
 				});
@@ -484,8 +508,10 @@ async function setSave(state) {
 								time: new Date().toISOString(),
 							},
 						})
+						.select()
 						.then(res => {
-							console.log(res);
+							checkData(res.data[0]);
+
 							hasData.value = true;
 
 							saved.value = true;
@@ -510,9 +536,10 @@ async function setSave(state) {
 							rewatch: false,
 							review: false,
 						})
+						.select()
 						.then(res => {
+							checkData(res.data[0]);
 							saved.value = false;
-							console.log(res);
 						});
 				});
 		}
@@ -523,6 +550,32 @@ const cloud = ref(props.data.diary);
 
 const bookProgress = ref(0);
 const maxPages = ref(props.data.length);
+
+function checkData(array) {
+	array.watched ? (watched.value = true) : (watched.value = false);
+	array.saved ? (saved.value = true) : (saved.value = false);
+	array.liked ? (liked.value = true) : (liked.value = false);
+	array.rating ? (ratingData.value = array.rating.rating) : (ratingData.value = 0);
+
+	if (
+		array.watched === null &&
+		array.saved === null &&
+		array.liked === null &&
+		array.rating === null
+	) {
+		supabase
+			.from("diary")
+			.delete()
+			.match({
+				id: array.id,
+			})
+			.then(res => {
+				hasData.value = false;
+				console.log("hum");
+				console.log(res);
+			});
+	}
+}
 
 watchEffect(() => {
 	// if (bookProgress.value > maxPages.value) {
@@ -537,8 +590,6 @@ watchEffect(() => {
 	// 	}
 	// }
 });
-
-onBeforeUnmount(() => {});
 </script>
 
 <template>

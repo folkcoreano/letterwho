@@ -28,6 +28,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Lato";
+  /* outline: 1px dodgerblue dotted; */
 }
 
 body,
@@ -56,8 +57,6 @@ a:visited {
   cursor: pointer;
   transition: all 150ms ease;
 }
-
-
 
 .comp-enter-from,
 .comp-leave-to {
@@ -204,6 +203,20 @@ a:visited {
     display: none;
   }
 
+  body {
+    overflow: auto;
+  }
+
+  main {
+    overflow: auto;
+  }
+
+  .main {
+    max-width: 75rem;
+    margin: auto;
+
+  }
+
   section {
     justify-content: flex-start;
   }
@@ -218,5 +231,4 @@ a:visited {
     flex: unset;
     text-align: unset;
   }
-
 }
