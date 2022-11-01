@@ -1,11 +1,10 @@
 <script setup>
-import {folder} from "@/stores/images";
-import {useTime} from "@/stores/time";
 import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {ref} from "vue";
 import {useRoute} from "vue-router";
+import ReviewList from "../templates/ReviewList.vue";
 
 const {
 	params: {type, range, story},
@@ -16,182 +15,174 @@ const user = useUser();
 const code = ref("");
 const title = ref("");
 
+const datalist = ref([]);
+const compKey = ref(0);
+const reviewsList = ref("all");
+
+const allData = ref([]);
+const userData = ref([]);
+const friendsData = ref([]);
+
 const {data} = await supabase
 	.from("reviews")
 	.select(
 		`
         id,
         user_id(id,name,user,picture),
-        story_id(title,released,code),
+        story_id(title,released,code,url,range_id,type),
         text,
         rating,
         created,
         rewatch,
         loved
-        `,
-		{count: "exact"}
+        `
 	)
+	.order("id", {ascending: false})
 	.match({story_id: story});
 
-code.value = data[0].story_id.code;
-title.value = data[0].story_id.title;
+allData.value = data;
+datalist.value = data;
 
-setTitle(title.value);
+if (data.length > 0) {
+	code.value = data[0].story_id.code;
+	title.value = data[0].story_id.title;
+
+	setTitle(title.value);
+}
+
+async function filterReviews(query) {
+	if (query === "user" && reviewsList.value !== "user" && userData.value.length < 1) {
+		console.log("req");
+		const {data} = await supabase
+			.from("reviews")
+			.select(
+				`id,
+			user_id(id,name,user,picture),
+			        story_id(title,released,code,url,range_id,type),
+
+				text,
+				rating,
+				created,
+				rewatch,
+				loved
+				`
+			)
+			.order("id", {ascending: false})
+			.match({
+				user_id: user.id,
+				story_id: story,
+			});
+
+		userData.value = data;
+		datalist.value = userData.value;
+		compKey.value += 1;
+	}
+
+	if (query === "friends" && reviewsList.value !== "friends" && friendsData.value.length < 1) {
+		console.log("req");
+		const {data} = await supabase
+			.from("reviews")
+			.select(
+				`
+			id,
+			user_id(id,name,user,picture,following_id(*)),
+			        story_id(title,released,code,url,range_id,type),
+
+			text,
+			rating,
+			created,
+			rewatch,
+			loved
+			`
+			)
+			.filter("user_id.following_id.user_id", "eq", user.id)
+			.order("id", {ascending: false})
+			.match({story_id: story});
+
+		const filtered = ref([]);
+
+		for (const rv of data) {
+			if (rv.user_id.following_id.length) {
+				filtered.value.push(rv);
+			}
+		}
+
+		friendsData.value = filtered.value;
+		datalist.value = friendsData.value;
+		compKey.value += 1;
+	}
+
+	if (query === "user" && reviewsList.value !== "user" && userData.value.length) {
+		datalist.value = userData.value;
+		compKey.value += 1;
+	}
+
+	if (query === "friends" && reviewsList.value !== "friends" && friendsData.value.length) {
+		datalist.value = friendsData.value;
+		compKey.value += 1;
+	}
+
+	if (query === "all" && reviewsList.value !== "all" && allData.value.length) {
+		datalist.value = allData.value;
+		compKey.value += 1;
+	}
+
+	reviewsList.value = query;
+}
 </script>
 
 <template>
 	<div class="layout">
-		<div class="story">
-			<RouterLink :to="{name: 'story'}">
-				<img
-					class="image"
-					:src="folder(`${type}/${range}/${code}`, '300')"
-					:alt="title"
-				/>
-			</RouterLink>
-		</div>
-		<div class="reviews">
+		<div class="tabs">
 			<div
-				v-for="({id, text, rating, loved, rewatch, created, story_id, user_id}, i) in data"
-				class="review"
+				@click="filterReviews('all')"
+				:class="reviewsList === 'all' ? 'tab activeTab' : 'tab'"
 			>
-				<RouterLink
-					class="reviewUser"
-					:to="{name: 'user', params: {id: user_id.user}}"
-				>
-					<img
-						class="userPicture"
-						:src="folder(user_id.picture, '100')"
-						:alt="user_id.name"
-					/>
-				</RouterLink>
-				<RouterLink
-					:to="{name: 'review', params: {id}}"
-					class="reviewSide"
-				>
-					<div class="reviewTitle">
-						<span class="name">{{ user_id.name }}</span>
-						<span> &sdot; </span>
-						<span class="title"
-							>{{ story_id.title }} ({{ new Date(story_id.released).getFullYear() }})</span
-						>
-						<span class="title"> &sdot; </span>
-						<iconify-icon
-							class="icon"
-							v-if="loved"
-							style="color: var(--red)"
-							icon="ri:heart-3-fill"
-						/>
-						<iconify-icon
-							class="icon"
-							style="color: var(--green)"
-							icon="ri:repeat-fill"
-							v-if="rewatch"
-						/>
-						<span
-							class="icons"
-							v-if="rating"
-						>
-							<iconify-icon
-								class="icon"
-								style="color: var(--yellow)"
-								icon="ri:star-fill"
-								v-for="star in rating"
-							/>
-						</span>
-					</div>
-					<div class="reviewText">
-						{{ text }}
-					</div>
-					<div class="reviewDetails">
-						{{ useTime(user.lang, created) }}
-					</div>
-				</RouterLink>
+				REVIEWS
 			</div>
+			<div
+				@click="filterReviews('user')"
+				:class="reviewsList === 'user' ? 'tab activeTab' : 'tab'"
+			>
+				{{ user.lang === "pt-br" ? "SUAS" : "YOURS" }}
+			</div>
+			<div
+				@click="filterReviews('friends')"
+				:class="reviewsList === 'friends' ? 'tab activeTab' : 'tab'"
+			>
+				{{ user.lang === "pt-br" ? "AMIGOS" : "FRIENDS" }}
+			</div>
+		</div>
+		<div class="content">
+			<Transition
+				name="comp"
+				mode="out-in"
+			>
+				<KeepAlive>
+					<Suspense>
+						<ReviewList
+							:key="compKey"
+							:data="datalist"
+						/>
+					</Suspense>
+				</KeepAlive>
+			</Transition>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-/* * {
-	outline: 1px dotted rgba(255, 0, 0, 0.404);
-} */
-
-.reviewDetails {
-	font-weight: bold;
-	font-size: 0.85rem;
-	color: #bbb;
-}
-
-.name {
-	font-weight: bold;
-}
-
-.title {
-	display: none;
-	color: #ddd;
-}
-
-.story {
-	display: none;
-}
-
-.image {
-	max-width: 12rem;
-	position: sticky;
-	top: 0;
-}
-
 .layout {
-	display: flex;
-	max-width: 55rem;
+	max-width: 35rem;
 	margin: auto;
-	gap: 1rem;
 }
-
-.reviews {
-	display: flex;
-	flex-flow: column;
-	gap: 1rem;
+.tabs {
+	overflow: unset;
+	padding: unset;
+	width: auto;
 }
-
-.review {
-	display: flex;
-	gap: 0.55rem;
-}
-
-.reviewSide {
-	display: flex;
-	flex-flow: column;
-	gap: 0.25rem;
-}
-
-.reviewTitle {
-	display: flex;
-	gap: 0.35rem;
-	align-items: center;
-}
-
-.icon {
-	display: flex;
-	align-items: center;
-}
-
-.icons {
-	display: flex;
-	align-items: center;
-}
-
-.userPicture {
-	border-radius: 50%;
-	max-width: 3.5rem;
-}
-@media (min-width: 35rem) {
-	.title {
-		display: unset;
-	}
-	.story {
-		display: flex;
-	}
+.tab {
+	text-align: center;
+	flex: 1;
 }
 </style>

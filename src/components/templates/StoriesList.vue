@@ -38,6 +38,10 @@ if (name === "character") {
 	filteredTabs.value = [...new Set(stories.value.flatMap(e => e.type))];
 }
 
+if (name === "user") {
+	filteredTabs.value = [...new Set(stories.value.flatMap(e => e.type))];
+}
+
 const tabs = ref([]);
 const tabKey = ref(0);
 const filteredTab = ref([]);
@@ -70,6 +74,11 @@ function filter(id) {
 			filteredTab.value = stories.value.filter(e => e.type === id);
 		}
 
+		if (name === "user") {
+			actualTab.value = id;
+			filteredTab.value = stories.value.filter(e => e.type === id);
+		}
+
 		if (name === "person") {
 			actualTab.value = id;
 			filteredTab.value = stories.value.filter(e => e.role === id);
@@ -83,6 +92,7 @@ function filter(id) {
 	<div class="subcontainer">
 		<div class="tabs">
 			<div
+				:key="i"
 				v-for="({tab, id}, i) in tabs"
 				:class="id === actualTab ? 'tab activeTab' : 'tab'"
 				@click="filter(id)"
@@ -105,6 +115,10 @@ function filter(id) {
 </template>
 
 <style scoped>
+.tabs {
+	padding: unset;
+	overflow: unset;
+}
 @media (min-width: 35rem) {
 	.tabs {
 		width: auto;

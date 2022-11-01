@@ -5,10 +5,11 @@ import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {useFavicon} from "@vueuse/core";
 import {ref, shallowRef, onBeforeUnmount, onBeforeMount} from "vue";
+import ReviewList from "../templates/ReviewList.vue";
+import StoriesList from "../templates/StoriesList.vue";
 import Activity from "../user/Activity.vue";
 import Friends from "../user/Friends.vue";
 import Likes from "../user/Likes.vue";
-import Reviews from "../user/Reviews.vue";
 import Settings from "../user/Settings.vue";
 
 const props = defineProps({
@@ -27,9 +28,9 @@ const likes = ref();
 const friends = ref();
 const isFollowing = ref(false);
 const friendStatus = ref("ri:user-add-line");
-const storyQuery = ref("story_id(title, type,range_id,url,released,code)");
+const storyQuery = ref("story_id(title,type,range_id,url,released,code)");
 const load = ref(false);
-const tab = shallowRef(Reviews);
+const tab = shallowRef(ReviewList);
 const found = ref(false);
 
 onBeforeMount(() => {
@@ -42,7 +43,7 @@ onBeforeMount(() => {
 			user,
 			picture,
 			diary_id(id,created,watched,saved,liked,rating,review,review_id(id,rating,loved),rewatch,${storyQuery.value}),
-			reviews_id(id,created,text,loved,rating,rewatch,${storyQuery.value}),
+			reviews_id(id,created,text,loved,rating,user_id(id,name,picture,user),rewatch,${storyQuery.value}),
 			likes_id(id,review_id(id,created,user_id(name,user,picture),text,rating,rewatch,${storyQuery.value})),
 			follower_id(following_id(id,user,name,picture)),
 			following_id(user_id(id,name,user,picture))
@@ -186,6 +187,18 @@ function checkFollow() {
 onBeforeUnmount(() => {
 	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
 });
+
+function storiesTab() {
+	supabase
+		.from("diary")
+		.select(`watched,story_id(title,code,released,range_id,type,url)`)
+		.not("watched", "is", null)
+		.match({user_id: userStore.id})
+		.then(res => {
+			data.value = res.data;
+			tab.value = StoriesList;
+		});
+}
 </script>
 
 <template>
@@ -234,9 +247,9 @@ onBeforeUnmount(() => {
 					</div>
 					<div class="tabs">
 						<div
-							@click="(data = reviews), (tab = Reviews)"
+							@click="(data = reviews), (tab = ReviewList)"
 							:style="
-								tab === Reviews ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+								tab === ReviewList ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
 							"
 							class="tab"
 						>
@@ -250,6 +263,15 @@ onBeforeUnmount(() => {
 							"
 						>
 							{{ userStore.lang === "pt-br" ? "Atividade" : "Activity" }}
+						</div>
+						<div
+							@click="storiesTab"
+							class="tab"
+							:style="
+								tab === StoriesList ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
+							"
+						>
+							{{ userStore.lang === "pt-br" ? "Histórias" : "Stories" }}
 						</div>
 						<div
 							v-if="false"
@@ -285,10 +307,11 @@ onBeforeUnmount(() => {
 							mode="out-in"
 						>
 							<KeepAlive>
-								<Component
-									:data="data"
-									:is="tab"
-								></Component>
+								<Suspense>
+									<Component
+										:data="data"
+										:is="tab"
+								/></Suspense>
 							</KeepAlive>
 						</Transition>
 					</div>
@@ -308,7 +331,6 @@ onBeforeUnmount(() => {
 .addicon {
 	cursor: pointer;
 }
-
 .add {
 	display: flex;
 	gap: 1rem;

@@ -13,6 +13,7 @@ const props = defineProps({
 const datalist = ref(props.data);
 
 const {
+	name,
 	params: {type, range},
 } = useRoute();
 
@@ -49,6 +50,9 @@ if (type && range) {
 }
 
 function checkStatus(array) {
+	if (name === "user") {
+		return;
+	}
 	if (array.length > 0) {
 		const arr = array.find(e => !e.rewatch && !e.review);
 		if (arr.saved && arr.watched) {

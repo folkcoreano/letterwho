@@ -31,7 +31,7 @@ const user = useUser();
 <style scoped>
 .head {
 	max-width: 2.15rem;
-	border-radius: 50%;
+	border-radius: 0.15rem;
 	cursor: pointer;
 }
 .name {

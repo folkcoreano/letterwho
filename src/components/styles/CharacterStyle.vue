@@ -38,6 +38,8 @@ watchEffect(() => {
 const tab = shallowRef(CharacterBio);
 
 const tabData = ref(data.quotes);
+
+console.log(data.character_id);
 </script>
 
 <template>

@@ -1,52 +1,26 @@
 <script setup>
-import AddRange from "@/components/data/AddRange.vue";
-import Reviews from "@/components/user/Reviews.vue";
+import ReviewList from "@/components/templates/ReviewList.vue";
 import setTitle from "@/stores/title";
-import {useUser} from "@/stores/user";
-import supabase from "@/supabase";
-import {onBeforeMount, ref} from "vue";
-setTitle("Home");
-const user = useUser();
-const feed = ref();
-const reviews = ref([]);
-const load = ref(false);
+import {onErrorCaptured} from "vue";
 
-onBeforeMount(() => {
-	if (user.logged) {
-		supabase
-			.from("mutuals")
-			.select(
-				`
-		following_id(id,name,picture,
-		reviews_id(id,text,rating,created,rewatch,loved,
-		story_id(type,code,title,url,released,range_id),
-		likes_id(count)))
-		`
-			)
-			.match({user_id: user.id})
-			.limit(1, {foreignTable: "following_id.reviews_id"})
-			.order("id", {foreignTable: "following_id.reviews_id", ascending: false})
-			.then(res => {
-				feed.value = res.data;
-				for (const rev of res.data) {
-					if (rev.following_id.reviews_id.length > 0) {
-						for (const review of rev.following_id.reviews_id) {
-							reviews.value.push(review);
-						}
-					}
-				}
-				load.value = true;
-			});
-	}
+setTitle("Home");
+
+onErrorCaptured(() => {
+	location.reload();
 });
 </script>
 
 <template>
 	<div>
-		<Reviews
-			v-if="load"
-			:data="reviews"
-		/>
-		<div v-else>logai</div>
+		<Suspense>
+			<template #default>
+				<div>
+					<ReviewList />
+				</div>
+			</template>
+			<template #fallback>
+				<LoadingState />
+			</template>
+		</Suspense>
 	</div>
 </template>

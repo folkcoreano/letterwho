@@ -85,6 +85,12 @@ if (props.data.mutuals.length > 0) {
 	flex-flow: column;
 	gap: 1rem;
 }
+
+.tabs {
+	overflow: unset;
+	padding: unset;
+}
+
 @media (min-width: 35rem) {
 	.tabs {
 		width: auto;
