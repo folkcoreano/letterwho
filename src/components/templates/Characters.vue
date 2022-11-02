@@ -45,7 +45,7 @@ function checkRole(role) {
 				<img
 					:style="`border: 3px solid ${checkRole(role)}`"
 					class="charIcon"
-					:src="char(`p/${character_id.character_id}`, '50')"
+					:src="char(`p/${character_id.character_id}`, '100')"
 					:alt="character_id.name"
 				/>
 				<span>

@@ -13,7 +13,7 @@ const {
 
 const user = useUser();
 
-const {data, error} = await supabase
+const {data} = await supabase
 	.from("characters")
 	.select(
 		`
@@ -38,8 +38,6 @@ watchEffect(() => {
 const tab = shallowRef(CharacterBio);
 
 const tabData = ref(data.quotes);
-
-console.log(data.character_id);
 </script>
 
 <template>
@@ -75,9 +73,15 @@ console.log(data.character_id);
 </template>
 
 <style scoped>
+.tabs {
+	overflow: unset;
+	padding: unset;
+}
 @media (min-width: 35rem) {
 	.tabs {
 		width: auto;
+		overflow: unset;
+		padding: unset;
 	}
 	.tab {
 		flex: 1;

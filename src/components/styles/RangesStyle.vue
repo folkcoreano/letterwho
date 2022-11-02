@@ -11,7 +11,7 @@ const user = useUser();
 
 const datalist = ref([]);
 
-const {data, error} = await supabase
+const {data} = await supabase
 	.from("ranges")
 	.select(`order,title,type,range,range_id(diary_id(watched))`)
 	.filter("range_id.diary_id.user_id", "eq", user.id)

@@ -21,6 +21,7 @@ for (const story of props.data) {
 		type: story.story_id.type,
 		range: story.story_id.range_id,
 		code: story.story_id.code,
+		released: story.story_id.released,
 		url: story.story_id.url,
 		diary_id: story.story_id.diary_id,
 		role: story.role,
@@ -64,8 +65,9 @@ for (const tb of filteredTabs.value) {
 		tabs.value.push({tab: "TV", id: tb});
 	}
 }
-
-filter(tabs.value[0].id);
+if (tabs.value.length > 0) {
+	filter(tabs.value[0].id);
+}
 
 function filter(id) {
 	if (actualTab.value !== id) {

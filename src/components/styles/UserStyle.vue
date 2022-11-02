@@ -3,7 +3,7 @@ import {favicon, folder} from "@/stores/images";
 import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
-import {useFavicon} from "@vueuse/core";
+import {useFavicon, useStorage} from "@vueuse/core";
 import {ref, shallowRef, onBeforeUnmount, onBeforeMount} from "vue";
 import ReviewList from "../templates/ReviewList.vue";
 import StoriesList from "../templates/StoriesList.vue";
@@ -19,7 +19,6 @@ const props = defineProps({
 const userStore = useUser();
 const username = ref(props.id);
 const id = ref("");
-
 const user = ref();
 const data = ref();
 const diary = ref();
@@ -32,6 +31,7 @@ const storyQuery = ref("story_id(title,type,range_id,url,released,code)");
 const load = ref(false);
 const tab = shallowRef(ReviewList);
 const found = ref(false);
+const actualTab = ref(useStorage("usertab", ""));
 
 onBeforeMount(() => {
 	supabase
@@ -118,6 +118,29 @@ onBeforeMount(() => {
 				setTitle(res.data.name);
 				useFavicon(favicon(res.data.picture, "50"));
 
+				if (actualTab.value === "reviews") {
+					data.value = reviews.value;
+					tab.value = ReviewList;
+				}
+
+				if (actualTab.value === "diary") {
+					data.value = diary.value;
+					tab.value = Activity;
+				}
+
+				if (actualTab.value === "friends") {
+					data.value = friends.value;
+					tab.value = Friends;
+				}
+
+				if (actualTab.value === "settings") {
+					tab.value = Settings;
+				}
+
+				if (actualTab.value === "stories") {
+					storiesTab();
+				}
+
 				load.value = true;
 			} else {
 				found.value = false;
@@ -184,10 +207,6 @@ function checkFollow() {
 	}
 }
 
-onBeforeUnmount(() => {
-	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
-});
-
 function storiesTab() {
 	supabase
 		.from("diary")
@@ -201,8 +220,13 @@ function storiesTab() {
 		.then(res => {
 			data.value = res.data;
 			tab.value = StoriesList;
+			actualTab.value = "stories";
 		});
 }
+
+onBeforeUnmount(() => {
+	useFavicon("https://ik.imagekit.io/letterwho/tardis.svg");
+});
 </script>
 
 <template>
@@ -230,6 +254,7 @@ function storiesTab() {
 									:icon="friendStatus"
 								/>
 							</div>
+							@{{ user.user }}
 						</div>
 					</div>
 					<div
@@ -247,11 +272,12 @@ function storiesTab() {
 							<div class="add">
 								{{ userStore.name }}
 							</div>
+							@{{ userStore.user }}
 						</div>
 					</div>
 					<div class="tabs">
 						<div
-							@click="(data = reviews), (tab = ReviewList)"
+							@click="(actualTab = 'reviews'), (data = reviews), (tab = ReviewList)"
 							:style="
 								tab === ReviewList ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
 							"
@@ -260,7 +286,7 @@ function storiesTab() {
 							Reviews
 						</div>
 						<div
-							@click="(data = diary), (tab = Activity)"
+							@click="(actualTab = 'diary'), (data = diary), (tab = Activity)"
 							class="tab"
 							:style="
 								tab === Activity ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
@@ -288,7 +314,7 @@ function storiesTab() {
 							Likes
 						</div>
 						<div
-							@click="(data = friends), (tab = Friends)"
+							@click="(actualTab = 'friends'), (data = friends), (tab = Friends)"
 							:style="
 								tab === Friends ? 'border-bottom: 2px solid var(--yellow);flex: 1;' : 'flex: 1;'
 							"
@@ -298,7 +324,7 @@ function storiesTab() {
 						</div>
 						<div
 							v-if="userStore.logged && userStore.id === id"
-							@click="tab = Settings"
+							@click="(actualTab = 'settings'), (tab = Settings)"
 							:style="tab === Settings ? 'border-bottom: 2px solid var(--yellow);flex:0' : 'flex:0'"
 							class="tab"
 						>

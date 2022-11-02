@@ -359,7 +359,7 @@ onMounted(() => {
 						/>
 						<img
 							class="userPicture"
-							:src="folder(data.picture, '50')"
+							:src="folder(data.picture, '70')"
 							:alt="data.name"
 						/>
 					</picture>
@@ -371,24 +371,22 @@ onMounted(() => {
 
 				<div class="mediaHead">
 					<span class="title">
-						{{ media.title }}
+						{{ media.title }} ({{ new Date(media.released).getFullYear() }})
 					</span>
 
-					<span class="year">
-						{{ new Date(media.released).getFullYear() }}
+					<span class="statusIcons">
+						<iconify-icon
+							v-if="data.loved"
+							style="color: var(--red)"
+							icon="ri:heart-3-fill"
+						/>
+
+						<iconify-icon
+							v-if="data.rewatch"
+							class="rewatch"
+							icon="ri:repeat-fill"
+						/>
 					</span>
-
-					<iconify-icon
-						v-if="data.loved"
-						style="color: var(--red)"
-						icon="ri:heart-3-fill"
-					/>
-
-					<iconify-icon
-						v-if="data.rewatch"
-						class="rewatch"
-						icon="ri:repeat-fill"
-					/>
 
 					<div class="stars">
 						<iconify-icon
@@ -403,7 +401,6 @@ onMounted(() => {
 				<div class="reviewDate">
 					<div>
 						{{ new Date(data.created).toLocaleDateString() }}
-						<!-- &sdot; {{ (user.lang === 'pt-br' ? "Publicado " : "Published") + useTime(user.lang, data.created) }} -->
 					</div>
 					<div
 						class="reviewEdit"
@@ -544,11 +541,11 @@ onMounted(() => {
 					<picture>
 						<source
 							media="(min-width: 35rem)"
-							:srcset="folder(type + '/' + range + '/' + media.code, '250')"
+							:srcset="folder(type + '/' + range + '/' + media.code, '350')"
 						/>
 						<img
 							class="mediaCoverPicture"
-							:src="folder(type + '/' + range + '/' + media.code, '150')"
+							:src="folder(type + '/' + range + '/' + media.code, '250')"
 							:alt="media.title"
 						/>
 					</picture>
@@ -705,6 +702,12 @@ onMounted(() => {
 /* * {
 	outline: 0px dotted rgba(0, 255, 0, 0);
 } */
+
+.statusIcons {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
 
 .actions {
 	display: flex;
@@ -1005,7 +1008,8 @@ onMounted(() => {
 }
 .mediaHead {
 	display: flex;
-	align-items: center;
+	flex-flow: column;
+	align-items: flex-start;
 	gap: 0.5rem;
 }
 .year {
@@ -1014,8 +1018,6 @@ onMounted(() => {
 	border-bottom: 0.01rem #555 solid;
 }
 .title {
-	font-size: 1.15rem;
-	font-weight: bold;
 	display: flex;
 	align-items: center;
 }
@@ -1054,7 +1056,7 @@ onMounted(() => {
 }
 .mediaCoverPicture {
 	border: solid 0.001rem #555;
-	max-width: 5rem;
+	max-width: 8rem;
 	transition: all 150ms linear;
 }
 .mediaCoverPicture:hover {
@@ -1099,6 +1101,11 @@ onMounted(() => {
 	.mediaArea {
 		grid-column: 2;
 		grid-row: 1 / 3;
+	}
+	.mediaHead {
+		display: flex;
+		flex-flow: row;
+		align-items: center;
 	}
 	.mediaArea {
 		top: 0;

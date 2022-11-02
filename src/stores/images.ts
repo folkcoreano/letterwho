@@ -27,7 +27,7 @@ export function homeFolder(path: string, width: string, height: string) {
 export function favicon(path: string) {
 	return imgkit.url({
 		path: `${path}.jpg`,
-		transformation: [{width: "50", radius: "50", defaultImage: "/404a.jpg"}],
+		transformation: [{width: "100", radius: "10", defaultImage: "/404a.jpg"}],
 	});
 }
 

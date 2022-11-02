@@ -54,32 +54,18 @@ if (name === "home" && user.logged) {
 			v-for="({id, text, rating, loved, rewatch, created, story_id, user_id}, i) in datalist"
 			class="review"
 		>
-			<!-- v-if="name !== 'user'" -->
-			<RouterLink
-				class="reviewUser"
-				:to="{name: 'user', params: {id: user_id.user}}"
-			>
-				<img
-					class="userPicture"
-					:src="folder(user_id.picture, '100')"
-					:alt="user_id.name"
-				/>
-			</RouterLink>
-			<!-- <RouterLink
-				v-else
-				class="reviewUser"
-				:to="{
-					name: 'story',
-					params: {type: story_id.type, range: story_id.range_id, story: story_id.url},
-				}"
-			>
-				<img
-					class="userPicture storyPicture"
-					:src="folder(`${story_id.type}/${story_id.range_id}/${story_id.code}`, '100')"
-					:alt="story_id.title"
-				/>
-			</RouterLink> -->
-
+			<div>
+				<RouterLink
+					class="reviewUser"
+					:to="{name: 'user', params: {id: user_id.user}}"
+				>
+					<img
+						class="userPicture"
+						:src="folder(user_id.picture, '100')"
+						:alt="user_id.name"
+					/>
+				</RouterLink>
+			</div>
 			<RouterLink
 				:to="{
 					name: 'review',
@@ -118,8 +104,10 @@ if (name === "home" && user.logged) {
 						</span>
 					</div>
 				</div>
-				<!-- v-if="name === 'user'" -->
-				<div class="reviewStory">
+				<div
+					v-if="name !== 'reviews'"
+					class="reviewStory"
+				>
 					<img
 						class="reviewStoryPicture"
 						:src="folder(`${story_id.type}/${story_id.range_id}/${story_id.code}`, '500')"
