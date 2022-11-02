@@ -11,7 +11,9 @@ const props = defineProps({
 	data: Object,
 });
 
-const datalist = ref(props.data);
+const datalist = ref([]);
+
+datalist.value = props.data;
 
 const {
 	name,
@@ -19,6 +21,7 @@ const {
 } = useRoute();
 
 const user = useUser();
+
 const stories = ref([]);
 
 if (type && range) {
@@ -72,103 +75,180 @@ const view = ref(useStorage("tabs", false));
 function changeView() {
 	view.value = !view.value;
 }
+
+const watched = ref(useStorage("hideWatch", false));
+
+function hideWatched() {
+	watched.value = !watched.value;
+}
+
+const nu = ref(0);
+
+for (const ep of datalist.value) {
+	if (ep.diary_id.length > 0) {
+		if (ep.diary_id[0].watched) {
+			nu.value += 1;
+		}
+	}
+}
+
+const sorted = ref(useStorage("storiesSort", true));
+
+function sortStories(status) {
+	sorted.value = !sorted.value;
+	if (status === true) {
+		const newSort = datalist.value.sort(
+			(a, b) => new Date(b.released).getTime() - new Date(a.released).getTime()
+		);
+		datalist.value = newSort;
+	} else {
+		const newSort = datalist.value.sort(
+			(a, b) => new Date(a.released).getTime() - new Date(b.released).getTime()
+		);
+		datalist.value = newSort;
+	}
+}
+
+sortStories(sorted.value);
 </script>
 
 <template>
 	<div class="block">
 		<div class="options">
-			<iconify-icon
-				@click="changeView"
-				class="toggle"
-				:icon="view ? 'ri:list-check-2' : 'ri:function-fill'"
-			/>
-			<span class="size">
-				{{ datalist.length }}
+			<span>
+				<iconify-icon
+					@click="changeView"
+					class="toggle"
+					:icon="view ? 'ri:list-check-2' : 'ri:function-fill'"
+				/>
+				<iconify-icon
+					v-if="nu > 0"
+					@click="hideWatched"
+					class="toggle"
+					:icon="watched ? 'ri:eye-fill' : 'ri:eye-off-fill'"
+				/>
+
+				<iconify-icon
+					@click="sortStories(sorted)"
+					class="toggle"
+					:icon="sorted ? 'ri:sort-desc' : 'ri:sort-asc'"
+				/>
+			</span>
+			<span
+				v-if="user.logged && name !== 'user'"
+				class="size"
+				>{{ nu }}/{{ datalist.length }}
+			</span>
+			<span
+				v-else
+				class="size"
+				>{{ datalist.length }}
 			</span>
 		</div>
 		<div
 			v-show="view === true"
 			class="range"
 		>
-			<RouterLink
-				v-for="({title, character, type, range, code, url, diary_id}, i) in datalist"
-				:key="i"
-				class="item"
-				:to="{name: 'story', params: {type: type, range: range, story: url}}"
-			>
-				<img
-					class="image"
-					:style="'outline: 0.15rem solid ' + checkStatus(diary_id)"
-					:src="folder(`${type}/${range}/${code}`, '400')"
-					:alt="title"
-					loading="lazy"
-				/>
-				<div class="status">
-					<iconify-icon
-						v-if="checkStatus(diary_id) === 'watched' || checkStatus(diary_id) === 'both'"
-						style="color: var(--blue)"
-						icon="ri:bookmark-3-fill"
+			<TransitionGroup name="list">
+				<RouterLink
+					v-for="({title, character, type, range, code, url, diary_id}, i) in datalist"
+					:key="i"
+					:class="
+						(watched && checkStatus(diary_id) === 'watched') ||
+						(watched && checkStatus(diary_id) === 'both')
+							? 'item hideWatched'
+							: 'item'
+					"
+					:to="{name: 'story', params: {type: type, range: range, story: url}}"
+				>
+					<img
+						class="image"
+						:style="'outline: 0.15rem solid ' + checkStatus(diary_id)"
+						:src="folder(`${type}/${range}/${code}`, '400')"
+						:alt="title"
+						loading="lazy"
 					/>
-					<iconify-icon
-						v-if="checkStatus(diary_id) === 'saved' || checkStatus(diary_id) === 'both'"
-						style="color: var(--green)"
-						icon="ri:bookmark-2-fill"
-					/>
-				</div>
-				{{ character ? character.name : "" }}
-			</RouterLink>
+					<div
+						v-if="false"
+						class="status"
+					>
+						<iconify-icon
+							v-if="checkStatus(diary_id) === 'watched' || checkStatus(diary_id) === 'both'"
+							style="color: var(--blue)"
+							icon="ri:bookmark-3-fill"
+						/>
+						<iconify-icon
+							v-if="checkStatus(diary_id) === 'saved' || checkStatus(diary_id) === 'both'"
+							style="color: var(--green)"
+							icon="ri:bookmark-2-fill"
+						/>
+					</div>
+					{{ character ? character.name : "" }}
+				</RouterLink>
+			</TransitionGroup>
 		</div>
 		<div
 			v-show="view === false"
 			class="rangeComp"
 		>
-			<RouterLink
-				v-for="({title, character, type, released, range, code, url, diary_id}, i) in datalist"
-				:key="i"
-				class="itemComp"
-				:to="{name: 'story', params: {type: type, range: range, story: url}}"
+			<TransitionGroup
+				name="list"
+				tag="div"
 			>
-				<img
-					class="imageComp"
-					:style="'outline: 0.15rem solid ' + checkStatus(diary_id)"
-					:src="folder(`${type}/${range}/${code}`, '100')"
-					:alt="title"
-					loading="lazy"
-				/>
-				<div class="itemDetails">
-					<span class="title">
-						<span>{{ title }}({{ new Date(released).getFullYear() }})</span>
-						<span>
-							<iconify-icon
-								v-if="checkStatus(diary_id) === 'watched' || checkStatus(diary_id) === 'both'"
-								style="color: var(--blue)"
-								icon="ri:bookmark-3-fill"
-							/>
-							<iconify-icon
-								v-if="checkStatus(diary_id) === 'saved' || checkStatus(diary_id) === 'both'"
-								style="color: var(--green)"
-								icon="ri:bookmark-2-fill"
-							/>
+				<RouterLink
+					v-for="({title, character, type, released, range, code, url, diary_id}, i) in datalist"
+					:key="i"
+					:class="
+						(watched && checkStatus(diary_id) === 'watched') ||
+						(watched && checkStatus(diary_id) === 'both')
+							? 'itemComp hideWatched'
+							: 'itemComp'
+					"
+					:to="{name: 'story', params: {type: type, range: range, story: url}}"
+				>
+					<img
+						class="imageComp"
+						:style="'outline: 0.15rem solid ' + checkStatus(diary_id)"
+						:src="folder(`${type}/${range}/${code}`, '100')"
+						:alt="title"
+						loading="lazy"
+					/>
+					<div class="itemDetails">
+						<span class="title">
+							<span>{{ title }} ({{ new Date(released).getFullYear() }})</span>
+							<span v-if="false">
+								<iconify-icon
+									v-if="checkStatus(diary_id) === 'watched' || checkStatus(diary_id) === 'both'"
+									style="color: var(--blue)"
+									icon="ri:bookmark-3-fill"
+								/>
+								<iconify-icon
+									v-if="checkStatus(diary_id) === 'saved' || checkStatus(diary_id) === 'both'"
+									style="color: var(--green)"
+									icon="ri:bookmark-2-fill"
+								/>
+							</span>
 						</span>
-					</span>
-					<span
-						class="char"
-						v-if="character"
-					>
-						<iconify-icon icon="ri:user-3-fill" />
-						<span>
-							{{ character.name }}
+						<span
+							class="char"
+							v-if="character"
+						>
+							<iconify-icon icon="ri:user-3-fill" />
+							<span>
+								{{ character.name }}
+							</span>
 						</span>
-					</span>
-				</div>
-			</RouterLink>
+					</div>
+				</RouterLink>
+			</TransitionGroup>
 		</div>
 	</div>
 </template>
 
 <style scoped>
 * {
-	outline: 0 dotted pink;
+	transition: all 150ms linear;
+	/* outline: 0 dotted pink; */
 }
 
 .options {
@@ -176,15 +256,10 @@ function changeView() {
 	justify-content: space-between;
 	padding: 0.25rem;
 	align-items: center;
-}
-
-.size {
 	font-size: 1.25rem;
-	font-weight: bold;
 }
-
 .toggle {
-	font-size: 2rem;
+	font-size: 1.45rem;
 	cursor: pointer;
 	padding: 0.15rem;
 }
@@ -256,6 +331,11 @@ function changeView() {
 	transition: all 150ms linear;
 	outline: 0.001rem #3f3f3f solid;
 }
+
+.hideWatched {
+	filter: opacity(35%);
+}
+
 @media (min-width: 35rem) {
 	.range {
 		grid-template-columns: repeat(4, 1fr);

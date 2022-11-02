@@ -50,19 +50,35 @@ const actualTab = ref("");
 
 for (const tb of filteredTabs.value) {
 	if (name === "person") {
-		tabs.value.push({tab: tb.toUpperCase(), id: tb});
+		tabs.value.push({
+			tab: tb.toUpperCase(),
+			id: tb,
+			size: stories.value.filter(e => e.role === tb).length,
+		});
 	}
 	if (tb === "audios") {
-		tabs.value.push({tab: user.lang === "pt-br" ? "ÁUDIOS" : "AUDIOS", id: tb});
+		tabs.value.push({
+			tab: user.lang === "pt-br" ? "ÁUDIOS" : "AUDIOS",
+			id: tb,
+			size: stories.value.filter(e => e.type === tb).length,
+		});
 	}
 	if (tb === "books") {
-		tabs.value.push({tab: user.lang === "pt-br" ? "LIVROS" : "BOOKS", id: tb});
+		tabs.value.push({
+			tab: user.lang === "pt-br" ? "LIVROS" : "BOOKS",
+			id: tb,
+			size: stories.value.filter(e => e.type === tb).length,
+		});
 	}
 	if (tb === "comics") {
-		tabs.value.push({tab: user.lang === "pt-br" ? "HQS" : "COMICS", id: tb});
+		tabs.value.push({
+			tab: user.lang === "pt-br" ? "HQS" : "COMICS",
+			id: tb,
+			size: stories.value.filter(e => e.type === tb).length,
+		});
 	}
 	if (tb === "tv") {
-		tabs.value.push({tab: "TV", id: tb});
+		tabs.value.push({tab: "TV", id: tb, size: stories.value.filter(e => e.type === tb).length});
 	}
 }
 if (tabs.value.length > 0) {
@@ -95,11 +111,11 @@ function filter(id) {
 		<div class="tabs">
 			<div
 				:key="i"
-				v-for="({tab, id}, i) in tabs"
+				v-for="({tab, id, size}, i) in tabs"
 				:class="id === actualTab ? 'tab activeTab' : 'tab'"
 				@click="filter(id)"
 			>
-				{{ tab }}
+				{{ tab }} ({{ size }})
 			</div>
 		</div>
 		<div class="content">

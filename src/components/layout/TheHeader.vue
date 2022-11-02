@@ -85,7 +85,7 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 
 header {
 	padding: 0.55rem;
-	background-color: #0f0f0f;
+	/* background-color: #0f0f0f; */
 }
 .u {
 	display: flex;
