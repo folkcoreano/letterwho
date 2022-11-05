@@ -25,12 +25,16 @@ const props = defineProps({
 					rating,
 					review_id,
 					rewatch,
+					user_id,
 					story_id: {title, range_id, url, type, code, released},
 				},
 				i
 			) in data"
 			class="item"
 		>
+			<span v-if="context === 'reviews'">
+				{{ user_id.name }}
+			</span>
 			<RouterLink
 				v-if="context !== 'story'"
 				class="itemIcon"

@@ -25,6 +25,11 @@ for (const story of props.data) {
 		url: story.story_id.url,
 		diary_id: story.story_id.diary_id,
 		role: story.role,
+		watched: story.watched,
+		liked: story.liked,
+		saved: story.saved,
+		rated: story.rated,
+		rating: story.rating,
 		character: story.character_id,
 	});
 }

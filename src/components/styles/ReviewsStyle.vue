@@ -5,6 +5,7 @@ import supabase from "@/supabase";
 import {ref} from "vue";
 import {useRoute} from "vue-router";
 import ReviewList from "../templates/ReviewList.vue";
+import Activity from "../user/Activity.vue";
 
 const {
 	params: {type, range, story},
@@ -129,6 +130,30 @@ async function filterReviews(query) {
 
 	reviewsList.value = query;
 }
+
+async function getActivity() {
+	const {data} = await supabase
+		.from("diary")
+		.select(
+			`
+			id,
+			created,
+			watched,
+			saved,
+			liked,
+			rating,
+			review,
+			user_id(id,name,user,picture),
+			review_id(id,rating,loved),
+			rewatch,
+			story_id(title,type,range_id,url,released,code)`
+		)
+		.match({story_id: story});
+
+	datalist.value = data;
+
+	reviewsList.value = "activity";
+}
 </script>
 
 <template>
@@ -152,6 +177,14 @@ async function filterReviews(query) {
 			>
 				{{ user.lang === "pt-br" ? "AMIGOS" : "FRIENDS" }}
 			</div>
+			<div
+				v-if="false"
+				@click="getActivity"
+				:class="reviewsList === 'activity' ? 'tab activeTab' : 'tab'"
+				class="tab"
+			>
+				{{ user.lang === "pt-br" ? "ATIVIDADE" : "ACTIVITY" }}
+			</div>
 		</div>
 		<div class="content">
 			<Transition
@@ -161,6 +194,7 @@ async function filterReviews(query) {
 				<KeepAlive>
 					<Suspense>
 						<ReviewList
+							v-show="reviewsList !== 'activity'"
 							:key="compKey"
 							:data="datalist"
 						/>
@@ -168,6 +202,11 @@ async function filterReviews(query) {
 				</KeepAlive>
 			</Transition>
 		</div>
+		<Activity
+			v-if="reviewsList === 'activity'"
+			:context="'reviews'"
+			:data="datalist"
+		/>
 	</div>
 </template>
 

@@ -7,6 +7,7 @@ import {useUser} from "@/stores/user";
 import {folder} from "@/stores/images";
 import {useDialog} from "@/stores/dialog";
 import {onClickOutside} from "@vueuse/core";
+import {useReview} from "@/stores/review";
 
 const props = defineProps({
 	data: Object,
@@ -19,9 +20,9 @@ const {
 
 const days = dayjs;
 
-const hasData = ref(props.data.hasData);
-
 const user = useUser();
+
+const reviewState = useReview();
 
 const {released, length, title, code} = props.data;
 
@@ -30,6 +31,8 @@ const cover = `${type}/${range}/${code}`;
 const {watched, rated} = props.status;
 
 const dialog = useDialog();
+
+console.log(reviewState.storyHasData);
 
 const review = ref("");
 const rating = ref(0);
@@ -52,105 +55,145 @@ async function postReview() {
 	response.value = user.lang ? "Publicando..." : "Publishing...";
 
 	supabase
-		.from("reviews")
-		.insert({
-			user_id: user.id,
-			story_id: story,
-			text: review.value,
-			rating: rating.value,
-			created: today,
-			rewatch: isRewatch.value,
-			loved: isLoved.value,
+		.rpc("reviews", {
+			qid: code,
+			qval: 1,
 		})
-		.limit(1)
-		.select("id")
-		.single()
-		.then(res => {
-			console.log(res);
+		.then(() => {
+			supabase
+				.from("reviews")
+				.insert({
+					user_id: user.id,
+					story_id: story,
+					text: review.value,
+					rating: rating.value,
+					created: today,
+					rewatch: isRewatch.value,
+					loved: isLoved.value,
+				})
+				.limit(1)
+				.select("id")
+				.single()
+				.then(res => {
+					console.log(res);
 
-			if (hasData.value === false) {
-				supabase
-					.from("diary")
-					.insert([
-						{
-							user_id: user.id,
-							story_id: story,
-							rewatch: false,
-							review: false,
-							created: new Date().toISOString(),
-							watched: {
-								status: true,
-								time: new Date().toISOString(),
-							},
-							rating:
-								rating.value > 0
-									? {
-											rating: rating.value,
-											time: new Date().toISOString(),
-									  }
-									: null,
-						},
-						{
-							user_id: user.id,
-							story_id: story,
-							rewatch: isRewatch.value,
-							review: true,
-							review_id: res.data.id,
-							created: new Date().toISOString(),
-						},
-					])
-					.then(res => {
-						hasData.value = true;
-						if (rating.value > 0) {
-							setRated();
-						}
-						console.log(res);
-					});
-			} else {
-				supabase
-					.from("diary")
-					.insert({
-						user_id: user.id,
-						story_id: story,
-						rewatch: isRewatch.value,
-						review: true,
-						review_id: res.data.id,
-						created: new Date().toISOString(),
-					})
-					.then(res => {
+					if (reviewState.storyHasData === false) {
 						supabase
 							.from("diary")
-							.update({
-								watched: watched
-									? {
-											status: true,
-									  }
-									: {
-											status: true,
-											time: new Date().toISOString(),
-									  },
-							})
-							.match({
+							.insert([
+								{
+									user_id: user.id,
+									story_id: story,
+									rewatch: false,
+									review: false,
+									created: new Date().toISOString(),
+									liked: isLoved.value ? {status: true, time: new Date().toISOString()} : null,
+									watched: {
+										status: true,
+										time: new Date().toISOString(),
+									},
+									rating:
+										rating.value > 0
+											? {
+													rating: rating.value,
+													time: new Date().toISOString(),
+											  }
+											: null,
+								},
+								{
+									user_id: user.id,
+									story_id: story,
+									rewatch: isRewatch.value,
+									review: true,
+									review_id: res.data.id,
+									created: new Date().toISOString(),
+								},
+							])
+							.then(res => {
+								setWatch();
+								if (isLoved.value) {
+									setLike(2);
+								}
+								reviewState.storyHasData = true;
+								reviewState.setWatch = true;
+								reviewState.setLove = isLoved.value;
+								if (rating.value > 0) {
+									setRated();
+								}
+								console.log(res);
+							});
+					} else {
+						supabase
+							.from("diary")
+							.insert({
 								user_id: user.id,
 								story_id: story,
-								review: false,
-								rewatch: false,
+								rewatch: isRewatch.value,
+								review: true,
+								review_id: res.data.id,
+								created: new Date().toISOString(),
+							})
+							.then(res => {
+								supabase
+									.from("diary")
+									.update({
+										liked: isLoved.value ? {status: true, time: new Date().toISOString()} : null,
+										watched: watched
+											? {
+													status: true,
+											  }
+											: {
+													status: true,
+													time: new Date().toISOString(),
+											  },
+									})
+									.match({
+										user_id: user.id,
+										story_id: story,
+										review: false,
+										rewatch: false,
+									});
+								if (isLoved.value) {
+									setLike(1);
+								}
+								reviewState.setWatch = true;
+								reviewState.setLove = isLoved.value;
+								console.log(res);
 							});
-						console.log(res);
-						hasData.value = true;
-					});
-			}
+					}
 
-			response.value = user.lang ? "Publicado!" : "Published!";
+					response.value = user.lang ? "Publicado!" : "Published!";
 
-			setTimeout(() => {
-				dialog.isReview = false;
+					setTimeout(() => {
+						dialog.isReview = false;
 
-				window.matchMedia("(min-width: 35rem)").matches === false
-					? (dialog.isReviewMobile = false)
-					: "";
-			}, 1000);
+						window.matchMedia("(min-width: 35rem)").matches === false
+							? (dialog.isReviewMobile = false)
+							: "";
+					}, 1000);
+				});
 		});
+
+	function setWatch() {
+		supabase
+			.rpc("watched", {
+				qid: props.data.code,
+				qval: 1,
+			})
+			.then(res => {
+				console.log(res);
+			});
+	}
+	function setLike(cou) {
+		supabase
+			.rpc("liked", {
+				qid: props.data.code,
+				qval: cou,
+			})
+			.then(res => {
+				console.log(res);
+			});
+	}
 
 	function setRated() {
 		supabase
@@ -164,7 +207,10 @@ async function postReview() {
 						qid: props.data.code,
 						qval: rating.value,
 					})
-					.then(() => {});
+					.then(() => {
+						reviewState.setRate = true;
+						reviewState.setRating = rating.value;
+					});
 			});
 	}
 }

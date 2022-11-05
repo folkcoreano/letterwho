@@ -202,6 +202,23 @@ async function deleteReview() {
 									.then(() => {
 										console.log("review deleted");
 
+										supabase
+											.rpc("reviews", {
+												qid: media.value.code,
+												qval: -1,
+											})
+											.then(r => {
+												console.log(r);
+											});
+										supabase
+											.rpc("liked", {
+												qid: media.value.code,
+												qval: -1,
+											})
+											.then(r => {
+												console.log(r);
+											});
+
 										responseDelete.value = user.lang === "pt-br" ? "Deletado!" : "Deleted!";
 
 										push({name: "story", params: {type: type, range: range, story: story}});

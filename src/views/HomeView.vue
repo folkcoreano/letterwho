@@ -16,7 +16,10 @@ const tab = ref("feed");
 	<div>
 		<Suspense>
 			<template #default>
-				<ReviewList v-if="tab === 'feed'" />
+				<ReviewList
+					context="last"
+					v-if="tab === 'feed'"
+				/>
 			</template>
 			<template #fallback>
 				<LoadingState />

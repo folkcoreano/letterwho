@@ -3,11 +3,12 @@ import {folder, homeFolder} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
-import {ref} from "vue";
+import {ref, watchEffect} from "vue";
 import {useRoute} from "vue-router";
 
 const props = defineProps({
 	data: Object,
+	context: String,
 });
 
 const datalist = ref([]);
@@ -20,31 +21,47 @@ const {name} = useRoute();
 
 const reviews = ref([]);
 
-if (name === "home" && user.logged) {
-	const {data} = await supabase
-		.from("mutuals")
-		.select(
-			`
+watchEffect(async () => {
+	if (props.context === "home" && user.logged) {
+		const {data} = await supabase
+			.from("mutuals")
+			.select(
+				`
 		following_id(id,name,picture,
 		reviews_id(id,text,rating,user_id(id,name,picture,user),created,rewatch,loved,
 		story_id(type,code,title,url,released,range_id),
 		likes_id(count)))
 		`
-		)
-		.match({user_id: user.id})
-		.limit(1, {foreignTable: "following_id.reviews_id"})
-		.order("id", {foreignTable: "following_id.reviews_id", ascending: false});
+			)
+			.match({user_id: user.id})
+			.limit(1, {foreignTable: "following_id.reviews_id"})
+			.order("id", {foreignTable: "following_id.reviews_id", ascending: false});
 
-	for (const rev of data) {
-		if (rev.following_id.reviews_id.length > 0) {
-			for (const review of rev.following_id.reviews_id) {
-				reviews.value.push(review);
+		for (const rev of data) {
+			if (rev.following_id.reviews_id.length > 0) {
+				for (const review of rev.following_id.reviews_id) {
+					reviews.value.push(review);
+				}
 			}
 		}
+
+		datalist.value = reviews.value;
 	}
 
-	datalist.value = reviews.value;
-}
+	if (props.context === "last" && user.logged) {
+		const {data} = await supabase
+			.from("reviews")
+			.select(
+				`
+		id,text,rating,user_id(id,name,picture,user),created,rewatch,loved,story_id(type,code,title,url,released,range_id),likes_id(count)
+		`
+			)
+			.limit(5)
+			.order("id", {ascending: false});
+
+		datalist.value = data;
+	}
+});
 </script>
 
 <template>

@@ -5,6 +5,7 @@ import {useRoute} from "vue-router";
 import {useUser} from "@/stores/user";
 import {useDialog} from "@/stores/dialog";
 import ReviewWindow from "@/components/functions/reviews/ReviewWindow.vue";
+import {useReview} from "@/stores/review";
 
 const props = defineProps({
 	data: Object,
@@ -19,10 +20,12 @@ const user = useUser();
 
 const dialog = useDialog();
 
-const hasData = ref(props.data.hasData);
+const review = useReview();
+
+review.storyHasData = props.data.hasData;
 
 const hasDataFile = ref(
-	hasData.value
+	review.storyHasData
 		? props.data.diary
 		: {
 				watched: false,
@@ -91,7 +94,7 @@ async function rateContent(rating) {
 				qval: rate,
 			})
 			.then(() => {
-				if (hasData.value) {
+				if (review.storyHasData) {
 					supabase
 						.from("diary")
 						.update({
@@ -106,7 +109,6 @@ async function rateContent(rating) {
 							rewatch: false,
 							review: false,
 						})
-
 						.select()
 						.then(res => {
 							checkData(res.data[0]);
@@ -123,14 +125,14 @@ async function rateContent(rating) {
 							created: new Date().toISOString(),
 							rating: {
 								rating: rating,
+
 								time: new Date().toISOString(),
 							},
 						})
-
 						.select()
 						.then(res => {
 							checkData(res.data[0]);
-							hasData.value = true;
+							review.storyHasData = true;
 							console.log(res);
 							if (watched.value === false) {
 								watched.value = true;
@@ -180,7 +182,7 @@ async function removeRate() {
 }
 
 async function setWatch(state) {
-	if (hasData.value) {
+	if (review.storyHasData) {
 		console.log("has data");
 		if (state === false) {
 			console.log("set watch");
@@ -269,7 +271,7 @@ async function setWatch(state) {
 						.then(res => {
 							checkData(res.data[0]);
 
-							hasData.value = true;
+							review.storyHasData = true;
 							watched.value = true;
 							if (saved.value === true) {
 								saved.value = false;
@@ -299,7 +301,7 @@ async function setWatch(state) {
 						.select()
 						.then(res => {
 							checkData(res.data[0]);
-							hasData.value = true;
+							review.storyHasData = true;
 
 							watched.value = false;
 						});
@@ -309,7 +311,7 @@ async function setWatch(state) {
 }
 
 async function setLike(state) {
-	if (hasData.value) {
+	if (review.storyHasData) {
 		console.log("has data");
 		if (state === false) {
 			console.log("set like");
@@ -393,7 +395,7 @@ async function setLike(state) {
 						.then(res => {
 							checkData(res.data[0]);
 
-							hasData.value = true;
+							review.storyHasData = true;
 							liked.value = true;
 						});
 				});
@@ -427,7 +429,7 @@ async function setLike(state) {
 }
 
 async function setSave(state) {
-	if (hasData.value) {
+	if (review.storyHasData) {
 		console.log("has data");
 		if (state === false) {
 			console.log("set saved");
@@ -512,7 +514,7 @@ async function setSave(state) {
 						.then(res => {
 							checkData(res.data[0]);
 
-							hasData.value = true;
+							review.storyHasData = true;
 
 							saved.value = true;
 						});
@@ -547,7 +549,6 @@ async function setSave(state) {
 }
 
 const cloud = ref(props.data.diary);
-
 const bookProgress = ref(0);
 const maxPages = ref(props.data.length);
 
@@ -570,7 +571,7 @@ function checkData(array) {
 				id: array.id,
 			})
 			.then(res => {
-				hasData.value = false;
+				review.storyHasData = false;
 				console.log("hum");
 				console.log(res);
 			});
@@ -578,6 +579,21 @@ function checkData(array) {
 }
 
 watchEffect(() => {
+	if (review.setWatch === true) {
+		console.log("wf set watch");
+		watched.value = true;
+		review.setWatch = false;
+	}
+	if (review.setLove === true) {
+		console.log("wf set love");
+		liked.value = true;
+		review.setLove = false;
+	}
+	if (review.setRate === true) {
+		console.log("wf set rating");
+		ratingData.value = review.setRating;
+		review.setRate = false;
+	}
 	// if (bookProgress.value > maxPages.value) {
 	// 	bookProgress.value = maxPages.value;
 	// }
