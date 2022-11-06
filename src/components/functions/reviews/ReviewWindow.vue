@@ -32,8 +32,6 @@ const {watched, rated} = props.status;
 
 const dialog = useDialog();
 
-console.log(reviewState.storyHasData);
-
 const review = ref("");
 const rating = ref(0);
 const daySet = ref();

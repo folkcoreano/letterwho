@@ -9,7 +9,6 @@ import {useReview} from "@/stores/review";
 
 const props = defineProps({
 	data: Object,
-	doctors: Object,
 });
 
 const {
@@ -21,8 +20,6 @@ const user = useUser();
 const dialog = useDialog();
 
 const review = useReview();
-
-review.storyHasData = props.data.hasData;
 
 const hasDataFile = ref(
 	review.storyHasData

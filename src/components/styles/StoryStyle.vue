@@ -38,16 +38,16 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 
 const icon = ref();
 
-if (type === "audios" || type === "tv") {
-	icon.value = "ri:timer-2-fill";
-}
-
-if (type === "comics") {
-	icon.value = "ri:pages-fill";
-}
-
-if (type === "books") {
-	icon.value = "ri:file-copy-2-fill";
+switch (type) {
+	case "audios" || "tv":
+		icon.value = "ri:timer-2-fill";
+		break;
+	case "comics":
+		icon.value = "ri:pages-fill";
+		break;
+	case "books":
+		icon.value = "ri:file-copy-2-fill";
+		break;
 }
 
 const menu = ref(true);
@@ -291,6 +291,11 @@ onClickOutside(rev, () => {
 * {
 	outline: 0 dotted rgba(255, 0, 135, 0.5);
 }
+.pageHeader {
+	display: flex;
+	flex-flow: column;
+	gap: 0.25rem;
+}
 .button {
 	position: fixed;
 	bottom: 0;
@@ -304,7 +309,7 @@ onClickOutside(rev, () => {
 	transition: all 150ms linear;
 }
 .butIcon {
-	font-size: 3rem;
+	font-size: 2.55rem;
 	display: flex;
 	transition: all 150ms linear;
 }
@@ -333,9 +338,7 @@ onClickOutside(rev, () => {
 }
 .writerLink {
 	border-bottom: 1px solid #555;
-	padding: 0 0.15rem;
 	color: #fff;
-	font-weight: bold;
 }
 .reviewBox {
 	grid-column: 3;
@@ -412,15 +415,15 @@ onClickOutside(rev, () => {
 .coverPicture {
 	cursor: pointer;
 	max-width: 100%;
-	width: 9rem;
-	border: solid 0.001rem #555;
+	width: 7.55rem;
+	outline: solid 0.001rem #555;
 	transition: all 150ms linear;
 }
 .coverPicture:hover {
-	border: solid 0.001rem #777;
+	outline: solid 0.001rem #777;
 }
 .pageDetails {
-	justify-content: space-evenly;
+	justify-content: space-between;
 	grid-row: 5;
 
 	display: flex;
@@ -449,7 +452,7 @@ onClickOutside(rev, () => {
 	padding: 0 0.5rem;
 }
 .pageTitle {
-	font-size: 1.65rem;
+	font-size: 1.25rem;
 	font-weight: bold;
 }
 .pageWriter {
@@ -459,7 +462,7 @@ onClickOutside(rev, () => {
 	text-transform: uppercase;
 	color: #ddd;
 	font-style: italic;
-	font-size: 0.95rem;
+	font-size: 0.85rem;
 	word-spacing: 0.15rem;
 	font-weight: bold;
 }
@@ -509,6 +512,12 @@ onClickOutside(rev, () => {
 	.statusArea {
 		position: sticky;
 		top: 0;
+	}
+	.pageTitle {
+		font-size: 1.65rem;
+	}
+	.pageQuote {
+		font-size: 1rem;
 	}
 	.contentStatus {
 		position: sticky;

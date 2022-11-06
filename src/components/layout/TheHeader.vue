@@ -82,10 +82,9 @@ window.matchMedia("(min-width: 35rem)").onchange = e => {
 	display: flex;
 	justify-content: space-between;
 }
-
 header {
-	padding: 0.55rem;
-	/* background-color: #0f0f0f; */
+	padding: 0.45rem 0.65rem;
+	background-color: #0f0f0f;
 }
 .u {
 	display: flex;
@@ -126,14 +125,11 @@ header {
 @media (min-width: 35rem) {
 	.navArea {
 		display: flex;
+		justify-self: flex-end;
 	}
 	header {
-		/* position: sticky;
-		top: 0;
-		overflow: unset; */
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		margin: auto;
+		grid-template-columns: auto 1fr;
 	}
 }
 </style>

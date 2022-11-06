@@ -14,7 +14,7 @@ const tab = ref("feed");
 
 <template>
 	<div>
-		<Suspense>
+		<!-- <Suspense>
 			<template #default>
 				<ReviewList
 					context="last"
@@ -24,6 +24,6 @@ const tab = ref("feed");
 			<template #fallback>
 				<LoadingState />
 			</template>
-		</Suspense>
+		</Suspense> -->
 	</div>
 </template>
