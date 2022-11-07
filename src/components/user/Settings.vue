@@ -41,9 +41,9 @@ const tab = shallowRef(UserSettings);
 				name="comp"
 				mode="out-in"
 			>
-				<KeepAlive>
-					<Component :is="tab" />
-				</KeepAlive>
+				<!-- <KeepAlive> -->
+				<Component :is="tab" />
+				<!-- </KeepAlive> -->
 			</Transition>
 		</div>
 	</div>

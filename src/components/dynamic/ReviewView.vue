@@ -253,7 +253,7 @@ async function likeReview(state) {
 				user_id: user.id,
 				review_id: likesID.value,
 			})
-			.then(res => {
+			.then(() => {
 				userliked.value = true;
 				likes.value += 1;
 			});
@@ -262,7 +262,7 @@ async function likeReview(state) {
 			.from("likes")
 			.delete()
 			.match({user_id: user.id, review_id: likesID.value})
-			.then(res => {
+			.then(() => {
 				userliked.value = false;
 				likes.value -= 1;
 			});
@@ -291,7 +291,6 @@ async function addComment() {
 			})
 			.match({id: editingCommentID.value})
 			.then(res => {
-				console.log(res);
 				commentResponse.value = user.lang === "pt-br" ? "Atualizado!" : "Updated!";
 				commentData.value = "";
 				isEditingComment.value = false;
@@ -307,9 +306,8 @@ async function addComment() {
 				comment: commentData.value,
 				created: new Date().toISOString(),
 			})
-			.select("comment,created,updated,id,user_id(id,name,picture)")
+			.select("comment,created,updated,id,user_id(id,name,user,picture)")
 			.then(res => {
-				console.log(res);
 				comments.value.unshift(res.data[0]);
 				commentResponse.value = user.lang === "pt-br" ? "Postado!" : "Posted!";
 				commentData.value = "";
@@ -717,7 +715,7 @@ onMounted(() => {
 
 <style scoped>
 /* * {
-	outline: 0px dotted rgba(0, 255, 0, 0);
+	outline: 1px dotted rgba(0, 255, 0, 1);
 } */
 
 .statusIcons {
@@ -725,7 +723,6 @@ onMounted(() => {
 	align-items: center;
 	gap: 0.25rem;
 }
-
 .actions {
 	display: flex;
 	gap: 0.5rem;

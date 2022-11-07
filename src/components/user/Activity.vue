@@ -32,17 +32,24 @@ const props = defineProps({
 			) in data"
 			class="item"
 		>
-			<span v-if="context === 'reviews'">
-				{{ user_id.name }}
-			</span>
 			<RouterLink
-				v-if="context !== 'story'"
+				v-if="context === 'reviews'"
+				:to="{name: 'user', params: {id: user_id.user}}"
+			>
+				<img
+					style="border-radius: 10%; max-width: 2.55rem; position: sticky; top: 0"
+					:src="folder(user_id.picture, '100')"
+					:alt="user_id.name"
+				/>
+			</RouterLink>
+			<RouterLink
+				v-if="context !== 'story' && context !== 'reviews'"
 				class="itemIcon"
 				:to="{name: 'story', params: {type: type, range: range_id, story: url}}"
 			>
 				<img
 					class="img"
-					:src="folder(`${type}/${range_id}/${code}`, '150')"
+					:src="folder(`${type}/${range_id}/${code}`, '100')"
 					:alt="title"
 				/>
 			</RouterLink>

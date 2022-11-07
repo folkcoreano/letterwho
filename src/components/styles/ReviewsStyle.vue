@@ -178,7 +178,6 @@ async function getActivity() {
 				{{ user.lang === "pt-br" ? "AMIGOS" : "FRIENDS" }}
 			</div>
 			<div
-				v-if="false"
 				@click="getActivity"
 				:class="reviewsList === 'activity' ? 'tab activeTab' : 'tab'"
 				class="tab"

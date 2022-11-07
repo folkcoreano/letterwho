@@ -1,6 +1,9 @@
 <script setup>
 defineProps({
-	hoverColor: String,
+	hoverColor: {
+		type: String,
+		default: "var(--blue)",
+	},
 	state: Boolean,
 	type: String,
 });
