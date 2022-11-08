@@ -8,7 +8,21 @@ const data = ref([]);
 const getStories = () => {
 	supabase
 		.from("story")
-		.select("story_id, released, type, title, url, range_id")
+		.select(
+			`
+		story_id, 
+		released, 
+		type, 
+		title, 
+		url,
+		watched,
+		liked,
+		saved,
+		rated,
+		rating, 
+		range_id
+		`
+		)
 		.order("released", {ascending: true})
 		.then(res => {
 			data.value = res.data;
@@ -23,11 +37,23 @@ getStories();
 		<br />
 		<div>
 			<div
-				v-for="({story_id, type, title, url, range_id}, i) in data"
+				v-for="(
+					{story_id, liked, watched, saved, rated, rating, type, title, url, range_id}, i
+				) in data"
 				:key="i"
 			>
 				<RouterLink :to="{name: 'story', params: {type: type, range: range_id, story: url}}">
 					{{ title }}
+					<br />
+					watched: {{ watched }}
+					<br />
+					liked: {{ liked }}
+					<br />
+					saved: {{ saved }}
+					<br />
+					({{ (rating / rated).toFixed(1) }}) ( {{ rating }} / {{ rated }})
+					<br />
+					<br />
 				</RouterLink>
 			</div>
 		</div>

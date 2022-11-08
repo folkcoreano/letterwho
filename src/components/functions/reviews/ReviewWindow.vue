@@ -109,8 +109,12 @@ async function postReview() {
 							])
 							.then(res => {
 								setWatch();
+								setLike();
+								if (isRewatch.value) {
+									setRewatch();
+								}
 								if (isLoved.value) {
-									setLike(2);
+									setLike();
 								}
 								reviewState.storyHasData = true;
 								reviewState.setWatch = true;
@@ -151,8 +155,11 @@ async function postReview() {
 										review: false,
 										rewatch: false,
 									});
+								if (isRewatch.value) {
+									setRewatch();
+								}
 								if (isLoved.value) {
-									setLike(1);
+									setLike();
 								}
 								reviewState.setWatch = true;
 								reviewState.setLove = isLoved.value;
@@ -172,6 +179,16 @@ async function postReview() {
 				});
 		});
 
+	function setRewatch() {
+		supabase
+			.rpc("rewatched", {
+				qid: props.data.code,
+				qval: 1,
+			})
+			.then(res => {
+				console.log(res);
+			});
+	}
 	function setWatch() {
 		supabase
 			.rpc("watched", {
@@ -182,11 +199,11 @@ async function postReview() {
 				console.log(res);
 			});
 	}
-	function setLike(cou) {
+	function setLike() {
 		supabase
 			.rpc("liked", {
 				qid: props.data.code,
-				qval: cou,
+				qval: 1,
 			})
 			.then(res => {
 				console.log(res);

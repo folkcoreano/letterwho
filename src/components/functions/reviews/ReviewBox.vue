@@ -32,150 +32,149 @@ const hasDataFile = ref(
 		  }
 );
 
-const watched = ref(hasDataFile.value.watched ? hasDataFile.value.watched.status : false);
+const watched = ref();
+const liked = ref();
+const saved = ref();
+const ratingData = ref();
+const oldRating = ref();
+const rated = ref();
 
-const liked = ref(hasDataFile.value.liked ? hasDataFile.value.liked.status : false);
+watched.value = hasDataFile.value.watched ? hasDataFile.value.watched.status : false;
 
-const saved = ref(hasDataFile.value.saved ? hasDataFile.value.saved.status : false);
+liked.value = hasDataFile.value.liked ? hasDataFile.value.liked.status : false;
 
-const rated = ref(hasDataFile.value.rating ? true : false);
+saved.value = hasDataFile.value.saved ? hasDataFile.value.saved.status : false;
 
-const ratingData = ref(hasDataFile.value.rating ? hasDataFile.value.rating.rating : 0);
+rated.value = hasDataFile.value.rating ? true : false;
 
-const oldRating = ref(hasDataFile.value.rating ? hasDataFile.value.rating.rating : 0);
+ratingData.value = hasDataFile.value.rating ? hasDataFile.value.rating.rating : 0;
 
-async function rateContent(rating) {
-	if (oldRating.value === 0 || oldRating.value === undefined) {
-		console.log("adiciona");
+oldRating.value = hasDataFile.value.rating ? hasDataFile.value.rating.rating : 0;
 
-		supabase
-			.rpc("rated", {
-				qid: props.data.code,
-				qval: 1,
+async function removeRate() {
+	if (review.storyHasData === true) {
+		await supabase.rpc("rated", {
+			qid: props.data.code,
+			qval: -1,
+		});
+
+		await supabase.rpc("rating", {
+			qid: props.data.code,
+			qval: -ratingData.value,
+		});
+
+		await supabase
+			.from("diary")
+			.update({
+				rating: null,
 			})
-			.then(() => {
-				if (rating > oldRating.value) {
-					console.log("aumenta");
-					doTheThing(rating - oldRating.value);
-				}
-
-				if (rating < oldRating.value) {
-					console.log("diminui");
-					doTheThing(rating - oldRating.value);
-				}
+			.match({
+				user_id: user.id,
+				story_id: story,
+				rewatch: false,
+				review: false,
 			});
-	}
 
-	if (oldRating.value > 0) {
-		if (rating > oldRating.value) {
-			console.log("aumenta");
-
-			doTheThing(rating - oldRating.value);
-		}
-
-		if (rating < oldRating.value) {
-			console.log("diminui");
-
-			doTheThing(rating - oldRating.value);
-		}
-
-		if (rating === oldRating.value) {
-			console.log("faz nada");
-		}
-	}
-
-	function doTheThing(rate) {
-		supabase
-			.rpc("rating", {
-				qid: props.data.code,
-				qval: rate,
-			})
-			.then(() => {
-				if (review.storyHasData) {
-					supabase
-						.from("diary")
-						.update({
-							rating: {
-								rating: rating,
-								time: new Date().toISOString(),
-							},
-						})
-						.match({
-							user_id: user.id,
-							story_id: story,
-							rewatch: false,
-							review: false,
-						})
-						.select()
-						.then(res => {
-							checkData(res.data[0]);
-							console.log(res);
-						});
-				} else {
-					supabase
-						.from("diary")
-						.insert({
-							user_id: user.id,
-							story_id: story,
-							rewatch: false,
-							review: false,
-							created: new Date().toISOString(),
-							rating: {
-								rating: rating,
-
-								time: new Date().toISOString(),
-							},
-						})
-						.select()
-						.then(res => {
-							checkData(res.data[0]);
-							review.storyHasData = true;
-							console.log(res);
-							if (watched.value === false) {
-								watched.value = true;
-								setWatch(false);
-							}
-							if (saved.value === true) {
-								saved.value = false;
-								setSave(true);
-							}
-						});
-				}
-			});
+		ratingData.value = 0;
+		oldRating.value = 0;
+	} else {
+		console.log("no data :p");
 	}
 }
 
-async function removeRate() {
-	supabase
-		.rpc("rated", {
+async function rateContent(rating) {
+	ratingData.value = rating;
+
+	if (review.storyHasData === false) {
+		console.log("no data");
+
+		await supabase.rpc("rated", {
 			qid: props.data.code,
-			qval: -1,
-		})
-		.then(() => {
-			supabase
-				.rpc("rating", {
-					qid: props.data.code,
-					qval: -oldRating.value,
-				})
-				.then(() => {
-					supabase
-						.from("diary")
-						.update({
-							rating: null,
-						})
-						.match({
-							user_id: user.id,
-							story_id: story,
-							rewatch: false,
-							review: false,
-						})
-						.select()
-						.then(res => {
-							checkData(res.data[0]);
-							console.log(res);
-						});
-				});
+			qval: 1,
 		});
+
+		await supabase.rpc("rating", {
+			qid: props.data.code,
+			qval: rating,
+		});
+
+		await supabase.from("diary").insert({
+			user_id: user.id,
+			story_id: story,
+			rewatch: false,
+			review: false,
+			created: new Date().toISOString(),
+			rating: {
+				rating: rating,
+				time: new Date().toISOString(),
+			},
+		});
+
+		review.storyHasData = true;
+
+		setWatch(false);
+
+		oldRating.value = rating;
+	} else {
+		if (rating > oldRating.value) {
+			console.log("atualiza, adiciona");
+			console.log(rating - oldRating.value);
+
+			if (oldRating.value === 0) {
+				await supabase.rpc("rated", {
+					qid: props.data.code,
+					qval: 1,
+				});
+			}
+
+			await supabase.rpc("rating", {
+				qid: props.data.code,
+				qval: rating - oldRating.value,
+			});
+
+			await supabase
+				.from("diary")
+				.update({
+					rating: {
+						rating: rating,
+						time: new Date().toISOString(),
+					},
+				})
+				.match({
+					user_id: user.id,
+					story_id: story,
+					rewatch: false,
+					review: false,
+				});
+
+			oldRating.value = rating;
+		} else {
+			console.log("atualiza, diminui");
+			console.log(rating - oldRating.value);
+
+			await supabase.rpc("rating", {
+				qid: props.data.code,
+				qval: rating - oldRating.value,
+			});
+
+			await supabase
+				.from("diary")
+				.update({
+					rating: {
+						rating: rating,
+						time: new Date().toISOString(),
+					},
+				})
+				.match({
+					user_id: user.id,
+					story_id: story,
+					rewatch: false,
+					review: false,
+				});
+
+			oldRating.value = rating;
+		}
+	}
 }
 
 async function setWatch(state) {
@@ -550,10 +549,12 @@ const bookProgress = ref(0);
 const maxPages = ref(props.data.length);
 
 function checkData(array) {
+	return;
 	array.watched ? (watched.value = true) : (watched.value = false);
 	array.saved ? (saved.value = true) : (saved.value = false);
 	array.liked ? (liked.value = true) : (liked.value = false);
 	array.rating ? (ratingData.value = array.rating.rating) : (ratingData.value = 0);
+	array.rating ? (oldRating.value = array.rating.rating) : (oldRating.value = 0);
 
 	if (
 		array.watched === null &&
@@ -643,7 +644,7 @@ watchEffect(() => {
 			<div
 				class="removeItem"
 				v-if="ratingData > 0"
-				@click="removeRate(), (ratingData = 0)"
+				@click="removeRate()"
 			>
 				<iconify-icon
 					class="removeIcon"
@@ -652,31 +653,31 @@ watchEffect(() => {
 			</div>
 			<div class="starsBox">
 				<iconify-icon
-					@click="rateContent(1), (ratingData = 1)"
+					@click="rateContent(1)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 1 ? 'fill' : 'line')"
 					:style="ratingData >= 1 ? 'color: var(--yellow)' : ''"
 				/>
 				<iconify-icon
-					@click="rateContent(2), (ratingData = 2)"
+					@click="rateContent(2)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 2 ? 'fill' : 'line')"
 					:style="ratingData >= 2 ? 'color:var(--yellow)' : ''"
 				/>
 				<iconify-icon
-					@click="rateContent(3), (ratingData = 3)"
+					@click="rateContent(3)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 3 ? 'fill' : 'line')"
 					:style="ratingData >= 3 ? 'color: var(--yellow)' : ''"
 				/>
 				<iconify-icon
-					@click="rateContent(4), (ratingData = 4)"
+					@click="rateContent(4)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 4 ? 'fill' : 'line')"
 					:style="ratingData >= 4 ? 'color:var(--yellow)' : ''"
 				/>
 				<iconify-icon
-					@click="rateContent(5), (ratingData = 5)"
+					@click="rateContent(5)"
 					class="starIcon"
 					:icon="'ri:star-' + (ratingData >= 5 ? 'fill' : 'line')"
 					:style="ratingData >= 5 ? 'color:var(--yellow)' : ''"

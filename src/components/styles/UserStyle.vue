@@ -375,7 +375,7 @@ onBeforeUnmount(() => {
 }
 
 .pic {
-	border-radius: 50%;
+	border-radius: 10%;
 	max-width: 5rem;
 }
 .user {

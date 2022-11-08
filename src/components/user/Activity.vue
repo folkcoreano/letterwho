@@ -2,6 +2,8 @@
 import {folder} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
+import supabase from "@/supabase";
+import {ref} from "vue";
 
 const user = useUser();
 
@@ -9,6 +11,12 @@ const props = defineProps({
 	data: Object,
 	context: String,
 });
+
+async function deleteActivity(id) {
+	const {data, error} = await supabase.from("diary").delete().match({id: id});
+
+	console.log({data, error});
+}
 </script>
 
 <template>
@@ -17,6 +25,7 @@ const props = defineProps({
 			:key="i"
 			v-for="(
 				{
+					id,
 					created,
 					watched,
 					liked,
@@ -32,6 +41,7 @@ const props = defineProps({
 			) in data"
 			class="item"
 		>
+			<!-- <button @click="deleteActivity(id)">del</button> -->
 			<RouterLink
 				v-if="context === 'reviews'"
 				:to="{name: 'user', params: {id: user_id.user}}"
