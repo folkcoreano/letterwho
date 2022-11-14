@@ -1,6 +1,4 @@
 <script setup>
-import {folder} from "@/stores/images";
-import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {ref, shallowRef} from "vue";
@@ -73,6 +71,7 @@ async function getLikes() {
 			.from("likes")
 			.select("user_id(id,name,user,picture,diary_id(liked,rating,watched,saved))")
 			.order("id", {ascending: true, foreignTable: "user_id.diary_id"})
+			.order("id", {ascending: false})
 			.filter("user_id.diary_id.story_id", "eq", story)
 			.match({review_id: props.likes_id});
 
