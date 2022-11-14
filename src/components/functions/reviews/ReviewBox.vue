@@ -1,5 +1,5 @@
 <script setup>
-import {ref, watchEffect, onBeforeUnmount} from "vue";
+import {ref, watchEffect} from "vue";
 import supabase from "@/supabase";
 import {useRoute} from "vue-router";
 import {useUser} from "@/stores/user";
@@ -21,23 +21,22 @@ const dialog = useDialog();
 
 const review = useReview();
 
-const hasDataFile = ref(
-	review.storyHasData
-		? props.data.diary
-		: {
-				watched: false,
-				saved: false,
-				liked: false,
-				rating: false,
-		  }
-);
-
+const hasDataFile = ref();
 const watched = ref();
 const liked = ref();
 const saved = ref();
 const ratingData = ref();
 const oldRating = ref();
 const rated = ref();
+
+hasDataFile.value = review.storyHasData
+	? props.data.diary
+	: {
+			watched: false,
+			saved: false,
+			liked: false,
+			rating: false,
+	  };
 
 watched.value = hasDataFile.value.watched ? hasDataFile.value.watched.status : false;
 
@@ -653,34 +652,11 @@ watchEffect(() => {
 			</div>
 			<div class="starsBox">
 				<iconify-icon
-					@click="rateContent(1)"
+					v-for="s in 5"
+					@click="rateContent(s)"
 					class="starIcon"
-					:icon="'ri:star-' + (ratingData >= 1 ? 'fill' : 'line')"
-					:style="ratingData >= 1 ? 'color: var(--yellow)' : ''"
-				/>
-				<iconify-icon
-					@click="rateContent(2)"
-					class="starIcon"
-					:icon="'ri:star-' + (ratingData >= 2 ? 'fill' : 'line')"
-					:style="ratingData >= 2 ? 'color:var(--yellow)' : ''"
-				/>
-				<iconify-icon
-					@click="rateContent(3)"
-					class="starIcon"
-					:icon="'ri:star-' + (ratingData >= 3 ? 'fill' : 'line')"
-					:style="ratingData >= 3 ? 'color: var(--yellow)' : ''"
-				/>
-				<iconify-icon
-					@click="rateContent(4)"
-					class="starIcon"
-					:icon="'ri:star-' + (ratingData >= 4 ? 'fill' : 'line')"
-					:style="ratingData >= 4 ? 'color:var(--yellow)' : ''"
-				/>
-				<iconify-icon
-					@click="rateContent(5)"
-					class="starIcon"
-					:icon="'ri:star-' + (ratingData >= 5 ? 'fill' : 'line')"
-					:style="ratingData >= 5 ? 'color:var(--yellow)' : ''"
+					:icon="'ri:star-' + (ratingData >= s ? 'fill' : 'line')"
+					:style="ratingData >= s ? 'color: var(--yellow)' : ''"
 				/>
 			</div>
 		</div>

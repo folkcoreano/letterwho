@@ -1,9 +1,10 @@
 <script setup>
-import {folder} from "@/stores/images";
-import setTitle from "@/stores/title";
-import {useUser} from "@/stores/user";
+import {ref} from "vue";
 import supabase from "@/supabase";
 import {useRoute} from "vue-router";
+import setTitle from "@/stores/title";
+import {useUser} from "@/stores/user";
+import {folder} from "@/stores/images";
 import CommentsStyle from "./CommentsStyle.vue";
 
 const {
@@ -11,6 +12,7 @@ const {
 } = useRoute();
 
 const user = useUser();
+const comments_and_likes_id = ref();
 
 const {data} = await supabase
 	.from("reviews")
@@ -23,13 +25,16 @@ loved,
 updated,
 text,
 story_id(title,released,url,code),
-user_id(id,user,name,picture),
-likes_id,
-comments_id`
+user_id(id,user,name,picture,reviews_id(*)),
+likes_id(count),
+comments_id(count)`
 	)
 	.match({id: id})
+	.filter("user_id.reviews_id.id", "eq", id)
 	.limit(1)
 	.single();
+
+comments_and_likes_id.value = data.user_id.reviews_id.find(e => e.id == id);
 
 setTitle(`${data.user_id.name} / ${data.story_id.title}`);
 </script>
@@ -106,14 +111,19 @@ setTitle(`${data.user_id.name} / ${data.story_id.title}`);
 			</RouterLink>
 		</div>
 		<div class="comments">
-			<CommentsStyle :id="data.comments_id" />
+			<CommentsStyle
+				:comments_id="comments_and_likes_id.comments_id"
+				:likes_id="comments_and_likes_id.likes_id"
+				:comments_size="data.comments_id[0].count"
+				:likes_size="data.likes_id[0].count"
+			/>
 		</div>
 	</div>
 </template>
 
 <style scoped>
 * {
-	/* outline: 1px dotted rgba(0, 255, 0, 1); */
+	/* outline: 1px dotted rgba(0, 255, 0, 0.3); */
 	transition: all 150ms linear;
 }
 .review {
