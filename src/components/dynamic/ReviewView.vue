@@ -1,13 +1,13 @@
 <script setup>
+import {useUpdateKey} from "@/stores/keys";
 import {onErrorCaptured} from "vue";
 import {useRouter} from "vue-router";
 import ReviewStyle from "../styles/review/ReviewStyle.vue";
 
 const {push} = useRouter();
-
+const updateKey = useUpdateKey();
 onErrorCaptured(e => {
 	console.log(e);
-	// push({name: "home"});
 });
 </script>
 
@@ -16,7 +16,12 @@ onErrorCaptured(e => {
 		<Suspense>
 			<template #default>
 				<div>
-					<ReviewStyle />
+					<Transition
+						name="comp"
+						mode="out-in"
+					>
+						<ReviewStyle :key="updateKey.reviewKey" />
+					</Transition>
 				</div>
 			</template>
 			<template #fallback>

@@ -1,4 +1,5 @@
 <script setup>
+import {useUpdateKey} from "@/stores/keys";
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
 import {ref} from "vue";
@@ -9,6 +10,8 @@ const props = defineProps({
 });
 
 const user = useUser();
+
+const updateKey = useUpdateKey();
 
 const isLiked = ref();
 
@@ -39,6 +42,7 @@ async function likeReview(state) {
 		isLiked.value = false;
 		console.log(data);
 	}
+	updateKey.reviewKey += 1;
 }
 </script>
 

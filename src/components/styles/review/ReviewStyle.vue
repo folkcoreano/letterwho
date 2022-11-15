@@ -1,18 +1,23 @@
 <script setup>
 import {ref, watchEffect} from "vue";
 import supabase from "@/supabase";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import setTitle from "@/stores/title";
 import {useUser} from "@/stores/user";
 import {folder} from "@/stores/images";
 import CommentsStyle from "./CommentsStyle.vue";
 import LikeArea from "./LikeArea.vue";
+import {useUpdateKey} from "@/stores/keys";
+import ConfirmButton from "@/components/buttons/ConfirmButton.vue";
 
 const {
 	params: {type, range, id},
 } = useRoute();
 
+const {push} = useRouter();
+
 const user = useUser();
+const updateKey = useUpdateKey();
 const reviewData = ref();
 const comments_and_likes_id = ref();
 const isEditing = ref(false);
@@ -21,6 +26,11 @@ const reviewRating = ref(0);
 const reviewLove = ref(false);
 const reviewRewatch = ref(false);
 const response = ref(user.lang === "pt-br" ? "Atualizar" : "Update");
+
+const comments_size = ref();
+const likes_size = ref();
+
+const mediaCode = ref();
 
 const {data} = await supabase
 	.from("reviews")
@@ -41,6 +51,10 @@ comments_id(count)`
 	.filter("user_id.reviews_id.id", "eq", id)
 	.limit(1)
 	.single();
+
+comments_size.value = data.comments_id[0].count;
+likes_size.value = data.likes_id[0].count;
+mediaCode.value = data.story_id.code;
 
 reviewData.value = data;
 
@@ -65,9 +79,55 @@ async function editReview() {
 		})
 		.match({id: id});
 
-	isEditing.value = false;
+	updateKey.reviewKey += 1;
 
-	console.log(data);
+	isEditing.value = false;
+}
+
+async function deleteReview() {
+	await supabase.from("diary").delete().match({review_id: id, user_id: user.id});
+	console.log("diary deleted");
+
+	if (likes_size.value > 0) {
+		await supabase.from("likes").delete().match({review_id: comments_and_likes_id.value.likes_id});
+
+		console.log("likes deleted");
+	}
+
+	if (comments_size.value > 0) {
+		await supabase
+			.from("comments")
+			.delete()
+			.match({review_id: comments_and_likes_id.value.comments_id});
+
+		console.log("comments deleted");
+	}
+
+	await supabase.from("reviews").delete().match({id: id, user_id: user.id});
+	console.log("review deleted");
+
+	await supabase.rpc("reviews", {
+		qid: mediaCode.value,
+		qval: -1,
+	});
+	console.log("review count removed");
+
+	if (reviewLove.value === true) {
+		await supabase.rpc("liked", {
+			qid: mediaCode.value,
+			qval: -1,
+		});
+		console.log("like count removed");
+	}
+
+	if (reviewRewatch.value === true) {
+		await supabase.rpc("rewatched", {
+			qid: mediaCode.value,
+			qval: -1,
+		});
+		console.log("rewatched count removed");
+	}
+	push({name: "story"});
 }
 
 watchEffect(() => {});
@@ -120,7 +180,7 @@ watchEffect(() => {});
 							class="icon"
 							style="color: var(--yellow)"
 							icon="ri:star-fill"
-							v-for="s in reviewRating"
+							v-for="s in data.rating"
 							:key="s"
 						/>
 
@@ -232,7 +292,6 @@ watchEffect(() => {});
 						<ConfirmButton
 							@click="isEditing = false"
 							tabindex="0"
-							:hoverColor="'var(--red)'"
 						>
 							<iconify-icon
 								class="sendIcon"
@@ -241,10 +300,19 @@ watchEffect(() => {});
 						</ConfirmButton>
 
 						<ConfirmButton
+							@click="deleteReview"
+							:hoverColor="'var(--red)'"
+						>
+							<iconify-icon
+								class="sendIcon"
+								icon="ri:delete-bin-5-line"
+							/>
+						</ConfirmButton>
+
+						<ConfirmButton
 							@click="editReview"
 							:state="reviewText === '' || reviewText === data.text"
 							tabindex="0"
-							:hoverColor="'var(--blue)'"
 						>
 							<iconify-icon
 								class="sendIcon"
@@ -262,7 +330,7 @@ watchEffect(() => {});
 			v-else
 			class="text"
 		>
-			{{ reviewText }}
+			{{ data.text }}
 		</div>
 		<div class="mediaSide">
 			<RouterLink

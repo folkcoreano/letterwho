@@ -39,7 +39,7 @@ async function getComments() {
 			created,
 			updated,
 			id,
-			user_id(id,name,user,picture,diary_id(liked,rating,watched,saved))
+			user_id(id,name,user,picture,diary_id(liked,rating,watched,saved,rewatch,review))
 			`
 			)
 			.order("created", {ascending: false})
@@ -69,22 +69,30 @@ async function getLikes() {
 	if (likes.value.length < 1) {
 		const likesData = await supabase
 			.from("likes")
-			.select("user_id(id,name,user,picture,diary_id(liked,rating,watched,saved))")
-			.order("id", {ascending: true, foreignTable: "user_id.diary_id"})
-			.order("id", {ascending: false})
+			.select("user_id(id,name,user,picture,diary_id(liked,rating,watched,saved,rewatch,review))")
 			.filter("user_id.diary_id.story_id", "eq", story)
 			.match({review_id: props.likes_id});
 
 		for (const comm of likesData.data) {
 			const status = comm.user_id.diary_id.find(e => !e.rewatch && !e.review);
 
-			likes.value.push({
-				...comm,
-				liked: status.liked,
-				watched: status.watched,
-				rating: status.rating,
-				saved: status.saved,
-			});
+			if (comm.user_id.diary_id.some(e => !e.rewatch && !e.review)) {
+				likes.value.push({
+					...comm,
+					liked: status.liked,
+					watched: status.watched,
+					rating: status.rating,
+					saved: status.saved,
+				});
+			} else {
+				likes.value.push({
+					...comm,
+					liked: false,
+					watched: false,
+					rating: 0,
+					saved: false,
+				});
+			}
 		}
 	}
 
