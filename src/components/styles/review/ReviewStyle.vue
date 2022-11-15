@@ -1,5 +1,5 @@
 <script setup>
-import {ref, watchEffect} from "vue";
+import {ref} from "vue";
 import supabase from "@/supabase";
 import {useRoute, useRouter} from "vue-router";
 import setTitle from "@/stores/title";
@@ -129,8 +129,6 @@ async function deleteReview() {
 	}
 	push({name: "story"});
 }
-
-watchEffect(() => {});
 </script>
 
 <template>
@@ -345,7 +343,10 @@ watchEffect(() => {});
 			</RouterLink>
 		</div>
 		<div class="comments">
-			<LikeArea :id="comments_and_likes_id.likes_id" />
+			<LikeArea
+				:likes_size="data.likes_id[0].count"
+				:id="comments_and_likes_id.likes_id"
+			/>
 			<CommentsStyle
 				:comments_id="comments_and_likes_id.comments_id"
 				:likes_id="comments_and_likes_id.likes_id"

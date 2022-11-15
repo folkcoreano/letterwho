@@ -7,6 +7,7 @@ import {useRoute} from "vue-router";
 
 const props = defineProps({
 	id: Number,
+	likes_size: Number,
 });
 
 const user = useUser();
@@ -28,19 +29,17 @@ if (count > 0) {
 
 async function likeReview(state) {
 	if (state === false) {
-		const {data} = await supabase.from("likes").insert({
+		await supabase.from("likes").insert({
 			review_id: props.id,
 			user_id: user.id,
 		});
 		isLiked.value = true;
-		console.log(data);
 	} else {
-		const {data} = await supabase.from("likes").delete().match({
+		await supabase.from("likes").delete().match({
 			review_id: props.id,
 			user_id: user.id,
 		});
 		isLiked.value = false;
-		console.log(data);
 	}
 	updateKey.reviewKey += 1;
 }
@@ -54,12 +53,19 @@ async function likeReview(state) {
 			:style="isLiked ? 'color: var(--red)' : ''"
 			:icon="isLiked ? 'ri:heart-fill' : 'ri:heart-line'"
 		/>
+		<span>{{ likes_size }}</span>
 	</div>
 </template>
 
 <style scoped>
+.likeBar {
+	display: flex;
+	gap: 0.25rem;
+	align-items: center;
+	font-weight: bold;
+}
 .likeIcon {
-	font-size: 2rem;
+	font-size: 1.65rem;
 	cursor: pointer;
 }
 

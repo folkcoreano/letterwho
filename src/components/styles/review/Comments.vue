@@ -1,4 +1,5 @@
 <script setup>
+import {useCommentEdit} from "@/stores/comments";
 import {folder} from "@/stores/images";
 import {useTime} from "@/stores/time";
 import {useUser} from "@/stores/user";
@@ -8,6 +9,7 @@ const props = defineProps({
 });
 
 const user = useUser();
+const comm = useCommentEdit();
 </script>
 
 <template>
@@ -67,7 +69,15 @@ const user = useUser();
 					{{ comment }}
 				</div>
 				<div class="bottom">
-					{{ useTime(user.lang, created) }}
+					<span>
+						{{ useTime(user.lang, created) }}
+					</span>
+					<iconify-icon
+						v-if="user.id === user_id.id"
+						style="cursor: pointer"
+						@click="(comm.isEditing = true), (comm.commentID = id), (comm.commentText = comment)"
+						icon="ri:edit-2-fill"
+					/>
 				</div>
 			</div>
 		</div>
@@ -75,6 +85,11 @@ const user = useUser();
 </template>
 
 <style scoped>
+.bottom {
+	display: flex;
+	gap: 0.55rem;
+	align-items: center;
+}
 .icons {
 	display: flex;
 	align-items: center;

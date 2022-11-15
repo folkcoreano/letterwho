@@ -1,10 +1,12 @@
 <script setup>
 import {useUser} from "@/stores/user";
 import supabase from "@/supabase";
-import {ref, shallowRef} from "vue";
+import {ref, shallowRef, watchEffect} from "vue";
 import {useRoute} from "vue-router";
 import Comments from "./Comments.vue";
+import AddComment from "./AddComment.vue";
 import Likes from "./Likes.vue";
+import {useCommentEdit} from "@/stores/comments";
 
 const props = defineProps({
 	comments_size: Number,
@@ -14,6 +16,7 @@ const props = defineProps({
 });
 
 const user = useUser();
+const useComm = useCommentEdit();
 
 const comments = ref([]);
 const likes = ref([]);
@@ -99,6 +102,12 @@ async function getLikes() {
 	data.value = likes.value;
 	tab.value = Likes;
 }
+
+watchEffect(() => {
+	if (useComm.isEditing === true) {
+		tab.value = AddComment;
+	}
+});
 </script>
 
 <template>
@@ -106,6 +115,15 @@ async function getLikes() {
 		<div class="commentsHeader">
 			<div class="tabs">
 				<div
+					style="flex: 0"
+					tabindex="0"
+					:class="tab === AddComment ? 'tab activeTab' : 'tab'"
+					@click="tab = AddComment"
+				>
+					<iconify-icon icon="ri:add-box-fill" />
+				</div>
+				<div
+					tabindex="0"
 					@click="getComments"
 					:class="tab === Comments ? 'tab activeTab' : 'tab'"
 				>
@@ -116,6 +134,7 @@ async function getLikes() {
 					}}
 				</div>
 				<div
+					tabindex="0"
 					@click="getLikes"
 					:class="tab === Likes ? 'tab activeTab' : 'tab'"
 				>
@@ -133,6 +152,7 @@ async function getLikes() {
 				mode="out-in"
 			>
 				<Component
+					:id="comments_id"
 					:data="data"
 					:is="tab"
 				/>

@@ -21,13 +21,19 @@
   --red: #ff3863;
   --purple: #80558c;
   --green: #59ce8f;
+
+  --blue2: #3a99f8;
+  --green2: #00aa44;
+  --grey: #445366;
+  --black: #1f262c;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Lato";
+  /* font-family: "Lato"; */
+  font-family: "Open Sans";
   /* outline: 1px dodgerblue dotted; */
 }
 
@@ -42,6 +48,7 @@ html {
 
 body {
   background-color: #050505;
+  /* background-color: var(--black); */
   color: #eee;
   display: flex;
   flex-flow: column;
